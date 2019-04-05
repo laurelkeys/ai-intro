@@ -91,6 +91,18 @@ class PathfindingRobotProblem(Problem):
             return infinity
 
 # ______________________________________________________________________________
+def print_matrix(m):
+    height = len(m)
+    width = len(m[0])
+    for i in range(height):
+        print("[", end = '')
+        for j in range(width):
+            print(m[i][j], end = ',')
+        print("],")
+
+start = tuple((9, 2))
+goal  = tuple((2, 11))
+
 small_map = [
     [1,1,1,1,1,1,1],
     [1,0,0,0,1,0,1],
@@ -100,29 +112,35 @@ small_map = [
     [1,0,1,0,0,0,1],
     [1,1,1,1,1,1,1],
 ]
+# small_map[start[0]][start[1]] = START
+# small_map[goal[0]][goal[1]] = GOAL
 
-start = tuple((5,1)) # Node(tuple((5,1)))
-goal = tuple((1,5)) # Node(tuple((5,1)))
+medium_map = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,0,1],
+    [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
+    [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
+    [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
+	[1,0,0,0,0,1,0,0,1,0,0,0,0,1],
+	[1,0,0,0,0,1,0,0,0,0,0,0,0,1],
+	[1,0,0,0,0,1,0,0,0,0,0,0,0,1],
+	[1,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+]
+medium_map[start[0]][start[1]] = START
+medium_map[goal[0]][goal[1]] = GOAL
 
-small_map[start[0]][start[1]] = START
-small_map[goal[0]][goal[1]] = GOAL
 
-for i in range(7):
-    print("[", end = '')
-    for j in range(7):
-        print(small_map[i][j], end = ',')
-    print("],")
+print_matrix(medium_map)
 
-problem = PathfindingRobotProblem(start, small_map)
+problem = PathfindingRobotProblem(start, medium_map)
 print("The search found the following solution: ")
 seq = uniform_cost_search(problem).solution()
 print(seq)
 
-for i, j in seq:
-    small_map[i][j] = '*'
+for i, j in seq[:-1]:
+    medium_map[i][j] = '*'
 
-for i in range(7):
-    print("[", end = '')
-    for j in range(7):
-        print(small_map[i][j], end = ',')
-    print("],")
+print_matrix(medium_map)
