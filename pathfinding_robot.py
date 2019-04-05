@@ -1,4 +1,4 @@
-from search import Problem
+from search import Problem, Node, SimpleProblemSolvingAgentProgram, uniform_cost_search, recursive_best_first_search, depth_first_tree_search
 from utils import distance
 
 infinity = float('inf')
@@ -8,15 +8,16 @@ WALL  = 1
 START = 2
 GOAL  = 3
 
+# ______________________________________________________________________________
 class PathfindingRobotProblem(Problem):
     
     """The problem of finding a path in a labyrinth defined by a grid map (i.e. an n x m matrix)."""
 
     """Parameters
     initial : (int, int)
-      inverse ordered pair with the initial coordinate at the map, i.e. (y0,x0)
+      robot's initial postition at the map, i.e. (i0,j0)
     goal : (int, int)
-      inverse ordered pair with the goal coordinate at the map, i.e. (Y,X)
+      goal postition at the map, i.e. (I,J)
     map : [[int]]
       matrix representing the labyrinth's map, where the cell's values represent:
         0 - empty cell
@@ -24,70 +25,104 @@ class PathfindingRobotProblem(Problem):
         2 - robot's initial (start) position
         3 - robot's target (goal) position
       obs.: map is a list of rows: line i, row j <-> map[i][j]
-            therefore the cartesian coordinate (x,y) maps to map[y][x]
     """
-    def __init__(self, initial, goal, map):
-        Problem.__init__(self, initial, goal)
+    def __init__(self, initial, map):
         self.map = map
         self.height = len(map) # number of rows
         self.width = len(map[0]) # number of columns
+        self.initial = initial
+        Problem.__init__(self, self.initial)
 
     """Parameters
-    y : int
-      y (vertical) coordinate at the map
-    x : int
-      x (horizontal) coordinate at the map
-    obs.: coord(x, y) <-> map[y][x]
+    pos : (int, int)
+      (i, j) postition at the map
     """
-    def __valid_pos(self, y, x):
-        return y in range(0, self.height) and x in range(0, self.width) and self.map[y][x] != WALL
+    def __valid_pos(self, pos):
+        i, j = pos
+        return i in range(0, self.height) and j in range(0, self.width) and self.map[i][j] != WALL
 
     """Parameters
     state : (int, int)
-      inverse ordered pair with the robot's current coordinate at the map, i.e. (y,x)
+      robot's current postition at the map, i.e. (i,j)
     """
     def actions(self, state):
-        actions = list() # []
-        y, x = state
-
-        if self.__valid_pos(y, x-1):
-            actions.append(tuple((y, x-1))) # left
-        
-        if self.__valid_pos(y, x+1):
-            actions.append(tuple((y, x+1))) # right
-        
-        if self.__valid_pos(y-1, x):
-            actions.append(tuple((y-1, x))) # up
-        
-        if self.__valid_pos(y+1, x):
-            actions.append(tuple((y+1, x))) # down
-
-        return actions
+        i, j  = state
+        left  = tuple((i, j - 1))
+        right = tuple((i, j + 1))
+        up    = tuple((i - 1, j))
+        down  = tuple((i + 1, j))
+        return [pos for pos in [right,up,left,down] if self.__valid_pos(pos)]
 
     """Parameters
     state : (int, int)
-      inverse ordered pair with the robot's current coordinate at the map, i.e. (y,x)
+      robot's current postition at the map, i.e. (i,j)
     action : (int, int)
-      inverse ordered pair with the neighbouring position the robot will move to, i.e. (y',x')
+      (neighbouring) position the robot would move to, i.e. (i',j')
     """
     def result(self, state, action):
+        # FIXME make sure the action is valid
         return action
+
+    """Parameters
+    state : (int, int)
+      robot's current postition at the map, i.e. (i,j)
+    """
+    def goal_test(self, state):
+        i, j = state
+        return self.map[i][j] == GOAL
 
     """Parameters
     cost_so_far : int
       cost already paid to get to state A
     A : (int, int)
-      inverse ordered pair with the robot's current position, i.e. (y,x)
+      robot's current postition at the map, i.e. (i,j)
     action : (int, int)
-      inverse ordered pair with the neighbouring position the robot would move to, i.e. (y',x')
+      neighbouring position the robot would move to, i.e. (i',j')
     B : (int, int)
-      inverse ordered pair with the robot's next position, i.e. (y',x')
+      robot's next postition at the map, i.e. (i',j')
     """
     def path_cost(self, cost_so_far, A, action, B):
         """If the move is valid (i.e. A and B are neighbors, and the action takes to B) it's cost is 1."""
-        y1, x1 = A
-        y2, x2 = B
-        if action == B and abs(x1 - x2) <= 1 and abs(y1 - y2) <= 1:
-          return cost_so_far + 1 if self.__valid_pos(y2, x2) else infinity
+        i1, j1 = A
+        i2, j2 = B
+        if action == B and abs(i1 - i2) <= 1 and abs(j1 - j2) <= 1:
+            return cost_so_far + 1 if self.__valid_pos(B) else infinity
         else:
-          return infinity
+            return infinity
+
+# ______________________________________________________________________________
+small_map = [
+    [1,1,1,1,1,1,1],
+    [1,0,0,0,1,0,1],
+    [1,0,0,0,1,0,1],
+    [1,0,1,0,1,0,1],
+    [1,0,1,0,0,0,1],
+    [1,0,1,0,0,0,1],
+    [1,1,1,1,1,1,1],
+]
+
+start = tuple((5,1)) # Node(tuple((5,1)))
+goal = tuple((1,5)) # Node(tuple((5,1)))
+
+small_map[start[0]][start[1]] = START
+small_map[goal[0]][goal[1]] = GOAL
+
+for i in range(7):
+    print("[", end = '')
+    for j in range(7):
+        print(small_map[i][j], end = ',')
+    print("],")
+
+problem = PathfindingRobotProblem(start, small_map)
+print("The search found the following solution: ")
+seq = uniform_cost_search(problem).solution()
+print(seq)
+
+for i, j in seq:
+    small_map[i][j] = '*'
+
+for i in range(7):
+    print("[", end = '')
+    for j in range(7):
+        print(small_map[i][j], end = ',')
+    print("],")
