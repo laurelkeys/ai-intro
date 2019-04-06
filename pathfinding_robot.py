@@ -13,89 +13,111 @@ WALL  = 1
 START = 2
 GOAL  = 3
 
+index_by = lambda ij_tuple, m: m[ij_tuple[0]][ij_tuple[1]]
+
 # ______________________________________________________________________________
 class PathfindingRobotProblem(Problem):
     
     """The problem of finding a path in a labyrinth defined by a grid map (i.e. an n x m matrix)."""
 
-    """Parameters
-    initial : (int, int)
-      robot's initial postition at the map, i.e. (i0,j0)
-    goal : (int, int)
-      goal postition at the map, i.e. (I,J)
-    map : [[int]]
-      matrix representing the labyrinth's map, where the cell's values represent:
-        0 - empty cell
-        1 - wall
-        2 - robot's initial (start) position
-        3 - robot's target (goal) position
-      obs.: map is a list of rows: line i, row j <-> map[i][j]
     """
-    def __init__(self, initial, map):
-        self.map = map
-        self.height = len(map) # number of rows
-        self.width = len(map[0]) # number of columns
-        self.initial = initial
-        # self.directions = [tuple((-1, -1)), tuple((-1,  0)), tuple((-1,  1)),
-        #                    tuple(( 0, -1)),                  tuple(( 0,  1)),
-        #                    tuple(( 1, -1)), tuple(( 1,  0)), tuple(( 1,  1))]
-        self.directions = [                 tuple((-1,  0)), 
-                           tuple(( 0, -1)),                  tuple(( 0,  1)),
-                                            tuple(( 1,  0)),                ]
-        Problem.__init__(self, self.initial)
+    Parameters
+      initial : (int, int)
+        robot's initial postition at the map, i.e. (i0,j0)
+      goal : (int, int)
+        goal postition at the map, i.e. (I,J)
+      map : [[int]]
+        matrix representing the labyrinth's map, where the cell's values represent:
+          0 - empty cell
+          1 - wall
+          2 - robot's initial (start) position
+          3 - robot's target (goal) position
+        obs.: map is a list of rows: line i, row j <-> map[i][j]
+    """
+    def __init__(self, initial, goal, map):
+        assert(index_by(initial, map) == START)
+        assert(index_by(goal, map) == GOAL)
 
-    """Parameters
-    pos : (int, int)
-      (i, j) postition at the map
+        self.map    = map
+        self.height = len(map) # number of rows (m)
+        self.width  = len(map[0]) # number of columns (n)
+
+        self.initial = initial
+        self.goal    = goal
+        
+        # self.directions = [(-1, -1), (-1,  0), (-1,  1),
+        #                    ( 0, -1),           ( 0,  1),
+        #                    ( 1, -1), ( 1,  0), ( 1,  1)]
+        self.directions = [          (-1,  0), 
+                           ( 0, -1),           ( 0,  1),
+                                     ( 1,  0),         ]
+        
+        Problem.__init__(self, self.initial, self.goal)
+
+    """
+    Parameters
+      pos : (int, int)
+        (i, j) postition at the map
     """
     def __valid_pos(self, pos):
         i, j = pos
         return i in range(0, self.height) and j in range(0, self.width) and self.map[i][j] != WALL
 
-    """Parameters
-    state : (int, int)
-      robot's current postition at the map, i.e. (i,j)
+    """
+    Parameters
+      pos1 : (int, int)
+        (i, j) postition at the map
+      pos2 : (int, int)
+        (i', j') postition at the map
+    """
+    def __valid_move(self, pos1, pos2):
+        di, dj = [abs(k1 - k2) for (k1, k2) in zip(pos1, pos2)]
+        return self.__valid_pos(pos1) and di + dj <= 1 and self.__valid_pos(pos2) # TODO change to 2 if diagonal moves are allowed
+
+    """
+    Parameters
+      state : (int, int)
+        robot's current postition at the map, i.e. (i,j)
     """
     def actions(self, state):
-        i, j  = state
-        actions_list = [tuple((i + di, j + dj)) for (di, dj) in self.directions]
-        shuffle(actions_list) # randomizes actions' order
-        return [pos for pos in actions_list if self.__valid_pos(pos)]
+        i, j = state
+        actions_list = [(i + di, j + dj) for (di, dj) in self.directions]
+        # shuffle(actions_list) # randomizes actions' order
+        return [pos for pos in actions_list if self.__valid_move(state, pos)]
 
-    """Parameters
-    state : (int, int)
-      robot's current postition at the map, i.e. (i,j)
-    action : (int, int)
-      (neighbouring) position the robot would move to, i.e. (i',j')
+    """
+    Parameters
+      state : (int, int)
+        robot's current postition at the map, i.e. (i,j)
+      action : (int, int)
+        (neighbouring) position the robot would move to, i.e. (i',j')
     """
     def result(self, state, action):
-        # FIXME make sure the action is valid
-        return action
+        return action # assumed to be a valid action in the state
 
-    """Parameters
-    state : (int, int)
-      robot's current postition at the map, i.e. (i,j)
+    """
+    Parameters
+      state : (int, int)
+        robot's current postition at the map, i.e. (i,j)
     """
     def goal_test(self, state):
-        i, j = state
-        return self.map[i][j] == GOAL
+        return state == self.goal
 
-    """Parameters
-    cost_so_far : int
-      cost already paid to get to state A
-    A : (int, int)
-      robot's current postition at the map, i.e. (i,j)
-    action : (int, int)
-      neighbouring position the robot would move to, i.e. (i',j')
-    B : (int, int)
-      robot's next postition at the map, i.e. (i',j')
+    """
+    Parameters
+      cost_so_far : int
+        cost already paid to get to state A
+      A : (int, int)
+        robot's current postition at the map, i.e. (i,j)
+      action : (int, int)
+        neighbouring position the robot would move to, i.e. (i',j')
+      B : (int, int)
+        robot's next postition at the map, i.e. (i',j')
     """
     def path_cost(self, cost_so_far, A, action, B):
         """If the move is valid (i.e. A and B are neighbors, and the action takes to B) it's cost is 1."""
-        di = abs(A[0] - B[0])
-        dj = abs(A[1] - B[1])
-        if action == B and self.__valid_pos(B) and di <= 1 and dj <= 1:
-            return cost_so_far + 1 # if di + dj <= 1 else 2**0.5
+        if action == B and self.__valid_move(A, B):
+            return cost_so_far + 1 # if di + dj <= 1 else 2**0.5 # TODO change if diagonal moves are allowed but more costly
         else:
             return infinity
 
@@ -112,10 +134,12 @@ def best_first_search_for_vis(problem, f):
     node = Node(problem.initial)
     frontier = PriorityQueue('min', f)
     frontier.append(node)
-    global explored
+    global exploredd
+    exploredd = []
     explored = set()
     while frontier:
         node = frontier.pop()
+        exploredd.append(node.state)
         if problem.goal_test(node.state):
             return node
         explored.add(node.state)
@@ -129,30 +153,49 @@ def best_first_search_for_vis(problem, f):
     return None
 
 # ______________________________________________________________________________
-start = tuple((50, 10))
-goal  = tuple((10, 50))
+start = tuple((5, 1))
+goal  = tuple((1, 5))
 
-big_map[start[0]][start[1]] = START
-big_map[goal[0]][goal[1]] = GOAL
+small_map[start[0]][start[1]] = START
+small_map[goal[0]][goal[1]] = GOAL
 
-# print_matrix(big_map)
-problem = PathfindingRobotProblem(start, big_map)
+# print_matrix(small_map)
+problem = PathfindingRobotProblem(start, goal, small_map)
 print("The search found the following solution: ")
 
-heuristic = lambda node, goal=goal: f(node, goal)
+heuristic = lambda node, goal=goal: euclidean(node, goal)
 seq = best_first_search_for_vis(problem, heuristic).solution()
 
 # print(seq)
-k = 4
-for node in explored:
+plt.matshow(small_map, fignum=0)
+plt.show(block=False)
+plt.pause(.05)
+small_map[start[0]][start[1]] = 16
+small_map[goal[0]][goal[1]] = 16
+for node in exploredd:
     i, j = node
-    big_map[i][j] = k
-    k += 1
+    if node != start and node != goal:
+        small_map[i][j] = 6
+        plt.matshow(small_map, fignum=0)
+        plt.pause(.05)
 for i, j in seq[:-1]:
-    big_map[i][j] = 1.5*k
-big_map[start[0]][start[1]] = 2*k
-big_map[goal[0]][goal[1]] = 2*k
-print_matrix(big_map)
+    small_map[i][j] = 8
+    plt.matshow(small_map, fignum=0)
+    plt.pause(.05)
+plt.show()
+
+
+# plt.matshow(m, fignum=0)
+# plt.show(block=False)
+# plt.pause(.1)
+# m[0][0] = -10000
+# plt.matshow(m, fignum=0)
+# plt.pause(.3)
+# m[0][0] = 10000
+# plt.matshow(m, fignum=0)
+# plt.show()
+
+# print_matrix(small_map)
 
 """
 uninformed searches:
