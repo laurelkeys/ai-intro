@@ -134,12 +134,12 @@ def best_first_search_for_vis(problem, f):
     node = Node(problem.initial)
     frontier = PriorityQueue('min', f)
     frontier.append(node)
-    global exploredd
-    exploredd = []
     explored = set()
+    global reached
+    reached = []
     while frontier:
         node = frontier.pop()
-        exploredd.append(node.state)
+        reached.append(node.state)
         if problem.goal_test(node.state):
             return node
         explored.add(node.state)
@@ -153,49 +153,47 @@ def best_first_search_for_vis(problem, f):
     return None
 
 # ______________________________________________________________________________
-start = tuple((5, 1))
-goal  = tuple((1, 5))
 
-small_map[start[0]][start[1]] = START
-small_map[goal[0]][goal[1]] = GOAL
+# map set up
+map = medium_map
+start = (12, 2)
+goal  = (2, 11)
 
-# print_matrix(small_map)
-problem = PathfindingRobotProblem(start, goal, small_map)
-print("The search found the following solution: ")
+map[start[0]][start[1]] = START
+map[goal[0]][goal[1]] = GOAL
 
+# problem set up
+problem = PathfindingRobotProblem(start, goal, map)
 heuristic = lambda node, goal=goal: euclidean(node, goal)
+
+# search execution
 seq = best_first_search_for_vis(problem, heuristic).solution()
 
-# print(seq)
-plt.matshow(small_map, fignum=0)
-plt.show(block=False)
-plt.pause(.05)
-small_map[start[0]][start[1]] = 16
-small_map[goal[0]][goal[1]] = 16
-for node in exploredd:
+# solution showing
+map[start[0]][start[1]] = 16
+map[goal[0]][goal[1]] = 16
+
+plt.matshow(map, fignum=0)
+plt.pause(.5)
+
+last = start
+for node in reached:
     i, j = node
     if node != start and node != goal:
-        small_map[i][j] = 6
-        plt.matshow(small_map, fignum=0)
+        map[last[0]][last[1]] = 4 if last != start else 16
+        map[i][j] = 6
+        last = node
+        plt.cla()
+        plt.matshow(map, fignum=0)
         plt.pause(.05)
-for i, j in seq[:-1]:
-    small_map[i][j] = 8
-    plt.matshow(small_map, fignum=0)
+
+for i, j in seq[:-1]: # seq[-1] == goal
+    map[i][j] = 8
+    plt.cla()
+    plt.matshow(map, fignum=0)
     plt.pause(.05)
+
 plt.show()
-
-
-# plt.matshow(m, fignum=0)
-# plt.show(block=False)
-# plt.pause(.1)
-# m[0][0] = -10000
-# plt.matshow(m, fignum=0)
-# plt.pause(.3)
-# m[0][0] = 10000
-# plt.matshow(m, fignum=0)
-# plt.show()
-
-# print_matrix(small_map)
 
 """
 uninformed searches:
