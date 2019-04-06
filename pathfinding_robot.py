@@ -36,12 +36,12 @@ class PathfindingRobotProblem(Problem):
         self.height = len(map) # number of rows
         self.width = len(map[0]) # number of columns
         self.initial = initial
-        self.directions = [tuple((-1, -1)), tuple((-1,  0)), tuple((-1,  1)),
-                           tuple(( 0, -1)),                  tuple(( 0,  1)),
-                           tuple(( 1, -1)), tuple(( 1,  0)), tuple(( 1,  1))]
-        # self.directions = [                 tuple((-1,  0)), 
+        # self.directions = [tuple((-1, -1)), tuple((-1,  0)), tuple((-1,  1)),
         #                    tuple(( 0, -1)),                  tuple(( 0,  1)),
-        #                                     tuple(( 1,  0)),                ]
+        #                    tuple(( 1, -1)), tuple(( 1,  0)), tuple(( 1,  1))]
+        self.directions = [                 tuple((-1,  0)), 
+                           tuple(( 0, -1)),                  tuple(( 0,  1)),
+                                            tuple(( 1,  0)),                ]
         Problem.__init__(self, self.initial)
 
     """Parameters
@@ -58,12 +58,7 @@ class PathfindingRobotProblem(Problem):
     """
     def actions(self, state):
         i, j  = state
-        left  = tuple((i, j - 1))
-        right = tuple((i, j + 1))
-        up    = tuple((i - 1, j))
-        down  = tuple((i + 1, j))
-        # actions_list = [right,up,left,down] # ,(i-1,j-1),(i-1,j+1),(i+1,j-1),(i+1,j+1)
-        actions_list = [tuple((i+di, j+dj)) for (di, dj) in self.directions]
+        actions_list = [tuple((i + di, j + dj)) for (di, dj) in self.directions]
         shuffle(actions_list) # randomizes actions' order
         return [pos for pos in actions_list if self.__valid_pos(pos)]
 
@@ -105,6 +100,35 @@ class PathfindingRobotProblem(Problem):
             return infinity
 
 # ______________________________________________________________________________
+def best_first_search_for_vis(problem, f):
+    """Search the nodes with the lowest f scores first.
+    You specify the function f(node) that you want to minimize; for example,
+    if f is a heuristic estimate to the goal, then we have greedy best
+    first search; if f is node.depth then we have breadth-first search.
+    There is a subtlety: the line "f = memoize(f, 'f')" means that the f
+    values will be cached on the nodes as they are computed. So after doing
+    a best first search you can examine the f values of the path returned."""
+    f = memoize(f, 'f')
+    node = Node(problem.initial)
+    frontier = PriorityQueue('min', f)
+    frontier.append(node)
+    global explored
+    explored = set()
+    while frontier:
+        node = frontier.pop()
+        if problem.goal_test(node.state):
+            return node
+        explored.add(node.state)
+        for child in node.expand(problem):
+            if child.state not in explored and child not in frontier:
+                frontier.append(child)
+            elif child in frontier:
+                if f(child) < frontier[child]:
+                    del frontier[child]
+                    frontier.append(child)
+    return None
+
+# ______________________________________________________________________________
 start = tuple((50, 10))
 goal  = tuple((10, 50))
 
@@ -115,12 +139,19 @@ big_map[goal[0]][goal[1]] = GOAL
 problem = PathfindingRobotProblem(start, big_map)
 print("The search found the following solution: ")
 
-heuristic = lambda node, goal=goal: g(node, goal)
-seq = best_first_graph_search(problem, heuristic).solution()
+heuristic = lambda node, goal=goal: f(node, goal)
+seq = best_first_search_for_vis(problem, heuristic).solution()
 
 # print(seq)
+k = 4
+for node in explored:
+    i, j = node
+    big_map[i][j] = k
+    k += 1
 for i, j in seq[:-1]:
-    big_map[i][j] = 8
+    big_map[i][j] = 1.5*k
+big_map[start[0]][start[1]] = 2*k
+big_map[goal[0]][goal[1]] = 2*k
 print_matrix(big_map)
 
 """
