@@ -1,5 +1,6 @@
-from search import Problem, Node, SimpleProblemSolvingAgentProgram, uniform_cost_search, recursive_best_first_search, depth_first_tree_search
+from search import * # TODO minimize imports
 from utils import distance
+from random import shuffle
 
 infinity = float('inf')
 
@@ -51,7 +52,9 @@ class PathfindingRobotProblem(Problem):
         right = tuple((i, j + 1))
         up    = tuple((i - 1, j))
         down  = tuple((i + 1, j))
-        return [pos for pos in [right,up,left,down] if self.__valid_pos(pos)]
+        actions_list = [right,up,left,down]
+        shuffle(actions_list) # randomizes actions' order
+        return [pos for pos in actions_list if self.__valid_pos(pos)]
 
     """Parameters
     state : (int, int)
@@ -123,10 +126,10 @@ medium_map = [
     [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
     [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
     [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
-	[1,0,0,0,0,1,0,0,1,0,0,0,0,1],
-	[1,0,0,0,0,1,0,0,0,0,0,0,0,1],
-	[1,0,0,0,0,1,0,0,0,0,0,0,0,1],
-	[1,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
+    [1,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,1,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 ]
 medium_map[start[0]][start[1]] = START
@@ -144,3 +147,21 @@ for i, j in seq[:-1]:
     medium_map[i][j] = '*'
 
 print_matrix(medium_map)
+
+"""
+uninformed searches:
+    searches that work:
+        depth_first_graph_search
+        breadth_first_graph_search
+        best_first_graph_search (obs.: define f)
+        uniform_cost_search
+    searches that do not work:
+        loop:
+            breadth_first_tree_search
+            depth_first_tree_search
+        FIXME:
+            depth_limited_search (obs.: define limit)
+            iterative_deepening_search
+informed searches:
+    TODO
+"""
