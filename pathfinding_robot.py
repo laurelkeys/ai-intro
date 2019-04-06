@@ -45,10 +45,10 @@ class PathfindingRobotProblem(Problem):
         self.initial = initial
         self.goal    = goal
         
-        # self.directions = [(-1, -1), (-1,  0), (-1,  1),
+        # self.directions = [(-1, -1), (-1,  0), (-1,  1), # TODO change __valid_move
         #                    ( 0, -1),           ( 0,  1),
         #                    ( 1, -1), ( 1,  0), ( 1,  1)]
-        self.directions = [          (-1,  0), 
+        self.directions = [          (-1,  0),           # TODO change __valid_move
                            ( 0, -1),           ( 0,  1),
                                      ( 1,  0),         ]
         
@@ -116,6 +116,7 @@ class PathfindingRobotProblem(Problem):
     """
     def path_cost(self, cost_so_far, A, action, B):
         """If the move is valid (i.e. A and B are neighbors, and the action takes to B) it's cost is 1."""
+        # di, dj = [abs(k1 - k2) for (k1, k2) in zip(A, B)]
         if action == B and self.__valid_move(A, B):
             return cost_so_far + 1 # if di + dj <= 1 else 2**0.5 # TODO change if diagonal moves are allowed but more costly
         else:
@@ -157,7 +158,7 @@ def best_first_search_for_vis(problem, f):
 # map set up
 map = medium_map
 start = (12, 2)
-goal  = (2, 11)
+goal  = (2, 12)
 
 map[start[0]][start[1]] = START
 map[goal[0]][goal[1]] = GOAL
@@ -175,6 +176,7 @@ map[goal[0]][goal[1]] = 16
 
 plt.matshow(map, fignum=0)
 plt.pause(.5)
+frame_pause = .01
 
 last = start
 for node in reached:
@@ -185,14 +187,16 @@ for node in reached:
         last = node
         plt.cla()
         plt.matshow(map, fignum=0)
-        plt.pause(.05)
+        plt.pause(frame_pause)
 
 for i, j in seq[:-1]: # seq[-1] == goal
     map[i][j] = 8
     plt.cla()
     plt.matshow(map, fignum=0)
-    plt.pause(.05)
+    plt.pause(frame_pause)
 
+print(f'# of reached nodes:     {len(reached)}')
+print(f'# of steps in solution: {len(seq)}')
 plt.show()
 
 """
