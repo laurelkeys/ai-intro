@@ -1,6 +1,10 @@
-from search import * # TODO minimize imports
+# TODO minimize imports
+from search import *
+from pathfinding_robot_maps import * 
+from pathfinding_robot_heuristics import *
 from utils import distance
 from random import shuffle
+import matplotlib.pyplot as plt
 
 infinity = float('inf')
 
@@ -94,59 +98,23 @@ class PathfindingRobotProblem(Problem):
             return infinity
 
 # ______________________________________________________________________________
-def print_matrix(m):
-    height = len(m)
-    width = len(m[0])
-    for i in range(height):
-        print("[", end = '')
-        for j in range(width):
-            print(m[i][j], end = ',')
-        print("],")
+start = tuple((50, 10))
+goal  = tuple((10, 50))
 
-start = tuple((9, 2))
-goal  = tuple((2, 11))
+big_map[start[0]][start[1]] = START
+big_map[goal[0]][goal[1]] = GOAL
 
-small_map = [
-    [1,1,1,1,1,1,1],
-    [1,0,0,0,1,0,1],
-    [1,0,0,0,1,0,1],
-    [1,0,1,0,1,0,1],
-    [1,0,1,0,0,0,1],
-    [1,0,1,0,0,0,1],
-    [1,1,1,1,1,1,1],
-]
-# small_map[start[0]][start[1]] = START
-# small_map[goal[0]][goal[1]] = GOAL
+# print_matrix(big_map)
 
-medium_map = [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,0,1,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,1,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,1,0,0,0,0,1],
-    [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
-    [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
-    [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
-    [1,0,0,0,0,1,0,0,1,0,0,0,0,1],
-    [1,0,0,0,0,1,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,1,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,1,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-]
-medium_map[start[0]][start[1]] = START
-medium_map[goal[0]][goal[1]] = GOAL
-
-
-print_matrix(medium_map)
-
-problem = PathfindingRobotProblem(start, medium_map)
+problem = PathfindingRobotProblem(start, big_map)
 print("The search found the following solution: ")
-seq = uniform_cost_search(problem).solution()
-print(seq)
+seq = best_first_graph_search(problem, f=lambda node, goal=goal: euclidian(node, goal)).solution()
+# print(seq)
 
 for i, j in seq[:-1]:
-    medium_map[i][j] = '*'
+    big_map[i][j] = 8
 
-print_matrix(medium_map)
+print_matrix(big_map)
 
 """
 uninformed searches:
