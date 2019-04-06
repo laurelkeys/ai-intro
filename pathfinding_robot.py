@@ -36,6 +36,12 @@ class PathfindingRobotProblem(Problem):
         self.height = len(map) # number of rows
         self.width = len(map[0]) # number of columns
         self.initial = initial
+        self.directions = [tuple((-1, -1)), tuple((-1,  0)), tuple((-1,  1)),
+                           tuple(( 0, -1)),                  tuple(( 0,  1)),
+                           tuple(( 1, -1)), tuple(( 1,  0)), tuple(( 1,  1))]
+        # self.directions = [                 tuple((-1,  0)), 
+        #                    tuple(( 0, -1)),                  tuple(( 0,  1)),
+        #                                     tuple(( 1,  0)),                ]
         Problem.__init__(self, self.initial)
 
     """Parameters
@@ -56,7 +62,8 @@ class PathfindingRobotProblem(Problem):
         right = tuple((i, j + 1))
         up    = tuple((i - 1, j))
         down  = tuple((i + 1, j))
-        actions_list = [right,up,left,down]
+        # actions_list = [right,up,left,down] # ,(i-1,j-1),(i-1,j+1),(i+1,j-1),(i+1,j+1)
+        actions_list = [tuple((i+di, j+dj)) for (di, dj) in self.directions]
         shuffle(actions_list) # randomizes actions' order
         return [pos for pos in actions_list if self.__valid_pos(pos)]
 
@@ -90,10 +97,10 @@ class PathfindingRobotProblem(Problem):
     """
     def path_cost(self, cost_so_far, A, action, B):
         """If the move is valid (i.e. A and B are neighbors, and the action takes to B) it's cost is 1."""
-        i1, j1 = A
-        i2, j2 = B
-        if action == B and abs(i1 - i2) <= 1 and abs(j1 - j2) <= 1:
-            return cost_so_far + 1 if self.__valid_pos(B) else infinity
+        di = abs(A[0] - B[0])
+        dj = abs(A[1] - B[1])
+        if action == B and self.__valid_pos(B) and di <= 1 and dj <= 1:
+            return cost_so_far + 1 # if di + dj <= 1 else 2**0.5
         else:
             return infinity
 
@@ -105,15 +112,15 @@ big_map[start[0]][start[1]] = START
 big_map[goal[0]][goal[1]] = GOAL
 
 # print_matrix(big_map)
-
 problem = PathfindingRobotProblem(start, big_map)
 print("The search found the following solution: ")
-seq = best_first_graph_search(problem, f=lambda node, goal=goal: euclidian(node, goal)).solution()
-# print(seq)
 
+heuristic = lambda node, goal=goal: g(node, goal)
+seq = best_first_graph_search(problem, heuristic).solution()
+
+# print(seq)
 for i, j in seq[:-1]:
     big_map[i][j] = 8
-
 print_matrix(big_map)
 
 """
@@ -121,8 +128,6 @@ uninformed searches:
     searches that work:
         depth_first_graph_search
         breadth_first_graph_search
-        best_first_graph_search (obs.: define f)
-        uniform_cost_search
     searches that do not work:
         loop:
             breadth_first_tree_search
@@ -131,5 +136,12 @@ uninformed searches:
             depth_limited_search (obs.: define limit)
             iterative_deepening_search
 informed searches:
-    TODO
+    searches that work:
+        best_first_graph_search (obs.: define f)
+        uniform_cost_search
+    TODO:
+        astar_search (obs.: define h)
+        greedy_best_first_graph_search (obs.: best_first_graph_search with f = h)
+        recursive_best_first_search (obs.: define h)
 """
+
