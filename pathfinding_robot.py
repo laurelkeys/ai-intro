@@ -6,8 +6,6 @@ from utils import distance
 from random import shuffle
 import matplotlib.pyplot as plt
 
-infinity = float('inf')
-
 EMPTY = 0
 WALL  = 1
 START = 2
@@ -127,7 +125,7 @@ class PathfindingRobotProblem(Problem):
         if action == B and self.__valid_move(A, B):
             return cost_so_far + 1 # if di + dj <= 1 else 2**0.5 # TODO use this if diagonal moves are allowed but more costly
         else:
-            return infinity
+            return float('inf')
     
     """
     Parameters
@@ -164,7 +162,7 @@ start_time = time()
 node, reached = astar_search_for_vis(problem) # , heuristic)
 end_time = time()
 
-seq = node.solution() if node != None else []
+seq = node.solution()
 
 print( 'elapsed time:           {:.4f}ms'.format((end_time - start_time)*1000))
 print(f'# of reached nodes:     {len(reached)}')

@@ -20,14 +20,14 @@ def visualize_solution(start, goal, map, reached, seq, animate):
         plt.matshow(mmap, fignum=0)
         plt.pause(.5)
         frame_pause = .01
-        last = reached[1]
+        last = start
 
-    for node in reached[1:]:
+    for node in reached:
         i, j = node
         if node != start and node != goal:
             mmap[i][j] = 6 if animate else 4
             if animate:
-                mmap[last[0]][last[1]] = 4
+                mmap[last[0]][last[1]] = 4 if last != start else 16
                 last = node
                 plt.cla()
                 plt.matshow(mmap, fignum=0)
