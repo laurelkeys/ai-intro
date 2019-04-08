@@ -25,7 +25,7 @@ def visualize_solution(start, goal, map, reached, seq, animate):
     for node in reached[1:]:
         i, j = node
         if node != start and node != goal:
-            mmap[i][j] = 6
+            mmap[i][j] = 6 if animate else 4
             if animate:
                 mmap[last[0]][last[1]] = 4
                 last = node
