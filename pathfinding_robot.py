@@ -34,7 +34,7 @@ class PathfindingRobotProblem(Problem):
           3 - robot's target (goal) position
         obs.: map is a list of rows: line i, row j <-> map[i][j]
     """
-    def __init__(self, initial, goal, map):
+    def __init__(self, initial, goal, map, diagonals_allowed=False, shuffle_actions_list=False):
         assert(index_by(initial, map) == START)
         assert(index_by(goal, map) == GOAL)
 
@@ -44,13 +44,18 @@ class PathfindingRobotProblem(Problem):
 
         self.initial = initial
         self.goal    = goal
+
+        self.diagonals_allowed    = diagonals_allowed
+        self.shuffle_actions_list = shuffle_actions_list
         
-        # self.directions = [(-1, -1), (-1,  0), (-1,  1), # TODO change __valid_move
-        #                    ( 0, -1),           ( 0,  1),
-        #                    ( 1, -1), ( 1,  0), ( 1,  1)]
-        self.directions = [          (-1,  0),           # TODO change __valid_move
-                           ( 0, -1),           ( 0,  1),
-                                     ( 1,  0),         ]
+        if diagonals_allowed:
+            self.directions = [(-1, -1), (-1,  0), (-1,  1),
+                               ( 0, -1),           ( 0,  1),
+                               ( 1, -1), ( 1,  0), ( 1,  1)]
+        else:
+            self.directions = [          (-1,  0),          
+                               ( 0, -1),           ( 0,  1),
+                                         ( 1,  0),         ]
         
         Problem.__init__(self, self.initial, self.goal)
 
@@ -72,7 +77,8 @@ class PathfindingRobotProblem(Problem):
     """
     def __valid_move(self, pos1, pos2):
         di, dj = [abs(k1 - k2) for (k1, k2) in zip(pos1, pos2)]
-        return self.__valid_pos(pos1) and di + dj <= 1 and self.__valid_pos(pos2) # TODO change to 2 if diagonal moves are allowed
+        max_delta_sum = 1 if not self.diagonals_allowed else 2
+        return self.__valid_pos(pos1) and di + dj <= max_delta_sum and self.__valid_pos(pos2)
 
     """
     Parameters
@@ -82,7 +88,8 @@ class PathfindingRobotProblem(Problem):
     def actions(self, state):
         i, j = state
         actions_list = [(i + di, j + dj) for (di, dj) in self.directions]
-        shuffle(actions_list) # randomizes actions' order
+        if (self.shuffle_actions_list):
+            shuffle(actions_list) # randomizes actions' order
         return [pos for pos in actions_list if self.__valid_move(state, pos)]
 
     """
@@ -118,9 +125,21 @@ class PathfindingRobotProblem(Problem):
         """If the move is valid (i.e. A and B are neighbors, and the action takes to B) it's cost is 1."""
         # di, dj = [abs(k1 - k2) for (k1, k2) in zip(A, B)]
         if action == B and self.__valid_move(A, B):
-            return cost_so_far + 1 # if di + dj <= 1 else 2**0.5 # TODO change if diagonal moves are allowed but more costly
+            return cost_so_far + 1 # if di + dj <= 1 else 2**0.5 # TODO use this if diagonal moves are allowed but more costly
         else:
             return infinity
+    
+    """
+    Parameters
+      state : (int, int)
+        robot's current postition at the map, i.e. (i,j), 
+        for which we estimate the lowest path cost to the goal using an admissible heuristic
+    """
+    def h(self, state):
+        if not self.diagonals_allowed:
+            return manhattan(state, goal)
+        else:
+            return euclidean(state, goal) # TODO define an admissible heuristic if diagonal moves cost more
 
 # ______________________________________________________________________________
 
@@ -142,10 +161,10 @@ from pathfinding_robot_searches import *
 from time import time
 # search execution
 start_time = time()
-node, reached = best_first_search_for_vis(problem, heuristic)
+node, reached = astar_search_for_vis(problem) # , heuristic)
 end_time = time()
 
-seq = node.solution()
+seq = node.solution() if node != None else []
 
 print( 'elapsed time:           {:.4f}ms'.format((end_time - start_time)*1000))
 print(f'# of reached nodes:     {len(reached)}')
