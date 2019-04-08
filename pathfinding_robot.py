@@ -139,38 +139,23 @@ problem = PathfindingRobotProblem(start, goal, map)
 heuristic = lambda node, goal=goal: f(node, goal)
 
 from pathfinding_robot_searches import *
+from time import time
 # search execution
+start_time = time()
 node, reached = best_first_search_for_vis(problem, heuristic)
+end_time = time()
+
 seq = node.solution()
 
-# solution showing
-map[start[0]][start[1]] = 16
-map[goal[0]][goal[1]] = 16
-
-plt.matshow(map, fignum=0)
-plt.pause(.5)
-frame_pause = .01
-
-last = start
-for node in reached:
-    i, j = node
-    if node != start and node != goal:
-        map[last[0]][last[1]] = 4 if last != start else 16
-        map[i][j] = 6
-        last = node
-        plt.cla()
-        plt.matshow(map, fignum=0)
-        plt.pause(frame_pause)
-
-for i, j in seq[:-1]: # seq[-1] == goal
-    map[i][j] = 8
-    plt.cla()
-    plt.matshow(map, fignum=0)
-    plt.pause(frame_pause)
-
+print( 'elapsed time:           {:.4f}ms'.format((end_time - start_time)*1000))
 print(f'# of reached nodes:     {len(reached)}')
 print(f'# of steps in solution: {len(seq)}')
-plt.show()
+
+visualize_solution(start, goal, map, reached, seq, False)
+reply = str(input('Show animation [Y/n]: ')).lower().strip()
+if reply[:1] not in ['n', 'N', 'no', 'No', 'NO']:
+    plt.cla()
+    visualize_solution(start, goal, map, reached, seq, True)
 
 """
 uninformed searches:

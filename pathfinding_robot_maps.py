@@ -11,6 +11,42 @@ def print_matrix(m):
     #         print(m[i][j], end = ',')
     #     print("],")
 
+def visualize_solution(start, goal, map, reached, seq, animate):
+    mmap = [row[:] for row in map]
+    mmap[start[0]][start[1]] = 16
+    mmap[goal[0]][goal[1]] = 16
+
+    if animate:
+        plt.matshow(mmap, fignum=0)
+        plt.pause(.5)
+        frame_pause = .01
+        last = reached[1]
+
+    for node in reached[1:]:
+        i, j = node
+        if node != start and node != goal:
+            mmap[i][j] = 6
+            if animate:
+                mmap[last[0]][last[1]] = 4
+                last = node
+                plt.cla()
+                plt.matshow(mmap, fignum=0)
+                plt.pause(frame_pause)
+    if animate:
+        mmap[last[0]][last[1]] = 4
+
+    for i, j in seq[:-1]: # seq[-1] == goal
+        mmap[i][j] = 8
+        if animate:
+            plt.cla()
+            plt.matshow(mmap, fignum=0)
+            plt.pause(frame_pause)
+
+    if not animate:
+        plt.matshow(mmap, fignum=0)
+    plt.show()
+
+
 small_map = [
     [1,1,1,1,1,1,1],
     [1,0,0,0,1,0,1],
