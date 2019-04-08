@@ -82,7 +82,7 @@ class PathfindingRobotProblem(Problem):
     def actions(self, state):
         i, j = state
         actions_list = [(i + di, j + dj) for (di, dj) in self.directions]
-        # shuffle(actions_list) # randomizes actions' order
+        shuffle(actions_list) # randomizes actions' order
         return [pos for pos in actions_list if self.__valid_move(state, pos)]
 
     """
@@ -123,52 +123,25 @@ class PathfindingRobotProblem(Problem):
             return infinity
 
 # ______________________________________________________________________________
-def best_first_search_for_vis(problem, f):
-    """Search the nodes with the lowest f scores first.
-    You specify the function f(node) that you want to minimize; for example,
-    if f is a heuristic estimate to the goal, then we have greedy best
-    first search; if f is node.depth then we have breadth-first search.
-    There is a subtlety: the line "f = memoize(f, 'f')" means that the f
-    values will be cached on the nodes as they are computed. So after doing
-    a best first search you can examine the f values of the path returned."""
-    f = memoize(f, 'f')
-    node = Node(problem.initial)
-    frontier = PriorityQueue('min', f)
-    frontier.append(node)
-    explored = set()
-    global reached
-    reached = []
-    while frontier:
-        node = frontier.pop()
-        reached.append(node.state)
-        if problem.goal_test(node.state):
-            return node
-        explored.add(node.state)
-        for child in node.expand(problem):
-            if child.state not in explored and child not in frontier:
-                frontier.append(child)
-            elif child in frontier:
-                if f(child) < frontier[child]:
-                    del frontier[child]
-                    frontier.append(child)
-    return None
-
-# ______________________________________________________________________________
 
 # map set up
 map = medium_map
 start = (12, 2)
 goal  = (2, 12)
+# start = (50, 10)
+# goal  = (10, 50)
 
 map[start[0]][start[1]] = START
 map[goal[0]][goal[1]] = GOAL
 
 # problem set up
 problem = PathfindingRobotProblem(start, goal, map)
-heuristic = lambda node, goal=goal: euclidean(node, goal)
+heuristic = lambda node, goal=goal: f(node, goal)
 
+from pathfinding_robot_searches import *
 # search execution
-seq = best_first_search_for_vis(problem, heuristic).solution()
+node, reached = best_first_search_for_vis(problem, heuristic)
+seq = node.solution()
 
 # solution showing
 map[start[0]][start[1]] = 16
