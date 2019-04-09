@@ -1,38 +1,18 @@
+# Euclidean distance (diagonal moves cost sqrt(2))
 def euclidean(node, goal):
-    i, j = node.state
-    I, J = goal
-    return (abs(i - I)**2 + abs(j - J)**2)**0.5
+    di, dj = [abs(k1 - k2) for (k1, k2) in zip(node.state, goal)]
+    return (di**2 + dj**2)**0.5
 
+# Manhattan distance (diagonal moves cost 2)
 def manhattan(node, goal):
-    i, j = node.state
-    I, J = goal
-    return abs(i - I) + abs(j - J)
+    di, dj = [abs(k1 - k2) for (k1, k2) in zip(node.state, goal)]
+    return di + dj
 
-def sqrt_manhattan(node, goal):
-    i, j = node.state
-    I, J = goal
-    return (abs(i - I) + abs(j - J))**0.5
-
+# Chebyshev distance (diagonal moves cost 1)
 def diagonal(node, goal):
-    i, j = node.state
-    I, J = goal
-    di = abs(i - I)
-    dj = abs(j - J)
-    return (di + dj) - min(di, dj) # diagonal moves cost 1
+    di, dj = [abs(k1 - k2) for (k1, k2) in zip(node.state, goal)]
+    return max(di, dj) # chebyshev distance
 
-def octile(node, goal):
-    i, j = node.state
-    I, J = goal
-    di = abs(i - I)
-    dj = abs(j - J)
-    return (di + dj) - (2**0.5 - 2) * min(di, dj) # diagonal moves cost sqrt(2)
-
-
+# Path cost
 def g(node, goal):
     return node.path_cost
-
-def h(node, goal):
-    return euclidean(node, goal)
-
-def f(node, goal):
-    return g(node, goal) + h(node, goal)
