@@ -137,7 +137,7 @@ class PathfindingRobotProblem(Problem):
         if not self.diagonals_allowed:
             return manhattan(state, goal)
         else:
-            return euclidean(state, goal) # TODO define an admissible heuristic if diagonal moves cost more
+            return diagonal(state, goal) # TODO change to euclidean if diagonal moves cost more
 
 # ______________________________________________________________________________
 
@@ -153,13 +153,13 @@ map[goal[0]][goal[1]] = GOAL
 
 # problem set up
 problem = PathfindingRobotProblem(start, goal, map)
-heuristic = lambda node, goal=goal: f(node, goal)
+heuristic = lambda node, goal=goal: g(node, goal) + problem.h(node)
 
 from pathfinding_robot_searches import *
 from time import time
 # search execution
 start_time = time()
-node, reached = astar_search_for_vis(problem) # , heuristic)
+node, reached = best_first_search_for_vis(problem, heuristic)
 end_time = time()
 
 seq = node.solution()
