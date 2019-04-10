@@ -169,7 +169,7 @@ end_time = time()
 seq = node.solution()
 
 # Search display
-ask_for_visualization = None
+ask_for_visualization = True
 
 print( 'elapsed time:           {:.4f}ms'.format((end_time - start_time)*1000))
 print(f'# of reached nodes:     {len(reached)}')

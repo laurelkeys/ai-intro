@@ -27,7 +27,7 @@ def visualize_solution(start, goal, map, reached, seq, animate):
         frame_pause = .01
         last = reached[1]
 
-    for node in reached[1:]-1: # reached[1] == start, reached[-1] == goal
+    for node in reached[1:-1]: # reached[1] == start, reached[-1] == goal
         i, j = node
         mmap[i][j] = 6 if animate else 4
         if animate:
