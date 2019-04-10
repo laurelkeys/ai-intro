@@ -25,18 +25,17 @@ def visualize_solution(start, goal, map, reached, seq, animate):
         plt.matshow(mmap, fignum=0)
         plt.pause(.5)
         frame_pause = .01
-        last = start
+        last = reached[1]
 
-    for node in reached:
+    for node in reached[1:]-1: # reached[1] == start, reached[-1] == goal
         i, j = node
-        if node != start and node != goal:
-            mmap[i][j] = 6 if animate else 4
-            if animate:
-                mmap[last[0]][last[1]] = 4 if last != start else 16
-                last = node
-                plt.cla()
-                plt.matshow(mmap, fignum=0)
-                plt.pause(frame_pause)
+        mmap[i][j] = 6 if animate else 4
+        if animate:
+            mmap[last[0]][last[1]] = 4
+            last = node
+            plt.cla()
+            plt.matshow(mmap, fignum=0)
+            plt.pause(frame_pause)
     if animate:
         mmap[last[0]][last[1]] = 4
 
@@ -70,6 +69,43 @@ def print_heatmap(start, goal, map, reached, seq):
 
     for i, j in seq[:-1]: # seq[-1] == goal
         mmap[i][j] = 22
+
+    plt.cla()
+    plt.matshow(mmap, fignum=0)
+    plt.show()
+
+def visualize_heatmap(start, goal, map, reached, seq):
+    mmap = [row[:] for row in map]
+    for i in range(0, len(map)):
+        for j in range(0, len(map[0])):
+            mmap[i][j] = -2.0 if map[i][j] == WALL else map[i][j]
+    mmap[start[0]][start[1]] = 32
+    mmap[goal[0]][goal[1]] = 32
+    wave = 0
+    reached_amount = len(reached)
+    
+    plt.cla()
+    plt.matshow(mmap, fignum=0)
+    plt.pause(.5)
+    frame_pause = .01
+    last = reached[1]
+
+    for node in reached[1:-1]: # reached[1] == start, reached[-1] == goal
+        i, j = node
+        wave += 1
+        wave_ratio = int (10 * wave / reached_amount)
+        mmap[i][j] = wave_ratio * 1.6 + 6
+        mmap[last[0]][last[1]] = wave_ratio * 1.6 + 4
+        last = node
+        plt.cla()
+        plt.matshow(mmap, fignum=0)
+        plt.pause(frame_pause)
+
+    for i, j in seq[:-1]: # seq[-1] == goal
+        mmap[i][j] = 24
+        plt.cla()
+        plt.matshow(mmap, fignum=0)
+        plt.pause(frame_pause)
 
     plt.cla()
     plt.matshow(mmap, fignum=0)
