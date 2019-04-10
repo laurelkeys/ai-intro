@@ -1,5 +1,10 @@
 import matplotlib.pyplot as plt
 
+EMPTY = 0
+WALL  = 1
+START = 2
+GOAL  = 3
+
 def print_matrix(m):
     plt.matshow(m, fignum=0)
     plt.show()
@@ -44,6 +49,30 @@ def visualize_solution(start, goal, map, reached, seq, animate):
 
     if not animate:
         plt.matshow(mmap, fignum=0)
+    plt.show()
+
+def print_heatmap(start, goal, map, reached, seq):
+    mmap = [row[:] for row in map]
+    for i in range(0, len(map)):
+        for j in range(0, len(map[0])):
+            mmap[i][j] = -2.0 if map[i][j] == WALL else map[i][j]
+    mmap[start[0]][start[1]] = 32
+    mmap[goal[0]][goal[1]] = 32
+    wave = 0
+    reached_amount = len(reached)
+
+    for node in reached:
+        i, j = node
+        if node != start and node != goal:
+            wave += 1
+            wave_ratio = int (10 * wave / reached_amount)
+            mmap[i][j] = wave_ratio * 1.6 + 4
+
+    for i, j in seq[:-1]: # seq[-1] == goal
+        mmap[i][j] = 22
+
+    plt.cla()
+    plt.matshow(mmap, fignum=0)
     plt.show()
 
 

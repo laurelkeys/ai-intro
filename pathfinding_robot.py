@@ -160,7 +160,7 @@ map[goal[0]][goal[1]] = GOAL
 
 # Problem set up
 problem = PathfindingRobotProblem(start, goal, map)
-heuristic = lambda node, goal=goal: manhattan(node, goal) + g(node, goal) # g(node, goal) + problem.h(node)
+heuristic = lambda node, goal=goal: manhattan(node, goal) # g(node, goal) + problem.h(node)
 
 # Search execution
 start_time = time()
@@ -169,13 +169,16 @@ end_time = time()
 seq = node.solution()
 
 # Search display
-ask_for_visualization = True
+ask_for_visualization = None
 
 print( 'elapsed time:           {:.4f}ms'.format((end_time - start_time)*1000))
 print(f'# of reached nodes:     {len(reached)}')
 print(f'# of steps in solution: {len(seq)}')
 
-if ask_for_visualization:
+if ask_for_visualization == None:
+    # visualize_solution(start, goal, map, reached, seq, False)
+    print_heatmap(start, goal, map, reached, seq)
+elif ask_for_visualization:
     visualize_solution(start, goal, map, reached, seq, False)
     reply = str(input('Show animation [Y/n]: ')).lower().strip()
     if reply[:1] not in ['n', 'N', 'no', 'No', 'NO']:
