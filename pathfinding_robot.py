@@ -1,8 +1,15 @@
 # TODO minimize imports
-from search import *
-from pathfinding_robot_maps import * 
+
+from pathfinding_robot_maps import *
+from pathfinding_robot_searches import *
 from pathfinding_robot_heuristics import *
+
+# from search import *
+from search import Problem, Node
 from utils import distance
+
+import numpy as np
+from time import time
 from random import shuffle
 import matplotlib.pyplot as plt
 
@@ -141,58 +148,39 @@ class PathfindingRobotProblem(Problem):
 
 # ______________________________________________________________________________
 
-# map set up
-map = medium_map
-start = (12, 2)
-goal  = (2, 12)
-# start = (50, 10)
-# goal  = (10, 50)
+# Map set up
+map = big_map
+# start = (12, 2)
+# goal  = (2, 12)
+start = (50, 10)
+goal  = (10, 50)
 
 map[start[0]][start[1]] = START
 map[goal[0]][goal[1]] = GOAL
 
-# problem set up
+# Problem set up
 problem = PathfindingRobotProblem(start, goal, map)
-heuristic = lambda node, goal=goal: g(node, goal) + problem.h(node)
+heuristic = lambda node, goal=goal: manhattan(node, goal) + g(node, goal) # g(node, goal) + problem.h(node)
 
-from pathfinding_robot_searches import *
-from time import time
-# search execution
+# Search execution
 start_time = time()
 node, reached = best_first_search_for_vis(problem, heuristic)
 end_time = time()
-
 seq = node.solution()
+
+# Search display
+ask_for_visualization = True
 
 print( 'elapsed time:           {:.4f}ms'.format((end_time - start_time)*1000))
 print(f'# of reached nodes:     {len(reached)}')
 print(f'# of steps in solution: {len(seq)}')
 
-visualize_solution(start, goal, map, reached, seq, False)
-reply = str(input('Show animation [Y/n]: ')).lower().strip()
-if reply[:1] not in ['n', 'N', 'no', 'No', 'NO']:
-    plt.cla()
+if ask_for_visualization:
+    visualize_solution(start, goal, map, reached, seq, False)
+    reply = str(input('Show animation [Y/n]: ')).lower().strip()
+    if reply[:1] not in ['n', 'N', 'no', 'No', 'NO']:
+        plt.cla()
+        visualize_solution(start, goal, map, reached, seq, True)
+else:
     visualize_solution(start, goal, map, reached, seq, True)
-
-"""
-uninformed searches:
-    searches that work:
-        depth_first_graph_search
-        breadth_first_graph_search
-    searches that do not work:
-        loop:
-            breadth_first_tree_search
-            depth_first_tree_search
-        FIXME:
-            depth_limited_search (obs.: define limit)
-            iterative_deepening_search
-informed searches:
-    searches that work:
-        best_first_graph_search (obs.: define f)
-        uniform_cost_search
-    TODO:
-        astar_search (obs.: define h)
-        greedy_best_first_graph_search (obs.: best_first_graph_search with f = h)
-        recursive_best_first_search (obs.: define h)
-"""
 
