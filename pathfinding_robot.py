@@ -13,16 +13,11 @@ from time import time
 from random import shuffle
 import matplotlib.pyplot as plt
 
-EMPTY = 0
-WALL  = 1
-START = 2
-GOAL  = 3
-
 index_by = lambda ij_tuple, m: m[ij_tuple[0]][ij_tuple[1]]
 
 # ______________________________________________________________________________
 class PathfindingRobotProblem(Problem):
-    
+
     """The problem of finding a path in a labyrinth defined by a grid map (i.e. an n x m matrix)."""
 
     """
@@ -52,16 +47,16 @@ class PathfindingRobotProblem(Problem):
 
         self.diagonals_allowed    = diagonals_allowed
         self.shuffle_actions_list = shuffle_actions_list
-        
+
         if diagonals_allowed:
             self.directions = [(-1, -1), (-1,  0), (-1,  1),
                                ( 0, -1),           ( 0,  1),
                                ( 1, -1), ( 1,  0), ( 1,  1)]
         else:
-            self.directions = [          (-1,  0),          
+            self.directions = [          (-1,  0),
                                ( 0, -1),           ( 0,  1),
                                          ( 1,  0),         ]
-        
+
         Problem.__init__(self, self.initial, self.goal)
 
     """
@@ -133,11 +128,11 @@ class PathfindingRobotProblem(Problem):
             return cost_so_far + 1 # if di + dj <= 1 else 2**0.5 # TODO use this if diagonal moves are allowed but more costly
         else:
             return float('inf')
-    
+
     """
     Parameters
       state : (int, int)
-        robot's current postition at the map, i.e. (i,j), 
+        robot's current postition at the map, i.e. (i,j),
         for which we estimate the lowest path cost to the goal using an admissible heuristic
     """
     def h(self, state):
@@ -149,42 +144,41 @@ class PathfindingRobotProblem(Problem):
 # ______________________________________________________________________________
 
 # Map set up
-map = big_map
-# start = (12, 2)
-# goal  = (2, 12)
-start = (50, 10)
-goal  = (10, 50)
+maze = medium_maze
+start = maze.start
+goal  = maze.goal
 
-map[start[0]][start[1]] = START
-map[goal[0]][goal[1]] = GOAL
+maze.map[start[0]][start[1]] = START
+maze.map[goal[0]][goal[1]] = GOAL
 
 # Problem set up
-problem = PathfindingRobotProblem(start, goal, map)
-heuristic = lambda node, goal=goal: diagonal(node, goal) # g(node, goal) + problem.h(node)
+problem = PathfindingRobotProblem(start, goal, maze.map, shuffle_actions_list=True)
+heuristic = lambda node, goal=goal: euclidean(node, goal) # g(node, goal) + problem.h(node)
 
 # Search execution
 start_time = time()
-node, reached = best_first_search_for_vis(problem, heuristic)
+node, reached = breadth_first_search_for_vis(problem)
 end_time = time()
 seq = node.solution()
 
 # Search display
-ask_for_visualization = True
+ask_for_visualization = None
 
 print( 'elapsed time:           {:.4f}ms'.format((end_time - start_time)*1000))
 print(f'# of reached nodes:     {len(reached)}')
 print(f'# of steps in solution: {len(seq)}')
 
 if ask_for_visualization == None:
-    # visualize_solution(start, goal, map, reached, seq, False)
-    print_heatmap(start, goal, map, reached, seq)
-    # visualize_heatmap(start, goal, map, reached, seq)
-elif ask_for_visualization:
-    visualize_solution(start, goal, map, reached, seq, False)
+    print_heatmap(start, goal, maze.map, reached, seq)
     reply = str(input('Show animation [Y/n]: ')).lower().strip()
     if reply[:1] not in ['n', 'N', 'no', 'No', 'NO']:
         plt.cla()
-        visualize_solution(start, goal, map, reached, seq, True)
+        visualize_heatmap(start, goal, maze.map, reached, seq)
+elif ask_for_visualization:
+    visualize_solution(start, goal, maze.map, reached, seq, False)
+    reply = str(input('Show animation [Y/n]: ')).lower().strip()
+    if reply[:1] not in ['n', 'N', 'no', 'No', 'NO']:
+        plt.cla()
+        visualize_solution(start, goal, maze.map, reached, seq, True)
 else:
-    visualize_solution(start, goal, map, reached, seq, True)
-
+    visualize_solution(start, goal, maze.map, reached, seq, True)

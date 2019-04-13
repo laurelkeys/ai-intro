@@ -5,29 +5,19 @@ WALL  = 1
 START = 2
 GOAL  = 3
 
-def print_matrix(m):
-    plt.matshow(m, fignum=0)
-    plt.show()
-    # height = len(m)
-    # width = len(m[0])
-    # for i in range(height):
-    #     print("[", end = '')
-    #     for j in range(width):
-    #         print(m[i][j], end = ',')
-    #     print("],")
-
 def visualize_solution(start, goal, map, reached, seq, animate):
     mmap = [row[:] for row in map]
     mmap[start[0]][start[1]] = 16
     mmap[goal[0]][goal[1]] = 16
+    reached = [node for node in reached if node != start and node != goal]
 
     if animate:
         plt.matshow(mmap, fignum=0)
         plt.pause(.5)
         frame_pause = .01
-        last = reached[1]
+        last = reached[0]
 
-    for node in reached[1:-1]: # reached[1] == start, reached[-1] == goal
+    for node in reached: # reached[1] == start, reached[-1] == goal
         i, j = node
         mmap[i][j] = 6 if animate else 4
         if animate:
@@ -54,10 +44,11 @@ def print_heatmap(start, goal, map, reached, seq):
     mmap = [row[:] for row in map]
     for i in range(0, len(map)):
         for j in range(0, len(map[0])):
-            mmap[i][j] = -2.0 if map[i][j] == WALL else map[i][j]
+            mmap[i][j] = -2.0 if map[i][j] == WALL else -6.0
     mmap[start[0]][start[1]] = 32
     mmap[goal[0]][goal[1]] = 32
     wave = 0
+    reached = [node for node in reached if node != start and node != goal]
     reached_amount = len(reached)
 
     for node in reached:
@@ -68,7 +59,7 @@ def print_heatmap(start, goal, map, reached, seq):
             mmap[i][j] = wave_ratio * 1.6 + 4
 
     for i, j in seq[:-1]: # seq[-1] == goal
-        mmap[i][j] = 22
+        mmap[i][j] = 24
 
     plt.cla()
     plt.matshow(mmap, fignum=0)
@@ -78,23 +69,24 @@ def visualize_heatmap(start, goal, map, reached, seq):
     mmap = [row[:] for row in map]
     for i in range(0, len(map)):
         for j in range(0, len(map[0])):
-            mmap[i][j] = -2.0 if map[i][j] == WALL else map[i][j]
+            mmap[i][j] = -2.0 if map[i][j] == WALL else -6.0
     mmap[start[0]][start[1]] = 32
     mmap[goal[0]][goal[1]] = 32
     wave = 0
+    reached = [node for node in reached if node != start and node != goal]
     reached_amount = len(reached)
     
     plt.cla()
     plt.matshow(mmap, fignum=0)
     plt.pause(.5)
     frame_pause = .01
-    last = reached[1]
+    last = reached[0]
 
-    for node in reached[1:-1]: # reached[1] == start, reached[-1] == goal
+    for node in reached:
         i, j = node
         wave += 1
         wave_ratio = int (10 * wave / reached_amount)
-        mmap[i][j] = wave_ratio * 1.6 + 6
+        mmap[i][j] = wave_ratio * 1.6 + 8
         mmap[last[0]][last[1]] = wave_ratio * 1.6 + 4
         last = node
         plt.cla()
@@ -111,8 +103,15 @@ def visualize_heatmap(start, goal, map, reached, seq):
     plt.matshow(mmap, fignum=0)
     plt.show()
 
+# ______________________________________________________________________________
 
-small_map = [
+class Maze:
+    def __init__(self, start, goal, map):
+        self.start = start
+        self.goal = goal
+        self.map = map
+
+small_maze = Maze((5,1), (1,5), [
     [1,1,1,1,1,1,1],
     [1,0,0,0,1,0,1],
     [1,0,0,0,1,0,1],
@@ -120,9 +119,9 @@ small_map = [
     [1,0,1,0,0,0,1],
     [1,0,1,0,0,0,1],
     [1,1,1,1,1,1,1],
-] # 7x7
+]) # 7x7
 
-medium_map = [
+medium_maze = Maze((12,2), (2,12), [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,0,0,0,0,0,0,0,1,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,1,0,0,0,0,1],
@@ -137,10 +136,9 @@ medium_map = [
     [1,0,0,0,0,1,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,1,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-] # 14x14
+]) # 14x14
 
-
-big_map = [
+big_maze = Maze((50,10), (10,50), [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -201,4 +199,4 @@ big_map = [
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-] # 60x60
+]) # 60x60
