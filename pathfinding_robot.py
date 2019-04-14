@@ -150,7 +150,7 @@ class PathfindingRobotProblem(Problem):
 # ______________________________________________________________________________
 
 # Map set up
-maze = big_maze
+maze = average_maze
 start = maze.start
 goal  = maze.goal
 
@@ -165,16 +165,16 @@ heuristic = lambda node, goal=goal: manhattan(node, goal) # diagonal moves cost 
 
 # Search execution
 start_time = time()
-node, reached = best_first_search_for_vis(problem, heuristic)
+node, reached = astar_search_for_vis(problem)
 end_time = time()
 seq = node.solution()
 
 # Search display
-ask_for_visualization = None
+ask_for_visualization = True
 
-# print( 'elapsed time:           {:.4f}ms'.format((end_time - start_time)*1000))
-# print(f'# of reached nodes:     {len(reached)}')
-# print(f'# of steps in solution: {len(seq)}')
+print( 'elapsed time:           {:.4f}ms'.format((end_time - start_time)*1000))
+print(f'# of reached nodes:     {len(reached)}')
+print(f'# of steps in solution: {len(seq)}')
 
 if ask_for_visualization == None:
     pass
