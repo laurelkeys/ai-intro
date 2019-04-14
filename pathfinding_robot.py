@@ -1,16 +1,22 @@
-# TODO minimize imports
-
 from pathfinding_robot_maps import *
-from pathfinding_robot_searches import *
 from pathfinding_robot_heuristics import *
+from pathfinding_robot_searches import (
+    failure, # node that indicates an algorithm couldn't find a solution
+    depth_first_search_for_vis, breadth_first_search_for_vis, # uninformed search algorithms
+    best_first_search_for_vis, astar_search_for_vis # informed (heuristic) search algorithms
+)
 
-# from search import *
-from search import Problem, Node
 from utils import distance
+from search import (
+    Problem, Node, 
+    depth_first_graph_search, breadth_first_graph_search,
+    best_first_graph_search, astar_search
+)
 
-import numpy as np
 from time import time
 from random import shuffle
+
+import numpy as np
 import matplotlib.pyplot as plt
 
 index_by = lambda ij_tuple, m: m[ij_tuple[0]][ij_tuple[1]]
@@ -34,7 +40,7 @@ class PathfindingRobotProblem(Problem):
           3 - robot's target (goal) position
         obs.: map is a list of rows: line i, row j <-> map[i][j]
     """
-    def __init__(self, initial, goal, map, diagonals_allowed=False, shuffle_actions_list=False):
+    def __init__(self, initial, goal, map, diagonal_moves=False, shuffle_actions_list=False):
         assert(index_by(initial, map) == START)
         assert(index_by(goal, map) == GOAL)
 
@@ -43,12 +49,12 @@ class PathfindingRobotProblem(Problem):
         self.width  = len(map[0]) # number of columns (n)
 
         self.initial = initial
-        self.goal    = goal
+        self.goal = goal
 
-        self.diagonals_allowed    = diagonals_allowed
+        self.diagonal_moves = diagonal_moves
         self.shuffle_actions_list = shuffle_actions_list
 
-        if diagonals_allowed:
+        if diagonal_moves:
             self.directions = [(-1, -1), (-1,  0), (-1,  1),
                                ( 0, -1),           ( 0,  1),
                                ( 1, -1), ( 1,  0), ( 1,  1)]
@@ -77,7 +83,7 @@ class PathfindingRobotProblem(Problem):
     """
     def __valid_move(self, pos1, pos2):
         di, dj = [abs(k1 - k2) for (k1, k2) in zip(pos1, pos2)]
-        max_delta_sum = 1 if not self.diagonals_allowed else 2
+        max_delta_sum = 1 if not self.diagonal_moves else 2
         return self.__valid_pos(pos1) and di + dj <= max_delta_sum and self.__valid_pos(pos2)
 
     """
@@ -136,7 +142,7 @@ class PathfindingRobotProblem(Problem):
         for which we estimate the lowest path cost to the goal using an admissible heuristic
     """
     def h(self, state):
-        if not self.diagonals_allowed:
+        if not self.diagonal_moves:
             return manhattan(state, goal)
         else:
             return diagonal(state, goal) # TODO change to euclidean if diagonal moves cost more
@@ -152,8 +158,10 @@ maze.map[start[0]][start[1]] = START
 maze.map[goal[0]][goal[1]] = GOAL
 
 # Problem set up
-problem = PathfindingRobotProblem(start, goal, maze.map, shuffle_actions_list=True)
-heuristic = lambda node, goal=goal: euclidean(node, goal) # g(node, goal) + problem.h(node)
+problem = PathfindingRobotProblem(start, goal, maze.map)
+# heuristic = lambda node, goal=goal: euclidean(node, goal) # diagonal moves cost sqrt(2)
+heuristic = lambda node, goal=goal: manhattan(node, goal) # diagonal moves cost 2
+# heuristic = lambda node, goal=goal: diagonal(node, goal)  # diagonal moves cost 1
 
 # Search execution
 start_time = time()
@@ -162,23 +170,19 @@ end_time = time()
 seq = node.solution()
 
 # Search display
-ask_for_visualization = None
+ask_for_visualization = False
 
 print( 'elapsed time:           {:.4f}ms'.format((end_time - start_time)*1000))
 print(f'# of reached nodes:     {len(reached)}')
 print(f'# of steps in solution: {len(seq)}')
 
 if ask_for_visualization == None:
+    pass
+elif ask_for_visualization:
     print_heatmap(start, goal, maze.map, reached, seq)
     reply = str(input('Show animation [Y/n]: ')).lower().strip()
     if reply[:1] not in ['n', 'N', 'no', 'No', 'NO']:
         plt.cla()
         visualize_heatmap(start, goal, maze.map, reached, seq)
-elif ask_for_visualization:
-    visualize_solution(start, goal, maze.map, reached, seq, False)
-    reply = str(input('Show animation [Y/n]: ')).lower().strip()
-    if reply[:1] not in ['n', 'N', 'no', 'No', 'NO']:
-        plt.cla()
-        visualize_solution(start, goal, maze.map, reached, seq, True)
 else:
-    visualize_solution(start, goal, maze.map, reached, seq, True)
+    print_heatmap(start, goal, maze.map, reached, seq)

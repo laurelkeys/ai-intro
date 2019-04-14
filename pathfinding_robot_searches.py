@@ -2,7 +2,7 @@ from search import Node, PriorityQueue, memoize, deque
 
 """Methods from search.py altered to return the list of reached nodes for visualization"""
 
-failure = Node('failure', path_cost=float('inf')) # Indicates an algorithm couldn't find a solution.
+failure = Node('failure', path_cost=float('inf')) # Indicates an algorithm couldn't find a solution
 
 # ______________________________________________________________________________
 # Uninformed search algorithms
@@ -72,5 +72,3 @@ def best_first_search_for_vis(problem, f):
 def astar_search_for_vis(problem, h=None):
     h = memoize(h or problem.h, 'h')
     return best_first_search_for_vis(problem, lambda n: n.path_cost + h(n))
-
-# TODO compare BFS and A* when passing manhattan as the heuristic
