@@ -22,3 +22,51 @@ best_first_search-diagonal
  -169.18ms
  -822 reached nodes
  -122 steps in solution
+depth_first_search-shuffled
+ -571.82ms
+ -2314 reached nodes
+ -592 steps in solution
+breadth_first_search-shuffled
+ -159.95ms
+ -3106 reached nodes
+ -122 steps in solution
+astar_search-shuffled
+ -486.84ms
+ -1883 reached nodes
+ -122 steps in solution
+best_first_search-manhattan-shuffled
+ -217.93ms
+ -807 reached nodes
+ -140 steps in solution
+best_first_search-euclidean-shuffled
+ -143.95ms
+ -733 reached nodes
+ -122 steps in solution
+best_first_search-diagonal-shuffled
+ -164.95ms
+ -822 reached nodes
+ -122 steps in solution
+depth_first_search-diagonal_moves
+ -179.94ms
+ -343 reached nodes
+ -334 steps in solution
+breadth_first_search-diagonal_moves
+ -315.90ms
+ -3088 reached nodes
+ -82 steps in solution
+astar_search-diagonal_moves
+ -694.78ms
+ -1736 reached nodes
+ -82 steps in solution
+best_first_search-manhattan-diagonal_moves
+ -454.84ms
+ -749 reached nodes
+ -108 steps in solution
+best_first_search-euclidean-diagonal_moves
+ -414.87ms
+ -691 reached nodes
+ -108 steps in solution
+best_first_search-diagonal-diagonal_moves
+ -474.84ms
+ -801 reached nodes
+ -116 steps in solution
