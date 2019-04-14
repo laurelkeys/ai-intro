@@ -1,0 +1,24 @@
+depth_first_search
+ -1037.66ms
+ -2111 reached nodes
+ -1110 steps in solution
+breadth_first_search
+ -150.95ms
+ -3107 reached nodes
+ -122 steps in solution
+astar_search
+ -490.11ms
+ -1883 reached nodes
+ -122 steps in solution
+best_first_search-manhattan
+ -222.08ms
+ -807 reached nodes
+ -140 steps in solution
+best_first_search-euclidean
+ -141.96ms
+ -733 reached nodes
+ -122 steps in solution
+best_first_search-diagonal
+ -169.18ms
+ -822 reached nodes
+ -122 steps in solution
