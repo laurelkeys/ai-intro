@@ -1,0 +1,106 @@
+max reached nodes:  411 (wnes)
+min reached nodes: 2634 (swen)
+
+EAST
+depth_first_search-ensw
+ -763.77ms
+ -1445 reached nodes
+ -1392 steps in solution
+depth_first_search-enws
+ -772.38ms
+ -1426 reached nodes
+ -1384 steps in solution
+depth_first_search-esnw
+ -773.77ms
+ -1463 reached nodes
+ -1384 steps in solution
+depth_first_search-eswn
+ -745.75ms
+ -1498 reached nodes
+ -1318 steps in solution
+depth_first_search-ewns
+ -681.19ms
+ -1544 reached nodes
+ -1144 steps in solution
+depth_first_search-ewsn
+ -684.78ms
+ -1600 reached nodes
+ -1164 steps in solution
+
+NORTH
+depth_first_search-nesw
+ -1012.69ms
+ -2103 reached nodes
+ -1096 steps in solution
+depth_first_search-news
+ -1008.25ms
+ -2129 reached nodes
+ -1090 steps in solution
+depth_first_search-nsew
+ -623.04ms
+ -1606 reached nodes
+ -930 steps in solution
+depth_first_search-nswe
+ -604.89ms
+ -1621 reached nodes
+ -852 steps in solution
+depth_first_search-nwes
+ -1009.68ms
+ -2111 reached nodes
+ -1110 steps in solution
+depth_first_search-nwse
+ -629.70ms
+ -1735 reached nodes
+ -740 steps in solution
+
+SOUTH
+depth_first_search-senw
+ -1129.76ms
+ -2586 reached nodes
+ -744 steps in solution
+depth_first_search-sewn
+ -1203.62ms
+ -2415 reached nodes
+ -926 steps in solution
+depth_first_search-snew
+ -502.01ms
+ -1496 reached nodes
+ -830 steps in solution
+depth_first_search-snwe
+ -494.85ms
+ -1460 reached nodes
+ -850 steps in solution
+depth_first_search-swen
+ -1091.64ms
+ -2634 reached nodes
+ -654 steps in solution
+depth_first_search-swne
+ -564.82ms
+ -2221 reached nodes
+ -390 steps in solution
+
+WEST
+depth_first_search-wens
+ -525.22ms
+ -1141 reached nodes
+ -1062 steps in solution
+depth_first_search-wesn
+ -565.88ms
+ -1125 reached nodes
+ -1124 steps in solution
+depth_first_search-wnes
+ -76.96ms
+ -411 reached nodes
+ -410 steps in solution
+depth_first_search-wnse
+ -316.60ms
+ -1333 reached nodes
+ -348 steps in solution
+depth_first_search-wsen
+ -83.99ms
+ -413 reached nodes
+ -412 steps in solution
+depth_first_search-wsne
+ -372.58ms
+ -1621 reached nodes
+ -286 steps in solution
