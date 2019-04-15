@@ -39,7 +39,7 @@ for method_name, method in search_methods.items():
     node, reached = method[1](problem)
     seq = node.solution()
     
-    save_heatmap(start, goal, maze.map, reached, seq, f'./heatmaps/{method_name}.png')
+    save_heatmap(start, goal, maze.map, reached, seq, f'{method_name}.png')
     
     file_name = 'methods.data'
     f = open(file_name, 'a+')

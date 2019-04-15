@@ -151,6 +151,7 @@ class PathfindingRobotProblem(Problem):
 
 # Map set up
 maze = average_maze
+# maze = big_maze
 start = maze.start
 goal  = maze.goal
 
@@ -160,7 +161,7 @@ maze.map[goal[0]][goal[1]] = GOAL
 # Problem set up
 problem = PathfindingRobotProblem(start, goal, maze.map)
 # heuristic = lambda node, goal=goal: euclidean(node, goal) # diagonal moves cost sqrt(2)
-heuristic = lambda node, goal=goal: manhattan(node, goal) # diagonal moves cost 2
+# heuristic = lambda node, goal=goal: manhattan(node, goal) # diagonal moves cost 2
 # heuristic = lambda node, goal=goal: diagonal(node, goal)  # diagonal moves cost 1
 
 # Search execution
