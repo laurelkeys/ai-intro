@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw
 # ______________________________________________________________________________
 class Colony:
     def __init__(self, image, polygon_count, vertex_count):
-        self.original_image_array = np.array(image.copy())
+        self.original_image_array = np.array(image)
         self.width = image.size[0]
         self.height = image.size[1]
 
@@ -15,70 +15,64 @@ class Colony:
 
         self.colors = np.random.randint(0, 256, size=(polygon_count, 4), dtype=np.dtype('uint8')) # RGBA
 
-        self.polygons = np.empty((polygon_count, 2 * vertex_count), dtype=np.dtype('int'))
+        self.polygons = np.empty((polygon_count, 2 * vertex_count), dtype=np.dtype('uint16'))
         self.polygons[:, 0::2] = np.random.randint(0, self.width, size=(polygon_count, vertex_count)) # x values on even positions
         self.polygons[:, 1::2] = np.random.randint(0, self.height, size=(polygon_count, vertex_count)) # y values on odd positions
         
-        self.edges = np.tile([self.width, self.height], vertex_count) # FIXME
+        self.edges = np.tile([self.width, self.height], vertex_count)
 
-        self.best = np.array(self.draw(self.colors, self.polygons)) # image_array
+        self.best = np.array(self.draw(self.colors, self.polygons)) # image array
         self.best_fitness = self.calculate_fitness(self.best)
     
-    def draw(self, colors, polygons):
-        canvas = Image.new('RGB', (self.width, self.height), (255, 255, 255, 0))
+    def draw(self, colors, polygons, scale=1):
+        canvas = Image.new('RGB', (self.width*scale, self.height*scale), (255, 255, 255, 0))
         drawer = ImageDraw.Draw(canvas, 'RGBA')
         for color, polygon in zip(colors, polygons):
-            drawer.polygon(polygon[:].tolist(), tuple(color)) # FIXME check if copying is needed
-        del(drawer) # TODO verify if del is necessary (and if not recreating it each time improves performance)
+            drawer.polygon((scale * polygon[:]).tolist(), tuple(color))
+        del drawer
         return canvas
     
     def calculate_fitness(self, image_array):
-        return np.abs(np.subtract(self.original_image_array, image_array, dtype=np.dtype('i4'))).sum()
-        # return np.square(np.subtract(self.original_image_array, image_array, dtype=np.dtype('i4'))).sum()
+        # return np.abs(np.subtract(self.original_image_array, image_array, dtype=np.dtype('uint16'))).sum()
+        return np.square(np.subtract(self.original_image_array, image_array, dtype=np.dtype('uint16'))).sum()
     
     def mutant(self):
 
         def mutate_vertex(self, polygon_index):
-            # FIXME
-            # colors = self.colors.copy()
             polygons = self.polygons.copy()
-            max_dim = max(self.width, self.height)
-            vertex_perturbation = np.random.randint(- max_dim/2, (max_dim/2) + 1, size=2) # (dx, dy) perturbations for mutation
             vertex_index = 2 * np.random.choice(self.vertex_count) # chooses one of the polygon's vertices to mutate
+            '''half_max_dim = max(self.width, self.height) / 2
+            vertex_perturbation = np.random.randint(-half_max_dim, half_max_dim + 1, size=2) # (dx, dy) perturbations for mutation
             polygons[polygon_index, vertex_index:vertex_index+2] = np.clip(a=polygons[vertex_index, vertex_index:vertex_index+2] + vertex_perturbation, 
                                                                            a_min=0, 
-                                                                           a_max=[self.width, self.height])
-            # return colors, polygons
+                                                                           a_max=[self.width, self.height])'''
+            polygons[polygon_index,   vertex_index] = np.random.randint(0, self.width  + 1, dtype=np.dtype('uint16')) # width
+            polygons[polygon_index, 1+vertex_index] = np.random.randint(0, self.height + 1, dtype=np.dtype('uint16')) # height
             return self.colors, polygons
 
         def mutate_polygon(self, polygon_index):
-            # FIXME
-            # colors = self.colors.copy()
             polygons = self.polygons.copy()
-            max_dim = max(self.width, self.height)
-            polygon_perturbation = np.tile(np.random.randint(- max_dim/2, (max_dim/2) + 1, size=2), self.vertex_count)
+            '''half_max_dim = max(self.width, self.height) / 2
+            polygon_perturbation = np.tile(np.random.randint(-half_max_dim, half_max_dim + 1, size=2), self.vertex_count)
             polygons[polygon_index] = np.clip(a=polygons[polygon_index] + polygon_perturbation, 
                                               a_min=0, 
-                                              a_max=self.edges)
-            # return colors, polygons
+                                              a_max=self.edges)'''
+            polygons[polygon_index, 0::2] = np.tile(np.random.randint(0, self.width  + 1, dtype=np.dtype('uint16')), self.vertex_count) # width
+            polygons[polygon_index, 1::2] = np.tile(np.random.randint(0, self.height + 1, dtype=np.dtype('uint16')), self.vertex_count) # height
             return self.colors, polygons
 
         def mutate_color(self, polygon_index):
-            # FIXME
             colors = self.colors.copy()
-            # polygons = self.polygons.copy()
-            color_perturbation = np.random.randint(-255, 256, size=3) # RGB
-            colors[polygon_index][:3] = np.clip(colors[polygon_index][:3] + color_perturbation, 0, 255)
-            # return colors, polygons
+            '''color_perturbation = np.random.randint(-127, 128, size=3) # RGB
+            colors[polygon_index][:3] = np.clip(colors[polygon_index][:3] + color_perturbation, 0, 255)'''
+            colors[polygon_index][:3] = np.random.randint(0, 256, size=3, dtype=np.dtype('uint8'))
             return colors, self.polygons
 
         def mutate_alpha(self, polygon_index):
-            # FIXME
             colors = self.colors.copy()
-            # polygons = self.polygons.copy()
-            alpha_perturbation = np.random.randint(-255, 256)
-            colors[polygon_index][3] = np.clip(colors[polygon_index][3] + alpha_perturbation, 0, 255)
-            # return colors, polygons
+            '''alpha_perturbation = np.random.randint(-127, 128)
+            colors[polygon_index][3] = np.clip(colors[polygon_index][3] + alpha_perturbation, 0, 255)'''
+            colors[polygon_index][3] = np.random.randint(26, 225, dtype=np.dtype('uint8'))
             return colors, self.polygons
 
         mutation = np.random.choice([mutate_vertex, mutate_polygon, mutate_color, mutate_alpha])
@@ -94,10 +88,10 @@ class Colony:
             self.polygons = new_polygons
             self.best = new_image_array
             self.best_fitness = new_fitness
-        return self.colors, self.polygons, self.best, self.best_fitness
+        # return self.colors, self.polygons, self.best, self.best_fitness
 
-    def save_best(self, save_path, save_format):
-        image = self.draw(self.colors, self.polygons)
+    def save_best(self, save_path, save_format, scale=1):
+        image = self.draw(self.colors, self.polygons, scale)
         image.save(save_path, save_format)
 
 # ______________________________________________________________________________
