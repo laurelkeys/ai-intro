@@ -21,11 +21,9 @@ class Pack:
         self.polygons = np.empty((polygon_count, 2 * vertices_count), dtype=np.dtype('int16'))
         self.polygons[:, 0::2] = np.random.randint(low=0, high=self.width, size=(polygon_count, vertices_count)) # x values on even positions
         self.polygons[:, 1::2] = np.random.randint(low=0, high=self.height, size=(polygon_count, vertices_count)) # y values on odd positions
-        
-        # self.boundaries = np.tile([self.width, self.height], vertices_count) # FIXME
 
-        self.best_image = np.array(self.draw(self.colors, self.polygons))
-        self.best_fitness = fitness_func(self.best_image)
+        self.image = np.array(self.draw(self.colors, self.polygons)) # image array
+        self.fitness = fitness_func(self.image)
     
     def draw(self, colors, polygons, scale=1):
         canvas = Image.new('RGB', (self.width * scale, self.height * scale), color=WHITE)
@@ -68,11 +66,11 @@ class Pack:
         child_colors, child_polygons = self.mutant()
         child_image = np.array(self.draw(child_colors, child_polygons))
         child_fitness = fitness_func(child_image)
-        if child_fitness < self.best_fitness: # NOTE the lower the fitness (= objective function) the better
+        if child_fitness < self.fitness: # NOTE the lower the fitness (= objective function) the better
             self.colors = child_colors
             self.polygons = child_polygons
-            self.best_image = child_image
-            self.best_fitness = child_fitness
+            self.image = child_image
+            self.fitness = child_fitness
 
     def save_image(self, save_path, save_format, scale=1):
         image = self.draw(self.colors, self.polygons, scale)
@@ -92,8 +90,10 @@ class Pack:
 # class Population:
 #     def __init__(self, image, polygon_count, vertices_count, fitness_func, population_size=1):
 #         self.packs = [Pack(image, polygon_count, vertices_count, fitness_func) for _ in range(population_size)]
-    
-#     def best_fitness
+#         self.best_pack = self.packs[0] # <=> best_image
+#         self.best_fitness = self.best_pack.fitness
+#
+
 
 
 # ______________________________________________________________________________
@@ -122,7 +122,7 @@ try:
     while cycle < max_cycles or max_cycles < 0:
         if cycle % PRINT_CYCLE == 0:
             if cycle % SAVE_CYCLE == 0 and cycle != 0: pack.save_image(f"{cycle}.png", 'PNG')
-            print(f"[{cycle}] fitness={pack.best_fitness}, Δt={(time() - start_time):.2f}s")
+            print(f"[{cycle}] fitness={pack.fitness}, Δt={(time() - start_time):.2f}s")
         pack.cycle(fitness_ssd) # iterates through a cycle
         cycle += 1
 except:
@@ -130,9 +130,9 @@ except:
 finally:
     end_time = time()
     pack.save_image(SAVE_PATH, 'PNG')
-    print(f"[{cycle}] fitness={pack.best_fitness}, Δt={(time() - start_time):.2f}s")
+    print(f"[{cycle}] fitness={pack.fitness}, Δt={(time() - start_time):.2f}s")
     print(f"\nSolution saved at {SAVE_PATH}")
-    print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{pack.best_fitness}|{cycle}|{(end_time - start_time):.2f}]")
+    print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{pack.fitness}|{cycle}|{(end_time - start_time):.2f}]")
     f = open(DNA_PATH,"w+")
     f.write(pack.dna)
     f.close()
