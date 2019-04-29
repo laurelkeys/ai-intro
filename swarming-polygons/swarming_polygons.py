@@ -40,7 +40,7 @@ class Colony:
 
         def mutate_vertex(self, polygon_index):
             polygons = self.polygons.copy()
-            vertex_index = 2 * np.random.choice(self.vertex_count) # chooses one of the polygon's vertices to mutate
+            vertex_index = 2 * np.random.randint(0, self.vertex_count) # chooses one of the polygon's vertices to mutate
             '''half_max_dim = max(self.width, self.height) / 2
             vertex_perturbation = np.random.randint(-half_max_dim, half_max_dim + 1, size=2) # (dx, dy) perturbations for mutation
             polygons[polygon_index, vertex_index:vertex_index+2] = np.clip(a=polygons[vertex_index, vertex_index:vertex_index+2] + vertex_perturbation, 
