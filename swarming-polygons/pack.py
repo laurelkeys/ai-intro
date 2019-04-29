@@ -8,6 +8,7 @@ PRINT_CYCLE = 5000
 SAVE_CYCLE = 10000
 SAVE_PATH = "pack.png"
 DNA_PATH = "dna.txt"
+POPULATION_SIZE = 1
 
 # ______________________________________________________________________________
 class Pack:
@@ -77,6 +78,7 @@ class Pack:
         image = self.draw(self.colors, self.polygons, scale)
         image.save(save_path, save_format)
 
+    @property
     def dna(self):
         # "(width,height,vertices_count)[(r,g,b,a)[x,y,...]...]", where (r,g,b,a)[x,y,...] is the polygon's DNA
         dna = f"({self.width},{self.height},{self.vertices_count})["
@@ -85,9 +87,14 @@ class Pack:
             dna += f"[{','.join(map(str, polygon))}]"
         dna += "]"
         return dna
+
 # ______________________________________________________________________________
 # class Population:
-#     def __init__(self):
+#     def __init__(self, image, polygon_count, vertices_count, fitness_func, population_size=1):
+#         self.packs = [Pack(image, polygon_count, vertices_count, fitness_func) for _ in range(population_size)]
+    
+#     def best_fitness
+
 
 # ______________________________________________________________________________
 try:
@@ -127,6 +134,6 @@ finally:
     print(f"\nSolution saved at {SAVE_PATH}")
     print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{pack.best_fitness}|{cycle}|{(end_time - start_time):.2f}]")
     f = open(DNA_PATH,"w+")
-    f.write(pack.dna())
+    f.write(pack.dna)
     f.close()
     print(f"\nSolution's DNA saved at {DNA_PATH}")
