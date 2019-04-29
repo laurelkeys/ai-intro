@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 from sys import argv
 from time import time
@@ -22,7 +23,7 @@ class Pack:
         self.polygons[:, 0::2] = np.random.randint(low=0, high=self.width, size=(polygon_count, vertices_count)) # x values on even positions
         self.polygons[:, 1::2] = np.random.randint(low=0, high=self.height, size=(polygon_count, vertices_count)) # y values on odd positions
 
-        self.image = np.array(self.draw(self.colors, self.polygons)) # image array
+        self.image = np.array(self.draw(self.colors, self.polygons), dtype=np.dtype('int16')) # image array (FIXME use usual uint8)
         self.fitness = fitness_func(self.image)
     
     def draw(self, colors, polygons, scale=1):
@@ -64,7 +65,7 @@ class Pack:
 
     def cycle(self, fitness_func):
         child_colors, child_polygons = self.mutant()
-        child_image = np.array(self.draw(child_colors, child_polygons))
+        child_image = np.array(self.draw(child_colors, child_polygons), dtype=np.dtype('int16')) # FIXME use usual uint8
         child_fitness = fitness_func(child_image)
         if child_fitness < self.fitness: # NOTE the lower the fitness (= objective function) the better
             self.colors = child_colors
@@ -87,14 +88,36 @@ class Pack:
         return dna
 
 # ______________________________________________________________________________
-# class Population:
-#     def __init__(self, image, polygon_count, vertices_count, fitness_func, population_size=1):
-#         self.packs = [Pack(image, polygon_count, vertices_count, fitness_func) for _ in range(population_size)]
-#         self.best_pack = self.packs[0] # <=> best_image
-#         self.best_fitness = self.best_pack.fitness
-#
+class Population:
+    def __init__(self, image, polygon_count, vertices_count, fitness_func, population_size=1):
+        self.packs = [Pack(image, polygon_count, vertices_count, fitness_func) for _ in range(population_size)]
+        best_pack = self.packs[0] # <=> best_image
+        best_fitness = best_pack.fitness
+        for pack in self.packs[1:]:
+            if pack.fitness < best_fitness:
+                best_pack = pack
+                best_fitness = pack.fitness
+        self.best_pack = copy.deepcopy(best_pack)
+        self.best_fitness = best_fitness
 
+    def cycle(self, fitness_func):
+        best_pack = self.best_pack
+        best_fitness = self.best_pack.fitness
+        for pack in self.packs:
+            pack.cycle(fitness_func)
+            if pack.fitness < best_fitness:
+                best_pack = pack
+                best_fitness = pack.fitness
+        if best_fitness < self.best_pack.fitness:
+            self.best_pack = copy.deepcopy(best_pack)
+            self.best_fitness = best_fitness
 
+    def save_best_image(self, save_path, save_format, scale=1):
+        self.best_pack.save_image(save_path, save_format, scale)
+
+    @property
+    def best_dna(self):
+        return self.best_pack.dna
 
 # ______________________________________________________________________________
 try:
@@ -108,10 +131,11 @@ except:
     print("usage: python swarming_polygons.py image_path polygon_count [vertices_count] [max_cycles]")
     exit()
 
-image = np.array(Image.open(image_path).convert('RGB')) # (3x8-bit pixels, true color)
+image = np.array(Image.open(image_path).convert('RGB'), dtype=np.dtype('int16')) # (3x8-bit pixels, true color) (FIXME use usual uint8)
 assert(image.shape[0] <= 4096 and image.shape[1] <= 4096)
 
 def fitness_ssd(pack_image):
+     # FIXME treat images with uint8 dtype
     return np.square(np.subtract(image, pack_image, dtype=np.dtype('int16')).astype('int32')).sum() # sum square difference
 
 pack = Pack(image, polygon_count, vertices_count, fitness_ssd)
