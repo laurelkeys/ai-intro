@@ -9,7 +9,7 @@ WHITE = (255, 255, 255, 0)
 class Pack:
     def __init__(self, image, polygon_count, vertices_count, fitness_func):
         self.width = image.shape[0]
-        self.height = image.shape[1]        
+        self.height = image.shape[1]
         self.vertices_count = vertices_count
 
         self.colors = np.random.randint(low=0, high=256, size=(polygon_count, 4), dtype=np.dtype('uint8')) # RGBA
@@ -74,6 +74,15 @@ class Pack:
         image = self.draw(self.colors, self.polygons, scale)
         image.save(save_path, save_format)
 
+    def dna(self):
+        # "(width,height,vertices_count)[(r,g,b,a)[x,y,...]...]", where (r,g,b,a)[x,y,...] is the polygon's DNA
+        dna = f"({self.width},{self.height},{self.vertices_count})["
+        for color, polygon in zip(self.colors, self.polygons):
+            dna += f"({','.join(map(lambda i: hex(i)[2:], color))})"
+            dna += f"[{','.join(map(str, polygon))}]"
+        dna += "]"
+        return dna
+
 # ______________________________________________________________________________
 try:
     image_path = argv[1]
@@ -108,3 +117,4 @@ finally:
     print(f"[{cycle}] fitness={pack.best_fitness}, Δt={(time() - start_time):.2f}s")
     print(f"\nSolution saved at {save_image_path}")
     print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{pack.best_fitness}|{cycle}|{(end_time - start_time):.2f}]")
+    # print(f"\nSolution's DNA:\n    {pack.dna()}")
