@@ -1,3 +1,4 @@
+import os
 import copy
 import numpy as np
 from sys import argv
@@ -5,12 +6,12 @@ from time import time
 from PIL import Image, ImageDraw
 
 # ______________________________________________________________________________
-POPULATION_SIZE = 2
+POPULATION_SIZE = 1
 
 PRINT_CYCLE = 5000
 SAVE_CYCLE = 10000
-SAVE_PATH = "pack.png"
-DNA_PATH = "dna.txt"
+SAVE_PATH = os.path.join("generated", "pack.png")
+DNA_PATH = os.path.join("generated", "dna.txt")
 
 WHITE = (255, 255, 255, 0)
 
@@ -156,7 +157,7 @@ start_time = time()
 try:
     while cycle < max_cycles or max_cycles < 0:
         if cycle % PRINT_CYCLE == 0:
-            if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(f"{cycle}.png", 'PNG')
+            if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"), 'PNG')
             print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness}, Δt={(time() - start_time):.2f}s")
         population.cycle(fitness_ssd) # iterates through a cycle
         cycle += 1

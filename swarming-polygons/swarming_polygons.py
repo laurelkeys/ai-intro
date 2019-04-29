@@ -41,38 +41,38 @@ class Colony:
         def mutate_vertex(self, polygon_index):
             polygons = self.polygons.copy()
             vertex_index = 2 * np.random.randint(0, self.vertex_count) # chooses one of the polygon's vertices to mutate
-            '''half_max_dim = max(self.width, self.height) / 2
+            half_max_dim = max(self.width, self.height) / 2
             vertex_perturbation = np.random.randint(-half_max_dim, half_max_dim + 1, size=2) # (dx, dy) perturbations for mutation
             polygons[polygon_index, vertex_index:vertex_index+2] = np.clip(a=polygons[vertex_index, vertex_index:vertex_index+2] + vertex_perturbation, 
                                                                            a_min=0, 
-                                                                           a_max=[self.width, self.height])'''
-            polygons[polygon_index,   vertex_index] = np.random.randint(0, self.width  + 1, dtype=np.dtype('uint16')) # width
-            polygons[polygon_index, 1+vertex_index] = np.random.randint(0, self.height + 1, dtype=np.dtype('uint16')) # height
+                                                                           a_max=[self.width, self.height])
+            '''polygons[polygon_index,   vertex_index] = np.random.randint(0, self.width  + 1, dtype=np.dtype('uint16')) # width
+            polygons[polygon_index, 1+vertex_index] = np.random.randint(0, self.height + 1, dtype=np.dtype('uint16')) # height'''
             return self.colors, polygons
 
         def mutate_polygon(self, polygon_index):
             polygons = self.polygons.copy()
-            '''half_max_dim = max(self.width, self.height) / 2
+            half_max_dim = max(self.width, self.height) / 2
             polygon_perturbation = np.tile(np.random.randint(-half_max_dim, half_max_dim + 1, size=2), self.vertex_count)
             polygons[polygon_index] = np.clip(a=polygons[polygon_index] + polygon_perturbation, 
                                               a_min=0, 
-                                              a_max=self.edges)'''
-            polygons[polygon_index, 0::2] = np.tile(np.random.randint(0, self.width  + 1, dtype=np.dtype('uint16')), self.vertex_count) # width
-            polygons[polygon_index, 1::2] = np.tile(np.random.randint(0, self.height + 1, dtype=np.dtype('uint16')), self.vertex_count) # height
+                                              a_max=self.edges)
+            '''polygons[polygon_index, 0::2] = np.tile(np.random.randint(0, self.width  + 1, dtype=np.dtype('uint16')), self.vertex_count) # width
+            polygons[polygon_index, 1::2] = np.tile(np.random.randint(0, self.height + 1, dtype=np.dtype('uint16')), self.vertex_count) # height'''
             return self.colors, polygons
 
         def mutate_color(self, polygon_index):
             colors = self.colors.copy()
-            '''color_perturbation = np.random.randint(-127, 128, size=3) # RGB
-            colors[polygon_index][:3] = np.clip(colors[polygon_index][:3] + color_perturbation, 0, 255)'''
-            colors[polygon_index][:3] = np.random.randint(0, 256, size=3, dtype=np.dtype('uint8'))
+            color_perturbation = np.random.randint(-127, 128, size=3) # RGB
+            colors[polygon_index][:3] = np.clip(colors[polygon_index][:3] + color_perturbation, 0, 255)
+            '''colors[polygon_index][:3] = np.random.randint(0, 256, size=3, dtype=np.dtype('uint8'))'''
             return colors, self.polygons
 
         def mutate_alpha(self, polygon_index):
             colors = self.colors.copy()
-            '''alpha_perturbation = np.random.randint(-127, 128)
-            colors[polygon_index][3] = np.clip(colors[polygon_index][3] + alpha_perturbation, 0, 255)'''
-            colors[polygon_index][3] = np.random.randint(26, 225, dtype=np.dtype('uint8'))
+            alpha_perturbation = np.random.randint(-127, 128)
+            colors[polygon_index][3] = np.clip(colors[polygon_index][3] + alpha_perturbation, 0, 255)
+            '''colors[polygon_index][3] = np.random.randint(26, 225, dtype=np.dtype('uint8'))'''
             return colors, self.polygons
 
         mutation = np.random.choice([mutate_vertex, mutate_polygon, mutate_color, mutate_alpha])
