@@ -8,8 +8,8 @@ WHITE = (255, 255, 255, 0)
 # ______________________________________________________________________________
 class Pack:
     def __init__(self, image, polygon_count, vertices_count, fitness_func):
-        self.width = image.shape[0]
-        self.height = image.shape[1]
+        self.width = image.shape[1]
+        self.height = image.shape[0]
         self.vertices_count = vertices_count
 
         self.colors = np.random.randint(low=0, high=256, size=(polygon_count, 4), dtype=np.dtype('uint8')) # RGBA
@@ -82,6 +82,9 @@ class Pack:
             dna += f"[{','.join(map(str, polygon))}]"
         dna += "]"
         return dna
+# ______________________________________________________________________________
+# class Population:
+#     def __init__(self):
 
 # ______________________________________________________________________________
 try:
@@ -104,12 +107,12 @@ start_time = time()
 try:
     while cycle < max_cycles or max_cycles < 0:
         if cycle % 5000 == 0:
-            if cycle % 10000 == 0 and cycle != 0: pack.save_image(f"pack{cycle}.png", 'PNG')
+            if cycle % 10000 == 0 and cycle != 0: pack.save_image(f"{cycle}.png", 'PNG')
             print(f"[{cycle}] fitness={pack.best_fitness}, Δt={(time() - start_time):.2f}s")
         pack.cycle(fitness_ssd) # iterates through a cycle, returns (colors, polygons, image_array, fitness)
         cycle += 1
-# except:
-#     pass
+except:
+    pass
 finally:
     end_time = time()
     save_image_path = "pack.png"
@@ -117,4 +120,10 @@ finally:
     print(f"[{cycle}] fitness={pack.best_fitness}, Δt={(time() - start_time):.2f}s")
     print(f"\nSolution saved at {save_image_path}")
     print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{pack.best_fitness}|{cycle}|{(end_time - start_time):.2f}]")
-    # print(f"\nSolution's DNA:\n    {pack.dna()}")
+
+    dna = pack.dna()
+    save_dna_path = "dna.txt"
+    f = open(save_dna_path,"w+")
+    f.write(dna)
+    f.close()
+    print(f"\nSolution's DNA saved at {save_dna_path}")

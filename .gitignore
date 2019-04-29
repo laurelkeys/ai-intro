@@ -1,5 +1,6 @@
 # Project 2
 swarming-polygons/*.png
+swarming-polygons/dna.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
