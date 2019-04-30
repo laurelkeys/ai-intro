@@ -29,12 +29,14 @@ class Pack:
             self.polygons[:, 1::2] = np.random.randint(low=0, high=self.height, size=(polygon_count, vertices_count), dtype=np.int16) # y values on odd positions
         else:
             pass
+        
+        self.bg_color = bg_color
 
         self.image = np.array(self.draw(self.colors, self.polygons), dtype=np.uint8)
         self.fitness = fitness_func(self.image)
     
-    def draw(self, colors, polygons, scale=1, bg_color=WHITE):
-        canvas = Image.new('RGB', (self.width * scale, self.height * scale), bg_color)
+    def draw(self, colors, polygons, scale=1):
+        canvas = Image.new('RGB', (self.width * scale, self.height * scale), self.bg_color)
         drawer = ImageDraw.Draw(canvas, 'RGBA')
         for color, polygon in zip(colors, polygons):
             drawer.polygon((scale * polygon).tolist(), tuple(color))
@@ -98,7 +100,7 @@ class Pack:
 class Population:
     def __init__(self, width, height, polygon_count, vertices_count, fitness_func, population_size=1, bg_color=WHITE):
         self.population_size = population_size # equal to the number of packs (one pack <=> one image)
-        self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func) for _ in range(population_size)]
+        self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color) for _ in range(population_size)]
         
         index = 0
         best_fitness = self.packs[index].fitness
@@ -161,21 +163,15 @@ def fitness_ssd(pack_image):
      # FIXME since the image's values are in [0, 255], the square might be doable with np.uint16
     return np.square(np.subtract(original_image, pack_image, dtype=np.int16), dtype=np.int32).sum() # sum square difference
 
-population = Population(width, height, polygon_count, vertices_count, fitness_ssd, POPULATION_SIZE)
+population = Population(width, height, polygon_count, vertices_count, fitness_ssd, POPULATION_SIZE, bg_color=avg_color(original_image))
 
-avg_color = avg_color(original_image)
-print(f"avg_color: {avg_color}")
-canvas = Image.new('RGB', (width, height), avg_color)
-canvas.save('avg.png', 'PNG')
-
-quit()
 cycle = 0
 start_time = time()
 try:
     while cycle < max_cycles or max_cycles < 0:
         if cycle % PRINT_CYCLE == 0:
             if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"), 'PNG')
-            print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness}, Δt={(time() - start_time):.2f}s")
+            print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
         population.cycle(fitness_ssd) # iterates through a cycle
         cycle += 1
 except:
@@ -183,9 +179,9 @@ except:
 finally:
     end_time = time()
     population.save_best_image(SAVE_PATH, 'PNG')
-    print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness}, Δt={(time() - start_time):.2f}s")
+    print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
     print(f"\nSolution saved at {SAVE_PATH}")
-    print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{population.best_fitness}|{cycle}|{(end_time - start_time):.2f}]")
+    print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{population.best_fitness:_d}|{cycle}|{(end_time - start_time):.2f}]")
     f = open(DNA_PATH,"w+")
     f.write(population.best_dna)
     f.close()
