@@ -13,26 +13,28 @@ SAVE_CYCLE = 10000
 SAVE_PATH = os.path.join("generated", "pack.png")
 DNA_PATH = os.path.join("generated", "dna.txt")
 
-WHITE = (255, 255, 255, 0)
+WHITE = (255, 255, 255) # (red, green, blue[, alpha])
 
 # ______________________________________________________________________________
 class Pack:
-    def __init__(self, width, height, polygon_count, vertices_count, fitness_func):
+    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna=None, bg_color=WHITE):
         self.width = width
         self.height = height
         self.vertices_count = vertices_count
 
-        self.colors = np.random.randint(low=0, high=256, size=(polygon_count, 4), dtype=np.uint8) # RGBA
-
-        self.polygons = np.empty((polygon_count, 2 * vertices_count), dtype=np.int16)
-        self.polygons[:, 0::2] = np.random.randint(low=0, high=self.width, size=(polygon_count, vertices_count), dtype=np.int16) # x values on even positions
-        self.polygons[:, 1::2] = np.random.randint(low=0, high=self.height, size=(polygon_count, vertices_count), dtype=np.int16) # y values on odd positions
+        if dna == None:
+            self.colors = np.random.randint(low=0, high=256, size=(polygon_count, 4), dtype=np.uint8) # RGBA
+            self.polygons = np.empty((polygon_count, 2 * vertices_count), dtype=np.int16)
+            self.polygons[:, 0::2] = np.random.randint(low=0, high=self.width, size=(polygon_count, vertices_count), dtype=np.int16) # x values on even positions
+            self.polygons[:, 1::2] = np.random.randint(low=0, high=self.height, size=(polygon_count, vertices_count), dtype=np.int16) # y values on odd positions
+        else:
+            pass
 
         self.image = np.array(self.draw(self.colors, self.polygons), dtype=np.uint8)
         self.fitness = fitness_func(self.image)
     
-    def draw(self, colors, polygons, scale=1):
-        canvas = Image.new('RGB', (self.width * scale, self.height * scale), color=WHITE)
+    def draw(self, colors, polygons, scale=1, bg_color=WHITE):
+        canvas = Image.new('RGB', (self.width * scale, self.height * scale), bg_color)
         drawer = ImageDraw.Draw(canvas, 'RGBA')
         for color, polygon in zip(colors, polygons):
             drawer.polygon((scale * polygon).tolist(), tuple(color))
@@ -94,7 +96,7 @@ class Pack:
 
 # ______________________________________________________________________________
 class Population:
-    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, population_size=1):
+    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, population_size=1, bg_color=WHITE):
         self.population_size = population_size # equal to the number of packs (one pack <=> one image)
         self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func) for _ in range(population_size)]
         
@@ -131,6 +133,14 @@ class Population:
         return self.best_pack.dna
 
 # ______________________________________________________________________________
+def avg_color(image):
+    size = image.shape[0] * image.shape[1] # image.shape == (height, width, depth)
+    r_sum = image[:, :, 0].sum()
+    g_sum = image[:, :, 1].sum()
+    b_sum = image[:, :, 2].sum()
+    return (int(r_sum / size), int(g_sum / size), int(b_sum / size))
+
+# ______________________________________________________________________________
 try:
     image_path = argv[1]
     polygon_count = int(argv[2])
@@ -145,6 +155,7 @@ except:
 original_image = np.array(Image.open(image_path).convert('RGB'), dtype=np.uint8) # (3x8-bit pixels, true color)
 height, width, *_ = original_image.shape # original_image.shape == (height, width, depth)
 assert(height <= 4096 and width <= 4096)
+print(f"(height, width, depth) = {original_image.shape}")
 
 def fitness_ssd(pack_image):
      # FIXME since the image's values are in [0, 255], the square might be doable with np.uint16
@@ -152,6 +163,12 @@ def fitness_ssd(pack_image):
 
 population = Population(width, height, polygon_count, vertices_count, fitness_ssd, POPULATION_SIZE)
 
+avg_color = avg_color(original_image)
+print(f"avg_color: {avg_color}")
+canvas = Image.new('RGB', (width, height), avg_color)
+canvas.save('avg.png', 'PNG')
+
+quit()
 cycle = 0
 start_time = time()
 try:
