@@ -11,8 +11,10 @@ POPULATION_SIZE = 1
 
 PRINT_CYCLE = 5000
 SAVE_CYCLE = 10000
-SAVE_PATH = os.path.join("generated", "pack.png")
-DNA_PATH = os.path.join("generated", "dna.pkl")
+SAVE_IMAGE_PATH = os.path.join("generated", "pack.png")
+SAVE_DNA_PATH = os.path.join("generated", "dna.pkl")
+
+INIT_DNA_PATH = os.path.join("generated", "init_dna.pkl") # DNA of a Pack to be added to the initial Population
 
 WHITE = (255, 255, 255) # (red, green, blue[, alpha])
 
@@ -110,7 +112,7 @@ class Pack:
 
 # ______________________________________________________________________________
 class Population:
-    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, population_size=1, dna_path=None, bg_color=WHITE):
+    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, population_size=1):
         self.population_size = population_size # equal to the number of packs (one pack <=> one image)
         if dna_path == None:
             self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color) for _ in range(population_size)]
@@ -181,12 +183,10 @@ def fitness_ssd(pack_image):
      # FIXME since the image's values are in [0, 255], the square might be doable with np.uint16
     return np.square(np.subtract(original_image, pack_image, dtype=np.int16), dtype=np.int32).sum() # sum square difference
 
-# FIXME change dna_path
-path = os.path.join("generated", "dna_esther.pkl")
-# p = Pack(width, height, polygon_count, vertices_count, fitness_ssd, dna_path=path, bg_color=avg_color(original_image))
-# p.save_image('est.png', 'PNG')
-
-population = Population(width, height, polygon_count, vertices_count, fitness_ssd, POPULATION_SIZE, dna_path=path, bg_color=avg_color(original_image))
+population = Population(width, height, polygon_count, vertices_count, fitness_ssd,
+                        dna_path=INIT_DNA_PATH if os.path.isfile(INIT_DNA_PATH) else None, # verifies if the file exists
+                        bg_color=avg_color(original_image),
+                        population_size=POPULATION_SIZE)
 
 cycle = 0
 start_time = time()
@@ -201,11 +201,11 @@ except:
     pass
 finally:
     end_time = time()
-    population.save_best_image(SAVE_PATH, 'PNG')
+    population.save_best_image(SAVE_IMAGE_PATH, 'PNG')
     print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
-    print(f"\nSolution saved at {SAVE_PATH}")
+    print(f"\nSolution saved at {SAVE_IMAGE_PATH}")
     print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{population.best_fitness:_d}|{cycle}|{(end_time - start_time):.2f}]")
-    f = open(DNA_PATH,"wb+") # binary file
+    f = open(SAVE_DNA_PATH,"wb+") # binary file
     f.write(population.best_dna)
     f.close()
-    print(f"\nSolution's DNA saved at {DNA_PATH}")
+    print(f"\nSolution's DNA saved at {SAVE_DNA_PATH}")
