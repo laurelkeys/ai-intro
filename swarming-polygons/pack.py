@@ -1,5 +1,6 @@
 import os
 import copy
+import pickle
 import numpy as np
 from sys import argv
 from time import time
@@ -11,26 +12,25 @@ POPULATION_SIZE = 1
 PRINT_CYCLE = 5000
 SAVE_CYCLE = 10000
 SAVE_PATH = os.path.join("generated", "pack.png")
-DNA_PATH = os.path.join("generated", "dna.txt")
+DNA_PATH = os.path.join("generated", "dna.pkl")
 
 WHITE = (255, 255, 255) # (red, green, blue[, alpha])
 
 # ______________________________________________________________________________
 class Pack:
-    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna=None, bg_color=WHITE):
+    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE):
         self.width = width
         self.height = height
         self.vertices_count = vertices_count
-
-        if dna == None:
+     
+        if dna_path == None:
             self.colors = np.random.randint(low=0, high=256, size=(polygon_count, 4), dtype=np.uint8) # RGBA
             self.polygons = np.empty((polygon_count, 2 * vertices_count), dtype=np.int16)
             self.polygons[:, 0::2] = np.random.randint(low=0, high=self.width, size=(polygon_count, vertices_count), dtype=np.int16) # x values on even positions
             self.polygons[:, 1::2] = np.random.randint(low=0, high=self.height, size=(polygon_count, vertices_count), dtype=np.int16) # y values on odd positions
+            self.bg_color = bg_color
         else:
-            pass
-        
-        self.bg_color = bg_color
+            self.__from_dna(dna_path) # inits self.colors, self.polygons, and self.bg_color        
 
         self.image = np.array(self.draw(self.colors, self.polygons), dtype=np.uint8)
         self.fitness = fitness_func(self.image)
@@ -88,19 +88,37 @@ class Pack:
 
     @property
     def dna(self):
-        # "(width,height,vertices_count)[(r,g,b,a)[x,y,...]...]", where (r,g,b,a)[x,y,...] is the polygon's DNA
-        dna = f"({self.width},{self.height},{self.vertices_count})["
-        for color, polygon in zip(self.colors, self.polygons):
-            dna += f"({','.join(map(lambda i: hex(i)[2:], color))})"
-            dna += f"[{','.join(map(str, polygon))}]"
-        dna += "]"
-        return dna
+        # NOTE a string representation can be seen with the following (use only for debugging):
+        # return str(pickle.loads(pickle.dumps(dna_obj))) # == str(dna)
+        dna_obj = {
+            'width' : self.width,
+            'height' : self.height,
+            'vertices_count' : self.vertices_count,
+            'colors' : self.colors,
+            'polygons' : self.polygons,
+            'bg_color' : self.bg_color
+        }
+        return pickle.dumps(dna_obj) # binary representation
+    
+    def __from_dna(self, dna_path):
+        with open(dna_path, 'rb') as f:
+            dna_obj = pickle.load(f)
+        assert(dna_obj['width'] == self.width and dna_obj['height'] == self.height and dna_obj['vertices_count'] == self.vertices_count)
+        self.colors = dna_obj['colors']
+        self.polygons = dna_obj['polygons']
+        self.bg_color = dna_obj['bg_color']
 
 # ______________________________________________________________________________
 class Population:
-    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, population_size=1, bg_color=WHITE):
+    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, population_size=1, dna_path=None, bg_color=WHITE):
         self.population_size = population_size # equal to the number of packs (one pack <=> one image)
-        self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color) for _ in range(population_size)]
+        if dna_path == None:
+            self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color) for _ in range(population_size)]
+        else:
+            # puts the given Pack (through it's DNA) on self.packs
+            self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, dna_path=dna_path, bg_color=bg_color)]
+            for _ in range(population_size - 1):
+                self.packs.append(Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color))
         
         index = 0
         best_fitness = self.packs[index].fitness
@@ -163,7 +181,12 @@ def fitness_ssd(pack_image):
      # FIXME since the image's values are in [0, 255], the square might be doable with np.uint16
     return np.square(np.subtract(original_image, pack_image, dtype=np.int16), dtype=np.int32).sum() # sum square difference
 
-population = Population(width, height, polygon_count, vertices_count, fitness_ssd, POPULATION_SIZE, bg_color=avg_color(original_image))
+# FIXME change dna_path
+path = os.path.join("generated", "dna_esther.pkl")
+# p = Pack(width, height, polygon_count, vertices_count, fitness_ssd, dna_path=path, bg_color=avg_color(original_image))
+# p.save_image('est.png', 'PNG')
+
+population = Population(width, height, polygon_count, vertices_count, fitness_ssd, POPULATION_SIZE, dna_path=path, bg_color=avg_color(original_image))
 
 cycle = 0
 start_time = time()
@@ -182,7 +205,7 @@ finally:
     print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
     print(f"\nSolution saved at {SAVE_PATH}")
     print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{population.best_fitness:_d}|{cycle}|{(end_time - start_time):.2f}]")
-    f = open(DNA_PATH,"w+")
+    f = open(DNA_PATH,"wb+") # binary file
     f.write(population.best_dna)
     f.close()
     print(f"\nSolution's DNA saved at {DNA_PATH}")
