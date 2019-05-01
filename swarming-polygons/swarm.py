@@ -12,6 +12,7 @@ from Population import Population
 PRINT_CYCLE = 5000
 SAVE_CYCLE = 10000
 
+SAVE_ALL_PATH = os.path.join("images", "temp", "all.png")
 SAVE_IMAGE_PATH = os.path.join("generated", "pack.png")
 SAVE_DNA_PATH = os.path.join("generated", "dna.pkl")
 INIT_DNA_PATH = os.path.join("generated", "init_dna.pkl") # DNA of a Pack to be added to the initial Population
@@ -56,7 +57,7 @@ start_time = time()
 try:
     while max_cycles < 0 or cycle < max_cycles:
         if cycle % PRINT_CYCLE == 0:
-            if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"), 'PNG')
+            if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"))
             print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
         population.cycle(fitness_func) # iterates through a cycle
         cycle += 1
@@ -66,7 +67,7 @@ finally:
     duration = time() - start_time
     print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={duration:.2f}s")
     
-    population.save_best_image(SAVE_IMAGE_PATH, 'PNG', scale)
+    population.save_best_image(SAVE_IMAGE_PATH, scale=scale)
     print(f"\nSolution saved at {SAVE_IMAGE_PATH}")
     print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{population.best_fitness:_d}|{cycle}|{duration:.2f}]")
 
@@ -74,3 +75,5 @@ finally:
     f.write(population.best_dna)
     f.close()
     print(f"\nSolution's DNA saved at {SAVE_DNA_PATH}")
+    
+    population.save_all(SAVE_ALL_PATH) # TODO remove after debugging

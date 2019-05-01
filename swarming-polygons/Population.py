@@ -1,4 +1,6 @@
 import copy
+from math import ceil
+from PIL import Image
 
 from Pack import WHITE, Pack
 
@@ -38,8 +40,21 @@ class Population:
             self.best_fitness = best_fitness # == self.best_pack.fitness
             self.best_pack_index = index
 
-    def save_best_image(self, save_path, save_format, scale=1):
+    def save_best_image(self, save_path, save_format='PNG', scale=1):
         self.best_pack.save_image(save_path, save_format, scale)
+
+    def save_all(self, save_path, save_format='PNG'):
+        # saves every Pack in the population in a single image, ordered in two rows
+        width = min(self.packs[0].width, 200)
+        height = min(self.packs[0].height, 200)
+        canvas = Image.new("RGB", (width * ceil(self.population_size / 2), 2 * height if self.population_size > 1 else height))
+        for i in range(self.population_size):
+            image = self.packs[i].draw(self.packs[i].colors, self.packs[i].polygons)
+            image.thumbnail((width, height))
+            x = i // 2 * width
+            y = i % 2 * height # evens on the first row and odds on the second
+            canvas.paste(image, (x, y, x + width, y + height))
+        canvas.save(save_path, save_format)
 
     @property
     def best_dna(self):
