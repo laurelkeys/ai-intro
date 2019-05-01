@@ -56,7 +56,7 @@ start_time = time()
 try:
     while max_cycles < 0 or cycle < max_cycles:
         if cycle % PRINT_CYCLE == 0:
-            if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"), 'PNG', scale)
+            if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"), 'PNG')
             print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
         population.cycle(fitness_func) # iterates through a cycle
         cycle += 1

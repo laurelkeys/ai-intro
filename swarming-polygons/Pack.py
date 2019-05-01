@@ -7,13 +7,20 @@ from PIL import Image, ImageDraw
 WHITE = (255, 255, 255) # (red, green, blue[, alpha])
 
 class Pack:
-    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE):
+    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, fix_alpha=False, fix_alpha_value=128):
         self.width = width
         self.height = height
         self.vertices_count = vertices_count
      
         if dna_path == None:
-            self.colors = np.random.randint(low=0, high=256, size=(polygon_count, 4), dtype=np.uint8) # RGBA
+            if fix_alpha:
+                self.colors = np.empty((polygon_count, 4), dtype=np.uint8)
+                self.colors[:, :3] = np.random.randint(low=0, high=256, size=(polygon_count, 3), dtype=np.uint8) # RGB
+                self.colors[:, 3] = np.full(shape=polygon_count, fill_value=fix_alpha_value) # Alpha
+            else:
+                self.colors = np.random.randint(low=0, high=256, size=(polygon_count, 4), dtype=np.uint8) # RGBA
+            self.fix_alpha = fix_alpha
+
             self.polygons = np.empty((polygon_count, 2 * vertices_count), dtype=np.int16)
             self.polygons[:, 0::2] = np.random.randint(low=0, high=self.width, size=(polygon_count, vertices_count), dtype=np.int16) # x values on even positions
             self.polygons[:, 1::2] = np.random.randint(low=0, high=self.height, size=(polygon_count, vertices_count), dtype=np.int16) # y values on odd positions
@@ -34,6 +41,8 @@ class Pack:
     
     def mutant(self):
 
+        mutate_alpha_range = (32, 196)
+
         def __mutate_vertex(self, polygon_index):
             polygons = self.polygons.copy()
             vertex_index = 2 * np.random.randint(low=0, high=self.vertices_count) # chooses one of the polygon's vertices to mutate
@@ -49,15 +58,18 @@ class Pack:
 
         def __mutate_color(self, polygon_index):
             colors = self.colors.copy()
-            colors[polygon_index][:3] = np.random.randint(0, 256, size=3, dtype=np.uint8) # RGB
+            colors[polygon_index, :3] = np.random.randint(0, 256, size=3, dtype=np.uint8) # RGB
             return colors, self.polygons
 
         def __mutate_alpha(self, polygon_index):
             colors = self.colors.copy()
-            colors[polygon_index][3] = np.random.randint(26, 225, dtype=np.uint8) # Alpha
+            colors[polygon_index, 3] = np.random.randint(mutate_alpha_range[0], mutate_alpha_range[1], dtype=np.uint8) # Alpha
             return colors, self.polygons
 
-        mutation = np.random.choice([__mutate_vertex, __mutate_polygon, __mutate_color, __mutate_alpha])
+        if self.fix_alpha:
+            mutation = np.random.choice([__mutate_vertex, __mutate_polygon, __mutate_color])
+        else:
+            mutation = np.random.choice([__mutate_vertex, __mutate_polygon, __mutate_color, __mutate_alpha])
         polygon_index = np.random.randint(self.polygons.shape[0]) # [0, polygons_count)
         return mutation(self, polygon_index)
 
