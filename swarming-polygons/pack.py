@@ -1,24 +1,11 @@
-import os
 import copy
 import pickle
+
 import numpy as np
-from sys import argv
-from time import time
 from PIL import Image, ImageDraw
-
-# ______________________________________________________________________________
-POPULATION_SIZE = 1
-
-PRINT_CYCLE = 5000
-SAVE_CYCLE = 10000
-SAVE_IMAGE_PATH = os.path.join("generated", "pack.png")
-SAVE_DNA_PATH = os.path.join("generated", "dna.pkl")
-
-INIT_DNA_PATH = os.path.join("generated", "init_dna.pkl") # DNA of a Pack to be added to the initial Population
 
 WHITE = (255, 255, 255) # (red, green, blue[, alpha])
 
-# ______________________________________________________________________________
 class Pack:
     def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE):
         self.width = width
@@ -109,108 +96,3 @@ class Pack:
         self.colors = dna_obj['colors']
         self.polygons = dna_obj['polygons']
         self.bg_color = dna_obj['bg_color']
-
-# ______________________________________________________________________________
-class Population:
-    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, population_size=1):
-        self.population_size = population_size # equal to the number of packs (one pack <=> one image)
-        if dna_path == None:
-            self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color) for _ in range(population_size)]
-        else:
-            # puts the given Pack (through it's DNA) on self.packs
-            self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, dna_path=dna_path, bg_color=bg_color)]
-            for _ in range(population_size - 1):
-                self.packs.append(Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color))
-        
-        index = 0
-        best_fitness = self.packs[index].fitness
-        for i in range(1, population_size):
-            curr_fitness = self.packs[i].fitness
-            if curr_fitness < best_fitness:
-                index = i
-                best_fitness = curr_fitness
-        self.best_pack = copy.deepcopy(self.packs[index]) # <=> best_image
-        self.best_fitness = best_fitness # == self.best_pack.fitness
-        self.best_pack_index = index
-
-    def cycle(self, fitness_func):
-        index = 0
-        best_fitness = self.best_fitness
-        for i in range(self.population_size):
-            self.packs[i].cycle(fitness_func)
-            curr_fitness = self.packs[i].fitness
-            if curr_fitness < best_fitness:
-                index = i
-                best_fitness = curr_fitness
-        if best_fitness < self.best_fitness:
-            self.best_pack = copy.deepcopy(self.packs[index])
-            self.best_fitness = best_fitness # == self.best_pack.fitness
-            self.best_pack_index = index
-
-    def save_best_image(self, save_path, save_format, scale=1):
-        self.best_pack.save_image(save_path, save_format, scale)
-
-    @property
-    def best_dna(self):
-        return self.best_pack.dna
-
-# ______________________________________________________________________________
-def avg_color(image):
-    size = image.shape[0] * image.shape[1] # image.shape == (height, width, depth)
-    r_sum = image[:, :, 0].sum()
-    g_sum = image[:, :, 1].sum()
-    b_sum = image[:, :, 2].sum()
-    return (int(r_sum / size), int(g_sum / size), int(b_sum / size))
-
-# ______________________________________________________________________________
-try:
-    image_path = argv[1]
-    polygon_count = int(argv[2])
-    vertices_count = 3 if len(argv) <= 3 else int(argv[3])
-    max_cycles = -1 if len(argv) <= 4 else int(argv[4])
-    assert(polygon_count >= 0 and polygon_count <= 255)
-    assert(vertices_count >= 3 and vertices_count <= 255)
-except:
-    print("usage: python swarming_polygons.py image_path polygon_count [vertices_count] [max_cycles]")
-    exit()
-
-original_image = np.array(Image.open(image_path).convert('RGB'), dtype=np.uint8) # (3x8-bit pixels, true color)
-height, width, *_ = original_image.shape # original_image.shape == (height, width, depth)
-assert(height <= 4096 and width <= 4096)
-print(f"(height, width, depth) = {original_image.shape}")
-
-def fitness_sad(pack_image):
-    return np.abs(np.subtract(original_image, pack_image, dtype=np.int16), dtype=np.int16).sum() # sum absolute difference
-
-def fitness_ssd(pack_image):
-     # FIXME since the image's values are in [0, 255], the square might be doable with np.uint16
-    return np.square(np.subtract(original_image, pack_image, dtype=np.int16), dtype=np.int32).sum() # sum square difference
-
-fitness_func=fitness_ssd
-population = Population(width, height, polygon_count, vertices_count, 
-                        fitness_func=fitness_func,
-                        dna_path=INIT_DNA_PATH if os.path.isfile(INIT_DNA_PATH) else None, # verifies if the file exists
-                        bg_color=avg_color(original_image),
-                        population_size=POPULATION_SIZE)
-
-cycle = 0
-start_time = time()
-try:
-    while cycle < max_cycles or max_cycles < 0:
-        if cycle % PRINT_CYCLE == 0:
-            if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"), 'PNG')
-            print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
-        population.cycle(fitness_func) # iterates through a cycle
-        cycle += 1
-except:
-    pass
-finally:
-    end_time = time()
-    population.save_best_image(SAVE_IMAGE_PATH, 'PNG')
-    print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
-    print(f"\nSolution saved at {SAVE_IMAGE_PATH}")
-    print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{population.best_fitness:_d}|{cycle}|{(end_time - start_time):.2f}]")
-    f = open(SAVE_DNA_PATH,"wb+") # binary file
-    f.write(population.best_dna)
-    f.close()
-    print(f"\nSolution's DNA saved at {SAVE_DNA_PATH}")
