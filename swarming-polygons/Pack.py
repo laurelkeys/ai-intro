@@ -41,6 +41,7 @@ class Pack:
     
     def mutant(self):
 
+        mutate_color_delta = 25
         mutate_alpha_range = (32, 196)
 
         def __mutate_vertex(self, polygon_index):
@@ -58,7 +59,9 @@ class Pack:
 
         def __mutate_color(self, polygon_index):
             colors = self.colors.copy()
-            colors[polygon_index, :3] = np.random.randint(0, 256, size=3, dtype=np.uint8) # RGB
+            # colors[polygon_index, :3] = np.random.randint(0, 256, size=3, dtype=np.uint8) # RGB
+            color_mutation = np.random.randint(low=-mutate_color_delta, high=mutate_color_delta, size=3, dtype=np.int8)
+            colors[polygon_index, :3] = np.clip(np.add(colors[polygon_index, :3], color_mutation, dtype=np.int16), 0, 255).astype(np.uint8)
             return colors, self.polygons
 
         def __mutate_alpha(self, polygon_index):
