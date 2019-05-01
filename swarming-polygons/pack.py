@@ -179,11 +179,16 @@ height, width, *_ = original_image.shape # original_image.shape == (height, widt
 assert(height <= 4096 and width <= 4096)
 print(f"(height, width, depth) = {original_image.shape}")
 
+def fitness_sad(pack_image):
+    return np.abs(np.subtract(original_image, pack_image, dtype=np.int16), dtype=np.int16).sum() # sum absolute difference
+
 def fitness_ssd(pack_image):
      # FIXME since the image's values are in [0, 255], the square might be doable with np.uint16
     return np.square(np.subtract(original_image, pack_image, dtype=np.int16), dtype=np.int32).sum() # sum square difference
 
-population = Population(width, height, polygon_count, vertices_count, fitness_ssd,
+fitness_func=fitness_ssd
+population = Population(width, height, polygon_count, vertices_count, 
+                        fitness_func=fitness_func,
                         dna_path=INIT_DNA_PATH if os.path.isfile(INIT_DNA_PATH) else None, # verifies if the file exists
                         bg_color=avg_color(original_image),
                         population_size=POPULATION_SIZE)
@@ -195,7 +200,7 @@ try:
         if cycle % PRINT_CYCLE == 0:
             if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"), 'PNG')
             print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
-        population.cycle(fitness_ssd) # iterates through a cycle
+        population.cycle(fitness_func) # iterates through a cycle
         cycle += 1
 except:
     pass
