@@ -18,7 +18,7 @@ INIT_DNA_PATH = os.path.join("generated", "init_dna.pkl") # DNA of a Pack to be 
 
 POPULATION_SIZE = 1
 
-RESIZE_IMAGE_DIM = 100 # max resized image dimension (i.e. width, height)
+MAX_IMAGE_SIZE = (200, 200) # (width, height)
 
 # ______________________________________________________________________________
 try:
@@ -32,7 +32,14 @@ except:
     print("usage: python swarming_polygons.py image_path polygon_count [vertices_count] [max_cycles]")
     exit()
 
-original_image = np.array(Image.open(image_path).convert('RGB'), dtype=np.uint8)
+original_image = Image.open(image_path).convert('RGB')
+scale = 1
+if original_image.size > MAX_IMAGE_SIZE:
+    print(f"(height, width) = ({original_image.size[1]}, {original_image.size[0]}) resized to:")
+    scale = int(max(original_image.size) / max(MAX_IMAGE_SIZE))
+    original_image.thumbnail(MAX_IMAGE_SIZE) # keeps the image proportion
+
+original_image = np.array(original_image, dtype=np.uint8)
 height, width, *_ = original_image.shape
 print(f"(height, width, depth) = {original_image.shape}")
 
@@ -49,7 +56,7 @@ start_time = time()
 try:
     while max_cycles < 0 or cycle < max_cycles:
         if cycle % PRINT_CYCLE == 0:
-            if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"), 'PNG')
+            if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"), 'PNG', scale)
             print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
         population.cycle(fitness_func) # iterates through a cycle
         cycle += 1
@@ -59,7 +66,7 @@ finally:
     duration = time() - start_time
     print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={duration:.2f}s")
     
-    population.save_best_image(SAVE_IMAGE_PATH, 'PNG')
+    population.save_best_image(SAVE_IMAGE_PATH, 'PNG', scale)
     print(f"\nSolution saved at {SAVE_IMAGE_PATH}")
     print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{population.best_fitness:_d}|{cycle}|{duration:.2f}]")
 
