@@ -19,7 +19,7 @@ INIT_DNA_PATH = os.path.join("generated", "init_dna.pkl") # DNA of a Pack to be 
 
 POPULATION_SIZE = 1
 
-MAX_IMAGE_SIZE = (200, 200) # (width, height)
+MAX_IMAGE_SIZE = (400, 400) # (width, height)
 
 # ______________________________________________________________________________
 try:
@@ -45,6 +45,7 @@ height, width, *_ = original_image.shape
 print(f"(height, width, depth) = {original_image.shape}")
 
 fitness_func = FitnessCalculator(original_image).fitness_ssd
+partial_fitness_func = FitnessCalculator(original_image).partial_fitness_ssd
 
 population = Population(width, height, polygon_count, vertices_count, 
                         fitness_func=fitness_func,
@@ -59,7 +60,7 @@ try:
         if cycle % PRINT_CYCLE == 0:
             if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"))
             print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
-        population.cycle(fitness_func) # iterates through a cycle
+        population.cycle(fitness_func, partial_fitness_func) # iterates through a cycle
         cycle += 1
 except:
     pass
@@ -76,4 +77,4 @@ finally:
     f.close()
     print(f"\nSolution's DNA saved at {SAVE_DNA_PATH}")
     
-    population.save_all(SAVE_ALL_PATH) # TODO remove after debugging
+    # population.save_all(SAVE_ALL_PATH)

@@ -9,7 +9,14 @@ class FitnessCalculator:
 
     def fitness_ssd(self, pack_image):
         # FIXME since the image's values are in [0, 255], the square might be doable with np.uint16
-        return np.square(np.subtract(self.original_image, pack_image, dtype=np.int16), dtype=np.int32).sum() # sum square difference
+        return np.square(np.subtract(self.original_image, pack_image, dtype=np.int64), dtype=np.int64).sum() # sum square difference
+
+    def partial_fitness_ssd(self, pack_image, vertices, mutant_vertices):
+        min_y = min(min(vertices[1::2]), min(mutant_vertices[1::2]))
+        max_y = max(max(vertices[1::2]), max(mutant_vertices[1::2]))
+        min_x = min(min(vertices[0::2]), min(mutant_vertices[0::2]))
+        max_x = max(max(vertices[0::2]), max(mutant_vertices[0::2]))
+        return np.square(np.subtract(self.original_image[min_y:max_y, min_x:max_x, :], pack_image[min_y:max_y, min_x:max_x, :], dtype=np.int16), dtype=np.int32).sum()
 
 def avg_color(image):
     size = image.shape[0] * image.shape[1] # image.shape == (height, width, depth)

@@ -26,11 +26,11 @@ class Population:
         self.best_fitness = best_fitness # == self.best_pack.fitness
         self.best_pack_index = index
 
-    def cycle(self, fitness_func):
+    def cycle(self, fitness_func, partial_fitness_func=None):
         index = 0
         best_fitness = self.best_fitness
         for i in range(self.population_size):
-            self.packs[i].cycle(fitness_func)
+            self.packs[i].cycle(fitness_func, partial_fitness_func)
             curr_fitness = self.packs[i].fitness
             if curr_fitness < best_fitness:
                 index = i
