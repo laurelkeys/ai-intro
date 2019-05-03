@@ -3,6 +3,7 @@ import pickle
 
 import numpy as np
 from PIL import Image, ImageDraw
+from utils import vertices_color_avg, vertices_color_mid
 
 WHITE = (255, 255, 255) # (red, green, blue[, alpha])
 
@@ -24,12 +25,8 @@ class Pack:
             else:
                 self.colors = np.empty((polygon_count, 4), dtype=np.uint8)
                 for i in range(polygon_count):
-                    avg_vertices_color = np.array([0, 0, 0, 128], dtype=np.uint) # [R, G, B, Alpha]
-                    for j in range(vertices_count):
-                        x, y = self.polygons[i, j:j+2]
-                        avg_vertices_color[0:3] += original_image[y, x, :] # (height, width, depth)
-                    avg_vertices_color //= vertices_count
-                    self.colors[i, :] = avg_vertices_color
+                    # self.colors[i, :] = vertices_color_avg(self.polygons[i], self.vertices_count, original_image)
+                    self.colors[i, :] = vertices_color_mid(self.polygons[i], self.vertices_count, original_image)
 
         self.image = np.array(self.draw(self.colors, self.polygons), dtype=np.uint8)
         self.fitness = fitness_func(self.image)
@@ -44,7 +41,7 @@ class Pack:
     
     def mutant(self, return_vertices=False):
 
-        mutate_color_delta = 25
+        mutate_color_delta = 26
         mutate_alpha_range = (32, 196)
 
         def __mutate_vertex(self, polygon_index):
@@ -69,7 +66,7 @@ class Pack:
         def __mutate_color(self, polygon_index):
             colors = self.colors.copy()
             # colors[polygon_index, :3] = np.random.randint(0, 256, size=3, dtype=np.uint8) # RGB
-            color_mutation = np.random.randint(low=-mutate_color_delta, high=mutate_color_delta, size=3, dtype=np.int8)
+            color_mutation = np.random.randint(low=-mutate_color_delta, high=mutate_color_delta + 1, size=3, dtype=np.int8)
             colors[polygon_index, :3] = np.clip(np.add(colors[polygon_index, :3], color_mutation, dtype=np.int16), 0, 255).astype(np.uint8)
             if return_vertices:
                 return colors, self.polygons, self.polygons[polygon_index, :], self.polygons[polygon_index, :]
