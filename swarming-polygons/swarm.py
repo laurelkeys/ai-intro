@@ -19,7 +19,7 @@ INIT_DNA_PATH = os.path.join("generated", "init_dna.pkl") # DNA of a Pack to be 
 
 POPULATION_SIZE = 1
 
-MAX_IMAGE_SIZE = (400, 400) # (width, height)
+MAX_IMAGE_SIZE = (256, 256) # (width, height)
 
 # ______________________________________________________________________________
 try:
@@ -51,7 +51,8 @@ population = Population(width, height, polygon_count, vertices_count,
                         fitness_func=fitness_func,
                         dna_path=INIT_DNA_PATH if os.path.isfile(INIT_DNA_PATH) else None, # verifies if the file exists
                         bg_color=avg_color(original_image),
-                        population_size=POPULATION_SIZE)
+                        population_size=POPULATION_SIZE,
+                        original_image=original_image)
 
 cycle = 0
 start_time = time()

@@ -8,8 +8,7 @@ class FitnessCalculator:
         return np.abs(np.subtract(self.original_image, pack_image, dtype=np.int16), dtype=np.int16).sum() # sum absolute difference
 
     def fitness_ssd(self, pack_image):
-        # FIXME since the image's values are in [0, 255], the square might be doable with np.uint16
-        return np.square(np.subtract(self.original_image, pack_image, dtype=np.int64), dtype=np.int64).sum() # sum square difference
+        return np.square(np.subtract(self.original_image, pack_image, dtype=np.int16), dtype=np.int64).sum() # sum square difference
 
     def partial_fitness_ssd(self, pack_image, vertices, mutant_vertices):
         min_y = min(min(vertices[1::2]), min(mutant_vertices[1::2]))

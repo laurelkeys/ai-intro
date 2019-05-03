@@ -5,10 +5,10 @@ from PIL import Image
 from Pack import WHITE, Pack
 
 class Population:
-    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, population_size=1):
+    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, population_size=1, original_image=None):
         self.population_size = population_size # equal to the number of packs (one pack <=> one image)
-        if dna_path == None:
-            self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color) for _ in range(population_size)]
+        if dna_path is None:
+            self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color, original_image=original_image) for _ in range(population_size)]
         else:
             # puts the given Pack (through it's DNA) on self.packs
             self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, dna_path=dna_path, bg_color=bg_color)]

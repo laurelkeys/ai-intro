@@ -7,26 +7,29 @@ from PIL import Image, ImageDraw
 WHITE = (255, 255, 255) # (red, green, blue[, alpha])
 
 class Pack:
-    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, fix_alpha=False, fix_alpha_value=128):
+    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, original_image=None):
         self.width = width
         self.height = height
         self.vertices_count = vertices_count
      
-        if dna_path == None:
-            if fix_alpha:
-                self.colors = np.empty((polygon_count, 4), dtype=np.uint8)
-                self.colors[:, :3] = np.random.randint(low=0, high=256, size=(polygon_count, 3), dtype=np.uint8) # RGB
-                self.colors[:, 3] = np.full(shape=polygon_count, fill_value=fix_alpha_value) # Alpha
-            else:
-                self.colors = np.random.randint(low=0, high=256, size=(polygon_count, 4), dtype=np.uint8) # RGBA
-            self.fix_alpha = fix_alpha
-
+        if dna_path is not None:
+            self.__from_dna(dna_path) # inits self.colors, self.polygons, and self.bg_color
+        else:
             self.polygons = np.empty((polygon_count, 2 * vertices_count), dtype=np.int16)
             self.polygons[:, 0::2] = np.random.randint(low=0, high=self.width, size=(polygon_count, vertices_count), dtype=np.int16) # x values on even positions
             self.polygons[:, 1::2] = np.random.randint(low=0, high=self.height, size=(polygon_count, vertices_count), dtype=np.int16) # y values on odd positions
             self.bg_color = bg_color
-        else:
-            self.__from_dna(dna_path) # inits self.colors, self.polygons, and self.bg_color        
+            if original_image is None:
+                self.colors = np.random.randint(low=0, high=256, size=(polygon_count, 4), dtype=np.uint8) # RGBA
+            else:
+                self.colors = np.empty((polygon_count, 4), dtype=np.uint8)
+                for i in range(polygon_count):
+                    avg_vertices_color = np.array([0, 0, 0, 128], dtype=np.uint) # [R, G, B, Alpha]
+                    for j in range(vertices_count):
+                        x, y = self.polygons[i, j:j+2]
+                        avg_vertices_color[0:3] += original_image[y, x, :] # (height, width, depth)
+                    avg_vertices_color //= vertices_count
+                    self.colors[i, :] = avg_vertices_color
 
         self.image = np.array(self.draw(self.colors, self.polygons), dtype=np.uint8)
         self.fitness = fitness_func(self.image)
@@ -81,25 +84,12 @@ class Pack:
             else:
                 return colors, self.polygons
 
-        if self.fix_alpha:
-            mutation = np.random.choice([__mutate_vertex, __mutate_polygon, __mutate_color])
-        else:
-            mutation = np.random.choice([__mutate_vertex, __mutate_polygon, __mutate_color, __mutate_alpha])
-        
+        mutation = np.random.choice([__mutate_vertex, __mutate_polygon, __mutate_color, __mutate_alpha])
         polygon_index = np.random.randint(self.polygons.shape[0]) # [0, polygons_count)
         return mutation(self, polygon_index)
 
     def cycle(self, fitness_func, partial_fitness_func=None):
-        if partial_fitness_func == None:
-            child_colors, child_polygons = self.mutant()
-            child_image = np.array(self.draw(child_colors, child_polygons), dtype=np.uint8)
-            child_fitness = fitness_func(child_image)
-            if child_fitness < self.fitness: # NOTE the lower the fitness (= objective function) the better
-                self.colors = child_colors
-                self.polygons = child_polygons
-                self.image = child_image
-                self.fitness = child_fitness
-        else:
+        if partial_fitness_func is not None:
             child_colors, child_polygons, parent_vertices, child_vertices = self.mutant(return_vertices=True)
             child_image = np.array(self.draw(child_colors, child_polygons), dtype=np.uint8)
             child_fitness = partial_fitness_func(child_image, parent_vertices, child_vertices)
@@ -109,6 +99,15 @@ class Pack:
                 self.polygons = child_polygons
                 self.image = child_image
                 self.fitness = fitness_func(self.image)
+        else:
+            child_colors, child_polygons = self.mutant()
+            child_image = np.array(self.draw(child_colors, child_polygons), dtype=np.uint8)
+            child_fitness = fitness_func(child_image)
+            if child_fitness < self.fitness: # NOTE the lower the fitness (= objective function) the better
+                self.colors = child_colors
+                self.polygons = child_polygons
+                self.image = child_image
+                self.fitness = child_fitness
 
     def save_image(self, save_path, save_format, scale=1):
         image = self.draw(self.colors, self.polygons, scale)
