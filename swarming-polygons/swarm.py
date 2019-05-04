@@ -19,7 +19,8 @@ INIT_DNA_PATH = os.path.join("generated", "init_dna.pkl") # DNA of a Pack to be 
 
 POPULATION_SIZE = 1
 
-MAX_IMAGE_SIZE = (256, 256) # (width, height)
+# MAX_IMAGE_SIZE = (256, 256) # (width, height)
+MAX_IMAGE_SIZE = (512, 512)
 
 # ______________________________________________________________________________
 try:
@@ -35,7 +36,7 @@ except:
 
 original_image = Image.open(image_path).convert('RGB')
 scale = 1
-if original_image.size > MAX_IMAGE_SIZE:
+if max(original_image.size) > max(MAX_IMAGE_SIZE):
     print(f"(height, width) = ({original_image.size[1]}, {original_image.size[0]}) resized to:")
     scale = int(max(original_image.size) / max(MAX_IMAGE_SIZE))
     original_image.thumbnail(MAX_IMAGE_SIZE) # keeps the image proportion

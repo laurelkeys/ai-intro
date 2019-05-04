@@ -27,7 +27,7 @@ def avg_color(image):
 def vertices_color_avg(polygon, vertices_count, image, alpha=128):
     vertices_color_avg = np.array([0, 0, 0, alpha], dtype=np.uint) # [R, G, B, Alpha]
     for j in range(vertices_count):
-        x, y = polygon[j:j+2]
+        x, y = polygon[(2*j) : (2*j) + 2]
         vertices_color_avg[0:3] += image[y, x, :]
     vertices_color_avg //= vertices_count
     return vertices_color_avg
@@ -36,7 +36,7 @@ def vertices_color_mid(polygon, vertices_count, image, alpha=128):
     vertices_color_mid = np.array([0, 0, 0, alpha], dtype=np.uint) # [R, G, B, Alpha]
     min_x, max_x, min_y, max_y = float('inf'), float('-inf'), float('inf'), float('-inf')
     for j in range(vertices_count):
-        x, y = polygon[j:j+2]
+        x, y = polygon[(2*j) : (2*j) + 2]
         if x < min_x: min_x = x
         if x > max_x: max_x = x
         if y < min_y: min_y = y
