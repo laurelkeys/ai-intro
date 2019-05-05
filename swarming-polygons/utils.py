@@ -15,7 +15,24 @@ class FitnessCalculator:
     def euclidian(self, pack_image):
         diff = np.subtract(self.original_image, pack_image, dtype=np.int16)
         # diff.shape == (height, width, depth), therefore the sum on axis 2 adds up the RGB channels
-        return np.sqrt(np.sum(np.square(diff, dtype=np.int64), axis=2)).astype(np.int64).sum() # 3D euclidean distance
+        return int(np.sqrt(np.sum(np.square(diff, dtype=np.int64), axis=2)).sum()) # 3D euclidean distance
+
+    def color_dist(self, pack_image):
+        # ref.: https://www.compuphase.com/cmetric.htm
+        squared_diff = np.square(np.subtract(self.original_image, pack_image, dtype=np.int16), dtype=np.float64)
+        r_mean = (1/2) * (self.original_image[:, :, 0] + pack_image[:, :, 0])
+        np.multiply((512 + r_mean) / 256, squared_diff[:, :, 0], out=squared_diff[:, :, 0]) # ((512 + r_mean) * dR^2) >> 8
+        np.multiply(                   4, squared_diff[:, :, 1], out=squared_diff[:, :, 1]) #               4 * dG^2
+        np.multiply((767 - r_mean) / 256, squared_diff[:, :, 2], out=squared_diff[:, :, 2]) # ((767 - r_mean) * dB^2) >> 8
+        return int(np.sqrt(np.sum(squared_diff, axis=2)).sum()) # 3D weighted euclidean distance
+
+    def squared_color_dist(self, pack_image):
+        squared_diff = np.square(np.subtract(self.original_image, pack_image, dtype=np.int16), dtype=np.float64)
+        r_mean = (1/2) * (self.original_image[:, :, 0] + pack_image[:, :, 0])
+        np.multiply((512 + r_mean) / 256, squared_diff[:, :, 0], out=squared_diff[:, :, 0]) # ((512 + r_mean) * dR^2) >> 8
+        np.multiply(                   4, squared_diff[:, :, 1], out=squared_diff[:, :, 1]) #               4 * dG^2
+        np.multiply((767 - r_mean) / 256, squared_diff[:, :, 2], out=squared_diff[:, :, 2]) # ((767 - r_mean) * dB^2) >> 8
+        return int(squared_diff.sum())
 
     def partial_sad(self, pack_image, vertices, mutant_vertices):
         min_y = min(min(vertices[1::2]), min(mutant_vertices[1::2]))
@@ -39,7 +56,7 @@ class FitnessCalculator:
         min_x = min(min(vertices[0::2]), min(mutant_vertices[0::2]))
         max_x = max(max(vertices[0::2]), max(mutant_vertices[0::2]))
         diff = np.subtract(self.original_image[min_y:max_y, min_x:max_x, :], pack_image[min_y:max_y, min_x:max_x, :], dtype=np.int16)
-        return np.sqrt(np.sum(np.square(diff, dtype=np.int32), axis=2)).astype(np.int32).sum()
+        return int(np.sqrt(np.sum(np.square(diff, dtype=np.int32), axis=2)).sum())
 
 def avg_color(image):
     size = image.shape[0] * image.shape[1] # image.shape == (height, width, depth)

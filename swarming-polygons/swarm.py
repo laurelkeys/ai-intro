@@ -9,8 +9,8 @@ from utils import FitnessCalculator, avg_color
 from Population import Population
 
 # ______________________________________________________________________________
-PRINT_CYCLE = 500
-SAVE_CYCLE = 1000
+PRINT_CYCLE = 5000
+SAVE_CYCLE = 10000
 SHOW_CYCLE = 1
 
 SAVE_ALL_PATH = os.path.join("images", "temp", "all.png")
@@ -18,9 +18,9 @@ SAVE_IMAGE_PATH = os.path.join("generated", "pack.png")
 SAVE_DNA_PATH = os.path.join("generated", "dna.pkl")
 INIT_DNA_PATH = os.path.join("generated", "init_dna.pkl") # DNA of a Pack to be added to the initial Population
 
-POPULATION_SIZE = 4
+POPULATION_SIZE = 1
  
-MAX_IMAGE_SIZE = (1024, 1024)
+MAX_IMAGE_SIZE = (512, 512)
 
 # ______________________________________________________________________________
 try:
@@ -65,9 +65,9 @@ try:
                 # population.save_all(os.path.join("generated", f"{cycle}-all.png"))
             print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
         if cycle % SHOW_CYCLE == 0:
-            # population.show_best_image()
-            population.show_all()
-        population.cycle(fitness_func, partial_fitness_func) # iterates through a cycle
+            population.show_best_image()
+            # population.show_all()
+        population.cycle(fitness_func) # iterates through a cycle
         cycle += 1
 except:
     pass
