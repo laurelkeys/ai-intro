@@ -10,10 +10,10 @@ class Population:
         if dna_path is None:
             self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color, original_image=original_image) for _ in range(population_size)]
         else:
-            # puts the given Pack (through it's DNA) on self.packs
+            # generates a Pack from it's DNA and adds it to self.packs
             self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, dna_path=dna_path, bg_color=bg_color)]
             for _ in range(population_size - 1):
-                self.packs.append(Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color))
+                self.packs.append(Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color, original_image=original_image))
         
         index = 0
         best_fitness = self.packs[index].fitness

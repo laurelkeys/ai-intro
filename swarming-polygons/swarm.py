@@ -45,22 +45,24 @@ original_image = np.array(original_image, dtype=np.uint8)
 height, width, *_ = original_image.shape
 print(f"(height, width, depth) = {original_image.shape}")
 
-fitness_func = FitnessCalculator(original_image).fitness_ssd
-partial_fitness_func = FitnessCalculator(original_image).partial_fitness_ssd
+fitness_func = FitnessCalculator(original_image).ssd
+partial_fitness_func = FitnessCalculator(original_image).partial_ssd
 
 population = Population(width, height, polygon_count, vertices_count, 
                         fitness_func=fitness_func,
                         dna_path=INIT_DNA_PATH if os.path.isfile(INIT_DNA_PATH) else None, # verifies if the file exists
                         bg_color=avg_color(original_image),
                         population_size=POPULATION_SIZE,
-                        original_image=original_image)
+                        original_image=original_image) # uses original_image's colors on starting polygons
 
 cycle = 0
 start_time = time()
 try:
     while max_cycles < 0 or cycle < max_cycles:
         if cycle % PRINT_CYCLE == 0:
-            if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"))
+            if cycle % SAVE_CYCLE == 0 and cycle != 0: 
+                population.save_best_image(os.path.join("generated", f"{cycle}.png"))
+                # population.save_all(os.path.join("generated", f"{cycle}-all.png"))
             print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
         population.cycle(fitness_func, partial_fitness_func) # iterates through a cycle
         cycle += 1
