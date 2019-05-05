@@ -16,7 +16,7 @@ class Population:
             self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, dna_path=dna_path, bg_color=bg_color)]
             for _ in range(population_size - 1):
                 self.packs.append(Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color, original_image=original_image))
-        
+
         index = 0
         best_fitness = self.packs[index].fitness
         for i in range(1, population_size):
@@ -74,6 +74,13 @@ class Population:
             canvas.paste(image, (x, y, x + width, y + height))
         cv2.imshow('image', cv2.cvtColor(np.array(canvas), cv2.COLOR_RGB2BGR))
         cv2.waitKey(1)
+
+    def show_all_windows(self):
+        for i in range(self.population_size):
+            image = cv2.cvtColor(self.packs[i].image,cv2.COLOR_RGB2BGR)
+            cv2.imshow(f"image {i}", image)
+        cv2.waitKey(1)
+
 
     @property
     def best_dna(self):
