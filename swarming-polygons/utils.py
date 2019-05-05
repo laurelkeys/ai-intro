@@ -1,5 +1,8 @@
 import numpy as np
 
+BLACK = (0, 0, 0) # (red, green, blue[, alpha])
+WHITE = (255, 255, 255) # (red, green, blue[, alpha])
+
 class FitnessCalculator:
     def __init__(self, original_image):
         self.original_image = original_image

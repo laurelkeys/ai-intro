@@ -1,6 +1,7 @@
 import os
 from sys import argv
 from Runner import Runner
+from utils import WHITE, BLACK
 
 try:
     image_path = argv[1]
@@ -20,7 +21,11 @@ runner = Runner(
     print_cycle=5000
 )
 
+# NOTE these paths consider that you're running on the same directory as this file
+
 runner.save_dna_to(save_path=os.path.join("generated", "dna")) \
     .save_best_to(save_path="generated", save_cycle=10000) \
     .save_all_to(save_path="generated") \
+    .set_bg_color(WHITE) \
     .run(use_image_colors=False)
+

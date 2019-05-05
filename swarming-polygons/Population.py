@@ -4,7 +4,8 @@ import numpy as np
 from math import ceil
 from PIL import Image
 
-from Pack import WHITE, Pack
+from Pack import Pack
+from utils import WHITE
 
 class Population:
     def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, population_size=1, original_image=None):
@@ -80,7 +81,6 @@ class Population:
             image = cv2.cvtColor(self.packs[i].image,cv2.COLOR_RGB2BGR)
             cv2.imshow(f"image {i}", image)
         cv2.waitKey(1)
-
 
     @property
     def best_dna(self):

@@ -4,9 +4,7 @@ import pickle
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw
-from utils import vertices_color_avg, vertices_color_mid
-
-WHITE = (255, 255, 255) # (red, green, blue[, alpha])
+from utils import vertices_color_avg, vertices_color_mid, WHITE
 
 class Pack:
     def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, original_image=None):
