@@ -18,8 +18,8 @@ SAVE_IMAGE_PATH = os.path.join("generated", "pack.png")
 SAVE_DNA_PATH = os.path.join("generated", "dna.pkl")
 INIT_DNA_PATH = os.path.join("generated", "init_dna.pkl") # DNA of a Pack to be added to the initial Population
 
-POPULATION_SIZE = 1
- 
+POPULATION_SIZE = 4
+
 MAX_IMAGE_SIZE = (512, 512)
 
 # ______________________________________________________________________________
@@ -60,8 +60,8 @@ start_time = time()
 try:
     while max_cycles < 0 or cycle < max_cycles:
         if cycle % PRINT_CYCLE == 0:
-            if cycle % SAVE_CYCLE == 0 and cycle != 0: 
-                population.save_best_image(os.path.join("generated", f"{cycle}.png"))
+            # if cycle % SAVE_CYCLE == 0 and cycle != 0:
+                #population.save_best_image(os.path.join("generated", f"{cycle}.png"))
                 # population.save_all(os.path.join("generated", f"{cycle}-all.png"))
             print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
         if cycle % SHOW_CYCLE == 0:
@@ -69,8 +69,8 @@ try:
             # population.show_all()
         population.cycle(fitness_func) # iterates through a cycle
         cycle += 1
-except:
-    pass
+# except:
+#     pass
 finally:
     duration = time() - start_time
     print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={duration:.2f}s")
