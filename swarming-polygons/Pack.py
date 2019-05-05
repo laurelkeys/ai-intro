@@ -3,6 +3,7 @@ import pickle
 
 import numpy as np
 from PIL import Image, ImageDraw
+import cv2
 from utils import vertices_color_avg, vertices_color_mid
 
 WHITE = (255, 255, 255) # (red, green, blue[, alpha])
@@ -12,7 +13,7 @@ class Pack:
         self.width = width
         self.height = height
         self.vertices_count = vertices_count
-     
+
         if dna_path is not None:
             self.__from_dna(dna_path) # inits self.colors, self.polygons, and self.bg_color
         else:
@@ -30,7 +31,7 @@ class Pack:
 
         self.image = np.array(self.draw(self.colors, self.polygons), dtype=np.uint8)
         self.fitness = fitness_func(self.image)
-    
+
     def draw(self, colors, polygons, scale=1):
         canvas = Image.new('RGB', (self.width * scale, self.height * scale), self.bg_color)
         drawer = ImageDraw.Draw(canvas, 'RGBA')
@@ -38,7 +39,7 @@ class Pack:
             drawer.polygon((scale * polygon).tolist(), tuple(color))
         del drawer
         return canvas
-    
+
     def mutant(self, return_vertices=False):
 
         mutate_color_delta = 26
@@ -52,7 +53,7 @@ class Pack:
             if return_vertices:
                 return self.colors, polygons, self.polygons[polygon_index, :], polygons[polygon_index, :]
             else:
-                return self.colors, polygons 
+                return self.colors, polygons
 
         def __mutate_polygon(self, polygon_index):
             polygons = self.polygons.copy()
@@ -61,7 +62,7 @@ class Pack:
             if return_vertices:
                 return self.colors, polygons, self.polygons[polygon_index, :], polygons[polygon_index, :]
             else:
-                return self.colors, polygons 
+                return self.colors, polygons
 
         def __mutate_color(self, polygon_index):
             colors = self.colors.copy()
@@ -71,7 +72,7 @@ class Pack:
             if return_vertices:
                 return colors, self.polygons, self.polygons[polygon_index, :], self.polygons[polygon_index, :]
             else:
-                return colors, self.polygons 
+                return colors, self.polygons
 
         def __mutate_alpha(self, polygon_index):
             colors = self.colors.copy()
@@ -110,6 +111,13 @@ class Pack:
         image = self.draw(self.colors, self.polygons, scale)
         image.save(save_path, save_format)
 
+    def show_image(self,scale):
+        image = self.draw(self.colors, self.polygons, scale)
+        opencvImage = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        cv2.imshow('image', opencvImage)
+        cv2.waitKey(1)
+
+
     @property
     def dna(self):
         # NOTE a string representation can be seen with the following (use only for debugging):
@@ -123,7 +131,7 @@ class Pack:
             'bg_color' : self.bg_color
         }
         return pickle.dumps(dna_obj) # binary representation
-    
+
     def __from_dna(self, dna_path):
         with open(dna_path, 'rb') as f:
             dna_obj = pickle.load(f)

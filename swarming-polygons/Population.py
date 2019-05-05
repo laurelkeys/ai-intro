@@ -14,7 +14,7 @@ class Population:
             self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, dna_path=dna_path, bg_color=bg_color)]
             for _ in range(population_size - 1):
                 self.packs.append(Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color))
-        
+
         index = 0
         best_fitness = self.packs[index].fitness
         for i in range(1, population_size):
@@ -42,6 +42,9 @@ class Population:
 
     def save_best_image(self, save_path, save_format='PNG', scale=1):
         self.best_pack.save_image(save_path, save_format, scale)
+
+    def show_best_image(self, scale=1):
+        self.best_pack.show_image(scale)
 
     def save_all(self, save_path, save_format='PNG'):
         # saves every Pack in the population in a single image, ordered in two rows

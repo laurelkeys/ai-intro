@@ -9,8 +9,9 @@ from utils import FitnessCalculator, avg_color
 from Population import Population
 
 # ______________________________________________________________________________
-PRINT_CYCLE = 5000
-SAVE_CYCLE = 10000
+PRINT_CYCLE = 1
+SAVE_CYCLE = 1000
+SHOW_CYCLE = 1
 
 SAVE_ALL_PATH = os.path.join("images", "temp", "all.png")
 SAVE_IMAGE_PATH = os.path.join("generated", "pack.png")
@@ -18,9 +19,8 @@ SAVE_DNA_PATH = os.path.join("generated", "dna.pkl")
 INIT_DNA_PATH = os.path.join("generated", "init_dna.pkl") # DNA of a Pack to be added to the initial Population
 
 POPULATION_SIZE = 1
-
-# MAX_IMAGE_SIZE = (256, 256) # (width, height)
-MAX_IMAGE_SIZE = (512, 512)
+ 
+MAX_IMAGE_SIZE = (1024, 1024)
 
 # ______________________________________________________________________________
 try:
@@ -48,7 +48,7 @@ print(f"(height, width, depth) = {original_image.shape}")
 fitness_func = FitnessCalculator(original_image).fitness_ssd
 partial_fitness_func = FitnessCalculator(original_image).partial_fitness_ssd
 
-population = Population(width, height, polygon_count, vertices_count, 
+population = Population(width, height, polygon_count, vertices_count,
                         fitness_func=fitness_func,
                         dna_path=INIT_DNA_PATH if os.path.isfile(INIT_DNA_PATH) else None, # verifies if the file exists
                         bg_color=avg_color(original_image),
@@ -62,6 +62,8 @@ try:
         if cycle % PRINT_CYCLE == 0:
             if cycle % SAVE_CYCLE == 0 and cycle != 0: population.save_best_image(os.path.join("generated", f"{cycle}.png"))
             print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
+        if cycle % SHOW_CYCLE == 0:
+            population.show_best_image()
         population.cycle(fitness_func, partial_fitness_func) # iterates through a cycle
         cycle += 1
 except:
@@ -69,7 +71,7 @@ except:
 finally:
     duration = time() - start_time
     print(f"[{cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={duration:.2f}s")
-    
+
     population.save_best_image(SAVE_IMAGE_PATH, scale=scale)
     print(f"\nSolution saved at {SAVE_IMAGE_PATH}")
     print(f"[polygons|vertices|fitness|cycle|time]=[{polygon_count}|{vertices_count}|{population.best_fitness:_d}|{cycle}|{duration:.2f}]")
@@ -78,5 +80,5 @@ finally:
     f.write(population.best_dna)
     f.close()
     print(f"\nSolution's DNA saved at {SAVE_DNA_PATH}")
-    
+
     # population.save_all(SAVE_ALL_PATH)
