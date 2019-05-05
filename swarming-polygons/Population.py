@@ -1,4 +1,6 @@
+import cv2
 import copy
+import numpy as np
 from math import ceil
 from PIL import Image
 
@@ -43,6 +45,9 @@ class Population:
     def save_best_image(self, save_path, save_format='PNG', scale=1):
         self.best_pack.save_image(save_path, save_format, scale)
 
+    def show_best_image(self, scale=1):
+        self.best_pack.show_image(scale)
+
     def save_all(self, save_path, save_format='PNG'):
         # saves every Pack in the population in a single image, ordered in two rows
         width = min(self.packs[0].width, 200)
@@ -55,6 +60,20 @@ class Population:
             y = i % 2 * height # evens on the first row and odds on the second
             canvas.paste(image, (x, y, x + width, y + height))
         canvas.save(save_path, save_format)
+
+    def show_all(self):
+        # show every Pack in the population in a single image, ordered in two rows
+        width = min(self.packs[0].width, 200)
+        height = min(self.packs[0].height, 200)
+        canvas = Image.new("RGB", (width * ceil(self.population_size / 2), 2 * height if self.population_size > 1 else height))
+        for i in range(self.population_size):
+            image = self.packs[i].draw(self.packs[i].colors, self.packs[i].polygons)
+            image.thumbnail((width, height))
+            x = i // 2 * width
+            y = i % 2 * height # evens on the first row and odds on the second
+            canvas.paste(image, (x, y, x + width, y + height))
+        cv2.imshow('image', cv2.cvtColor(np.array(canvas), cv2.COLOR_RGB2BGR))
+        cv2.waitKey(1)
 
     @property
     def best_dna(self):
