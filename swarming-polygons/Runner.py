@@ -46,9 +46,9 @@ class Runner:
         self.save_all_final_prefix = final_save_prefix
         return self
     
-    def show_at(self, show_cycle=1, show_best_only=True):
+    def show_at(self, show_cycle=1, show_all=False):
         self.show_cycle = show_cycle
-        self.show_best_only = show_best_only
+        self.show_all = show_all
         return self
     
     def init_with(self, dna_path):
@@ -67,7 +67,7 @@ class Runner:
     def run(self, use_partial_fitness=True, use_image_colors=True):
         height, width, *_ = self.image.shape
         print(f"(height, width, depth) = {self.image.shape}", 
-              end='\n' if sum(self.original_size) == sum(self.image.shape) else f" [resized from {' by '.join(map(str, self.original_size))}]\n")
+              end='\n' if sum(self.original_size) == sum(self.image.shape[0:2]) else f" [resized from {' by '.join(map(str, self.original_size))}]\n")
 
         if not self.fitness_func:
             self.fitness_func = FitnessCalculator(self.image).ssd
@@ -77,10 +77,10 @@ class Runner:
             width, height, 
             self.polygon_count, self.vertices_count,
             fitness_func=self.fitness_func,
-            dna_path=self.initial_dna_path, # not used if None
-            bg_color=self.bg_color if self.bg_color else avg_color(self.image), # not used if original_image is also passed
             population_size=self.population_size,
-            original_image=self.image if use_image_colors else None # uses image's colors on starting polygons
+            dna_path=self.initial_dna_path, # not used if None
+            bg_color=self.bg_color if self.bg_color else avg_color(self.image), # not used if initial_colors_image is also passed
+            initial_colors_image=self.image if use_image_colors else None # uses image's colors on starting polygons
         )
 
         self.cycle = 0
@@ -90,7 +90,7 @@ class Runner:
         should_print = lambda cycle: cycle % self.print_cycle == 0
         should_save_best = lambda cycle: False if not self.save_best_cycle else cycle % self.save_best_cycle == 0
         should_save_all = lambda cycle: False if not self.save_all_cycle else cycle % self.save_all_cycle == 0
-        should_show = lambda cycle: False if not self.show_cycle else cycle < self.show_cycle
+        should_show = lambda cycle: False if not self.show_cycle else cycle % self.show_cycle == 0
 
         try:
             while should_cycle(self.cycle):
@@ -102,27 +102,27 @@ class Runner:
                 self.cycle += 1
 
                 if should_print(self.cycle):
-                    print(f"[{self.cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
+                    print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
                 if should_save_best(self.cycle):
-                    population.save_best_image(os.path.join(self.save_best_path, f"{self.save_best_prefix}{self.cycle}.png"))
+                    population.save_best(os.path.join(self.save_best_path, f"{self.save_best_prefix}{self.cycle}.png"))
                 if should_save_all(self.cycle):
                     population.save_all(os.path.join(self.save_all_path, f"{self.save_all_prefix}{self.cycle}.png"))
                 if should_show(self.cycle):
-                    if self.show_best_only:
-                        population.show_best_image()
-                    else:
+                    if self.show_all:
                         population.show_all()
+                    else:
+                        population.show_best()
 
         except(KeyboardInterrupt, SystemExit):
             pass
             
         finally:
             duration = time() - start_time
-            print(f"[{self.cycle}:{population.best_pack_index}] fitness={population.best_fitness:_d}, Δt={duration:.2f}s")
+            print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={duration:.2f}s")
 
             if self.save_best_path:
                 save_path = os.path.join(self.save_best_path, f"{self.save_best_final_prefix}{self.cycle}.png")
-                population.save_best_image(save_path)
+                population.save_best(save_path)
                 print(f"\nBest solution saved at {save_path}")
             
             if self.population_size > 1 and self.save_all_path:

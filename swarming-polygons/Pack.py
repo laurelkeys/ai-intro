@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw
 from utils import vertices_color_avg, vertices_color_mid, WHITE
 
 class Pack:
-    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, original_image=None):
+    def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, initial_colors_image=None, initial_colors_func=vertices_color_mid):
         self.width = width
         self.height = height
         self.vertices_count = vertices_count
@@ -19,13 +19,12 @@ class Pack:
             self.polygons[:, 0::2] = np.random.randint(low=0, high=self.width, size=(polygon_count, vertices_count), dtype=np.int16) # x values on even positions
             self.polygons[:, 1::2] = np.random.randint(low=0, high=self.height, size=(polygon_count, vertices_count), dtype=np.int16) # y values on odd positions
             self.bg_color = bg_color
-            if original_image is None:
+            if initial_colors_image is None:
                 self.colors = np.random.randint(low=0, high=256, size=(polygon_count, 4), dtype=np.uint8) # RGBA
             else:
                 self.colors = np.empty((polygon_count, 4), dtype=np.uint8)
                 for i in range(polygon_count):
-                    # self.colors[i, :] = vertices_color_avg(self.polygons[i], self.vertices_count, original_image)
-                    self.colors[i, :] = vertices_color_mid(self.polygons[i], self.vertices_count, original_image)
+                    self.colors[i, :] = initial_colors_func(self.polygons[i], self.vertices_count, initial_colors_image)
 
         self.image = np.array(self.draw(self.colors, self.polygons), dtype=np.uint8)
         self.fitness = fitness_func(self.image)
