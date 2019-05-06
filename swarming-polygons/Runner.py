@@ -27,9 +27,10 @@ class Runner:
     def __getattr__(self, name):
         return None # returns None when an attribute isn't found
     
-    def save_dna_to(self, save_path, prefix='dna_'):
+    def save_dna_to(self, save_path, prefix='dna_', min_fitness=float('inf')):
         self.save_dna_path = save_path
         self.save_dna_prefix = prefix
+        self.save_dna_min_fitness = min_fitness
         return self
 
     def save_best_to(self, save_path, save_cycle=None, prefix='', final_save_prefix='best_pack_'):
@@ -130,7 +131,7 @@ class Runner:
                 population.save_all(save_path)
                 print(f"\nFinal population saved at {save_path}")
 
-            if self.save_dna_path:
+            if self.save_dna_path and population.best_fitness < self.save_dna_min_fitness:
                 save_path = os.path.join(self.save_dna_path, f"{self.save_dna_prefix}{self.cycle}.pkl")
                 with open(save_path, "wb+") as f: # binary file
                     f.write(population.best_dna)

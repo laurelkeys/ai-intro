@@ -28,6 +28,7 @@ class Pack:
 
         self.image = np.array(self.draw(self.colors, self.polygons), dtype=np.uint8)
         self.fitness = fitness_func(self.image)
+        self.curr_cycle = 0
 
     def draw(self, colors, polygons, scale=1):
         canvas = Image.new('RGB', (self.width * scale, self.height * scale), self.bg_color)
@@ -47,6 +48,7 @@ class Pack:
             vertex_index = 2 * np.random.randint(low=0, high=self.vertices_count) # chooses one of the polygon's vertices to mutate
             polygons[polygon_index, vertex_index] = np.random.randint(low=0, high=self.width + 1, dtype=np.int16)
             polygons[polygon_index, vertex_index + 1] = np.random.randint(low=0, high=self.height + 1, dtype=np.int16)
+
             if return_vertices:
                 return self.colors, polygons, self.polygons[polygon_index, :], polygons[polygon_index, :]
             else:
@@ -56,6 +58,7 @@ class Pack:
             polygons = self.polygons.copy()
             polygons[polygon_index, 0::2] = np.tile(np.random.randint(low=0, high=self.width + 1, dtype=np.int16), self.vertices_count) # x's
             polygons[polygon_index, 1::2] = np.tile(np.random.randint(low=0, high=self.height + 1, dtype=np.int16), self.vertices_count) # y's
+
             if return_vertices:
                 return self.colors, polygons, self.polygons[polygon_index, :], polygons[polygon_index, :]
             else:
@@ -64,8 +67,10 @@ class Pack:
         def __mutate_color(self, polygon_index):
             colors = self.colors.copy()
             # colors[polygon_index, :3] = np.random.randint(0, 256, size=3, dtype=np.uint8) # RGB
+
             color_mutation = np.random.randint(low=-mutate_color_delta, high=mutate_color_delta + 1, size=3, dtype=np.int8)
             colors[polygon_index, :3] = np.clip(np.add(colors[polygon_index, :3], color_mutation, dtype=np.int16), 0, 255).astype(np.uint8)
+                        
             if return_vertices:
                 return colors, self.polygons, self.polygons[polygon_index, :], self.polygons[polygon_index, :]
             else:
@@ -74,6 +79,7 @@ class Pack:
         def __mutate_alpha(self, polygon_index):
             colors = self.colors.copy()
             colors[polygon_index, 3] = np.random.randint(mutate_alpha_range[0], mutate_alpha_range[1], dtype=np.uint8) # Alpha
+
             if return_vertices:
                 return colors, self.polygons, self.polygons[polygon_index, :], self.polygons[polygon_index, :]
             else:
@@ -103,6 +109,7 @@ class Pack:
                 self.polygons = child_polygons
                 self.image = child_image
                 self.fitness = child_fitness
+        self.curr_cycle += 1
 
     def save_image(self, save_path, save_format, scale=1):
         image = self.draw(self.colors, self.polygons, scale)

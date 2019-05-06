@@ -18,18 +18,19 @@ runner = Runner(
     image_path, polygon_count, vertices_count, 
     population_size=1,
     max_internal_size=(256, 256), 
-    print_cycle=5000
+    print_cycle=5_000
 )
 
 # NOTE these paths consider that you're running on the same directory as this file
-
-runner.save_dna_to(save_path=os.path.join("generated", "dna")) \
-    .save_best_to(save_path="generated", save_cycle=10000) \
+runner \
+    .save_dna_to(save_path=os.path.join("generated", "dna"), min_fitness=100_000_000) \
+    .save_best_to(save_path="generated", save_cycle=10_000) \
     .save_all_to(save_path="generated") \
-    .run()
+
+runner.run()
 
 # Runner functions and params:
-# - save_dna_to (save_path, prefix='dna_')
+# - save_dna_to (save_path, prefix='dna_', min_fitness=float('inf'))
 # - save_best_to (save_path, save_cycle=None, prefix='', final_save_prefix='best_pack_')
 # - save_all_to (save_path, save_cycle=None, prefix='population_', final_save_prefix='final_population_')
 # - show_at (show_cycle=1, show_best_only=True)
