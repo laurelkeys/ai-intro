@@ -17,7 +17,7 @@ except:
 runner = Runner(
     image_path, polygon_count, vertices_count, 
     population_size=1,
-    max_internal_size=(512, 512), 
+    max_internal_size=(256, 256), 
     print_cycle=5000
 )
 
@@ -26,6 +26,13 @@ runner = Runner(
 runner.save_dna_to(save_path=os.path.join("generated", "dna")) \
     .save_best_to(save_path="generated", save_cycle=10000) \
     .save_all_to(save_path="generated") \
-    .set_bg_color(WHITE) \
-    .run(use_image_colors=False)
+    .run()
 
+# Runner functions and params:
+# - save_dna_to (save_path, prefix='dna_')
+# - save_best_to (save_path, save_cycle=None, prefix='', final_save_prefix='best_pack_')
+# - save_all_to (save_path, save_cycle=None, prefix='population_', final_save_prefix='final_population_')
+# - show_at (show_cycle=1, show_best_only=True)
+# - set_fitness_func (fitness_func, partial_fitness_func=None)
+# - init_with (dna_path)
+# - set_bg_color (bg_color)
