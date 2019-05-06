@@ -17,8 +17,8 @@ class FitnessCalculator:
 
     def euclidian(self, pack_image):
         diff = np.subtract(self.original_image, pack_image, dtype=np.int16)
-        # diff.shape == (height, width, depth), therefore the sum on axis 2 adds up the RGB channels
         return int(np.sqrt(np.sum(np.square(diff, dtype=np.int64), axis=2)).sum()) # 3D euclidean distance
+        # NOTE diff.shape == (height, width, depth), therefore the sum on axis 2 adds up the RGB channels
 
     def color_dist(self, pack_image):
         # ref.: https://www.compuphase.com/cmetric.htm
@@ -36,28 +36,27 @@ class FitnessCalculator:
         np.multiply(                   4, squared_diff[:, :, 1], out=squared_diff[:, :, 1]) #               4 * dG^2
         np.multiply((767 - r_mean) / 256, squared_diff[:, :, 2], out=squared_diff[:, :, 2]) # ((767 - r_mean) * dB^2) >> 8
         return int(squared_diff.sum())
-
-    def partial_sad(self, pack_image, vertices, mutant_vertices):
+    
+    def __bbox(self, vertices, mutant_vertices):
+        # minimum bounding rectangle (a.k.a. bounding box)
         min_y = min(min(vertices[1::2]), min(mutant_vertices[1::2]))
         max_y = max(max(vertices[1::2]), max(mutant_vertices[1::2]))
         min_x = min(min(vertices[0::2]), min(mutant_vertices[0::2]))
         max_x = max(max(vertices[0::2]), max(mutant_vertices[0::2]))
+        return min_y, max_y, min_x, max_x
+
+    def partial_sad(self, pack_image, vertices, mutant_vertices):
+        min_y, max_y, min_x, max_x = self.__bbox(vertices, mutant_vertices)
         diff = np.subtract(self.original_image[min_y:max_y, min_x:max_x, :], pack_image[min_y:max_y, min_x:max_x, :], dtype=np.int16)
         return np.abs(diff, dtype=np.int16).sum()
 
     def partial_ssd(self, pack_image, vertices, mutant_vertices):
-        min_y = min(min(vertices[1::2]), min(mutant_vertices[1::2]))
-        max_y = max(max(vertices[1::2]), max(mutant_vertices[1::2]))
-        min_x = min(min(vertices[0::2]), min(mutant_vertices[0::2]))
-        max_x = max(max(vertices[0::2]), max(mutant_vertices[0::2]))
+        min_y, max_y, min_x, max_x = self.__bbox(vertices, mutant_vertices)
         diff = np.subtract(self.original_image[min_y:max_y, min_x:max_x, :], pack_image[min_y:max_y, min_x:max_x, :], dtype=np.int16)
         return np.square(diff, dtype=np.int32).sum()
 
     def partial_euclidian(self, pack_image, vertices, mutant_vertices):
-        min_y = min(min(vertices[1::2]), min(mutant_vertices[1::2]))
-        max_y = max(max(vertices[1::2]), max(mutant_vertices[1::2]))
-        min_x = min(min(vertices[0::2]), min(mutant_vertices[0::2]))
-        max_x = max(max(vertices[0::2]), max(mutant_vertices[0::2]))
+        min_y, max_y, min_x, max_x = self.__bbox(vertices, mutant_vertices)
         diff = np.subtract(self.original_image[min_y:max_y, min_x:max_x, :], pack_image[min_y:max_y, min_x:max_x, :], dtype=np.int16)
         return int(np.sqrt(np.sum(np.square(diff, dtype=np.int32), axis=2)).sum())
 
