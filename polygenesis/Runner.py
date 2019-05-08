@@ -90,7 +90,7 @@ class Runner:
         should_cycle = lambda cycle: True if not self.max_cycles else cycle < self.max_cycles
         should_print = lambda cycle: cycle % self.print_cycle == 0
         should_save_best = lambda cycle: False if not self.save_best_cycle else cycle % self.save_best_cycle == 0
-        should_save_all = lambda cycle: False if not self.save_all_cycle else cycle % self.save_all_cycle == 0
+        should_save_all = lambda cycle: False if (not self.save_all_cycle) or (self.population_size <= 1) else cycle % self.save_all_cycle == 0
         should_show = lambda cycle: False if not self.show_cycle else cycle % self.show_cycle == 0
 
         try:
@@ -103,7 +103,8 @@ class Runner:
                 self.cycle += 1
 
                 if should_print(self.cycle):
-                    print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
+                    try: print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
+                    except ValueError: print(f"[{self.cycle}] fitness={population.best_fitness:.2f}, Δt={(time() - start_time):.2f}s")
                 if should_save_best(self.cycle):
                     population.save_best(os.path.join(self.save_best_path, f"{self.save_best_prefix}{self.cycle}.png"))
                 if should_save_all(self.cycle):
@@ -119,7 +120,8 @@ class Runner:
             
         finally:
             duration = time() - start_time
-            print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={duration:.2f}s")
+            try: print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={duration:.2f}s")
+            except ValueError: print(f"[{self.cycle}] fitness={population.best_fitness:.2f}, Δt={duration:.2f}s")
 
             if self.save_best_path:
                 save_path = os.path.join(self.save_best_path, f"{self.save_best_final_prefix}{self.cycle}.png")
