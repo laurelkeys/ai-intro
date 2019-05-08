@@ -23,10 +23,10 @@ class Runner:
         self.population_size = population_size
         self.max_cycles = max_cycles
         self.print_cycle = print_cycle
-
+    
     def __getattr__(self, name):
         return None # returns None when an attribute isn't found
-    
+
     def save_dna_to(self, save_path, prefix='dna_', min_fitness=float('inf')):
         self.save_dna_path = save_path
         self.save_dna_prefix = prefix
@@ -46,12 +46,12 @@ class Runner:
         self.save_all_prefix = prefix
         self.save_all_final_prefix = final_save_prefix
         return self
-    
+
     def show_at(self, show_cycle=1, show_all=False):
         self.show_cycle = show_cycle
         self.show_all = show_all
         return self
-    
+
     def init_with(self, dna_path):
         self.initial_dna_path = dna_path # DNA of a Pack to be added to the initial Population
         return self

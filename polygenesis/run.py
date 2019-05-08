@@ -16,18 +16,18 @@ except:
 
 runner = Runner(
     image_path, polygon_count, vertices_count, 
-    population_size=1,
-    max_internal_size=(256, 256), 
-    print_cycle=5_000
+    population_size=10,
+    max_internal_size=(100, 100), 
+    print_cycle=2_500,
+    max_cycles=120_000
 )
 
 # NOTE these paths consider that you're running on the same directory as this file
 runner \
     .save_dna_to(save_path=os.path.join("generated", "dna"), min_fitness=100_000_000) \
-    .save_best_to(save_path="generated", save_cycle=10_000) \
-    .save_all_to(save_path="generated") \
+    .save_all_to(save_path="generated", save_cycle=5_000) \
 
-runner.run()
+runner.run(use_partial_fitness=False, use_image_colors=True)
 
 # Runner functions and params:
 # - save_dna_to (save_path, prefix='dna_', min_fitness=float('inf'))

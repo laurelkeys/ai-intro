@@ -1,7 +1,7 @@
 # Project 2
-swarming-polygons/images/temp/*
-swarming-polygons/generated/*.png
-swarming-polygons/generated/dna/*.pkl
+polygenesis/images/temp/*
+polygenesis/generated/*.png
+polygenesis/generated/dna/*.pkl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
