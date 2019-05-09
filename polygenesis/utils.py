@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from skimage.measure import compare_nrmse, compare_psnr, compare_ssim
 
 BLACK = (0, 0, 0) # (red, green, blue[, alpha])
@@ -7,7 +8,7 @@ WHITE = (255, 255, 255) # (red, green, blue[, alpha])
 class FitnessCalculator:
     def __init__(self, original_image):
         self.original_image = original_image
-    
+
     def sad(self, pack_image):
         diff = np.subtract(self.original_image, pack_image, dtype=np.int16)
         return np.abs(diff, dtype=np.int16).sum() # sum absolute difference
@@ -45,7 +46,7 @@ class FitnessCalculator:
         np.multiply(                   4, squared_diff[:, :, 1], out=squared_diff[:, :, 1]) #               4 * dG^2
         np.multiply((767 - r_mean) / 256, squared_diff[:, :, 2], out=squared_diff[:, :, 2]) # ((767 - r_mean) * dB^2) >> 8
         return int(np.sqrt(np.sum(squared_diff, axis=2)).sum()) # 3D weighted euclidean distance
-    
+
     def __bbox(self, vertices, mutant_vertices):
         # minimum bounding rectangle (a.k.a. bounding box)
         min_x = min(min(vertices[0::2]), min(mutant_vertices[0::2]))
@@ -109,3 +110,8 @@ def vertices_color_mid(polygon, vertices_count, image, alpha=128):
         if y > max_y: max_y = y
     vertices_color_mid[0:3] = image[(min_y + max_y) // 2, (min_x + max_x) // 2, :]
     return vertices_color_mid
+
+def update_plot(hl, new_fitness, new_time):
+    hl.set_xdata(np.append(hl.get_xdata(), new_time))
+    hl.set_ydata(np.append(hl.get_ydata(), new_time))
+    plt.draw() 

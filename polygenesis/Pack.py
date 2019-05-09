@@ -66,7 +66,7 @@ class Pack:
             colors = self.colors.copy()
             colors[polygon_index, 3] = np.random.randint(mutate_alpha_range[0], mutate_alpha_range[1], dtype=np.uint8) # Alpha
             return colors, self.polygons, self.polygons[polygon_index, :], self.polygons[polygon_index, :]
-        
+
         def __mutate_order(self, polygon_index):
             other_polygon_index = np.random.randint(self.polygons.shape[0])
             polygons = self.polygons.copy()

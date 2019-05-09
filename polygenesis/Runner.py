@@ -2,9 +2,10 @@ import os
 from time import time
 
 import numpy as np
+import matplotlib.pyplot as plt
 from PIL import Image
 
-from utils import FitnessCalculator, avg_color
+from utils import FitnessCalculator, avg_color, update_plot
 from Population import Population
 
 class Runner:
@@ -23,7 +24,7 @@ class Runner:
         self.population_size = population_size
         self.max_cycles = max_cycles
         self.print_cycle = print_cycle
-    
+
     def __getattr__(self, name):
         return None # returns None when an attribute isn't found
 
@@ -52,22 +53,31 @@ class Runner:
         self.show_all = show_all
         return self
 
+    def reproduce_at(self, reprodution_cycle=100):
+        self.reprodution_cycle = reprodution_cycle
+        return self
+
     def init_with(self, dna_path):
         self.initial_dna_path = dna_path # DNA of a Pack to be added to the initial Population
         return self
-    
+
     def set_fitness_func(self, fitness_func, partial_fitness_func=None):
         self.fitness_func = fitness_func
         self.partial_fitness_func = partial_fitness_func
         return self
-    
+
     def set_bg_color(self, bg_color):
         self.bg_color = bg_color
         return self
 
     def run(self, use_partial_fitness=True, use_image_colors=True):
         height, width, *_ = self.image.shape
-        print(f"(height, width, depth) = {self.image.shape}", 
+        plot, = plt.plot([], [])
+        fig = plt.gcf()
+        fig.show()
+        fig.canvas.draw()
+
+        print(f"(height, width, depth) = {self.image.shape}",
               end='\n' if sum(self.original_size) == sum(self.image.shape[0:2]) else f" [resized from {' by '.join(map(str, self.original_size))}]\n")
 
         if not self.fitness_func:
@@ -75,7 +85,7 @@ class Runner:
             self.partial_fitness_func = FitnessCalculator(self.image).partial_ssd
 
         population = Population(
-            width, height, 
+            width, height,
             self.polygon_count, self.vertices_count,
             fitness_func=self.fitness_func,
             population_size=self.population_size,
@@ -92,18 +102,26 @@ class Runner:
         should_save_best = lambda cycle: False if not self.save_best_cycle else cycle % self.save_best_cycle == 0
         should_save_all = lambda cycle: False if (not self.save_all_cycle) or (self.population_size <= 1) else cycle % self.save_all_cycle == 0
         should_show = lambda cycle: False if not self.show_cycle else cycle % self.show_cycle == 0
+        should_reproduce = lambda cycle: False if not self.reprodution_cycle else cycle % self.reprodution_cycle == 0
 
         try:
             while should_cycle(self.cycle):
                 if use_partial_fitness:
-                    population.cycle(self.fitness_func, self.partial_fitness_func)
+                    if should_reproduce(self.cycle):
+                        population.cycle(self.fitness_func, self.partial_fitness_func, True)
+                    else:
+                        population.cycle(self.fitness_func, self.partial_fitness_func, False)
                 else:
-                    population.cycle(self.fitness_func)
-                    
+                    if should_reproduce(self.cycle):
+                        population.cycle(self.fitness_func, prophase=True)
+                    else:
+                        population.cycle(self.fitness_func, prophase=False)
+
                 self.cycle += 1
 
                 if should_print(self.cycle):
-                    try: print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
+                    try:
+                        print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
                     except ValueError: print(f"[{self.cycle}] fitness={population.best_fitness:.2f}, Δt={(time() - start_time):.2f}s")
                 if should_save_best(self.cycle):
                     population.save_best(os.path.join(self.save_best_path, f"{self.save_best_prefix}{self.cycle}.png"))
@@ -114,10 +132,15 @@ class Runner:
                         population.show_all()
                     else:
                         population.show_best()
+                    plot.set_xdata(np.append(plot.get_xdata(), time() - start_time))
+                    plot.set_ydata(np.append(plot.get_ydata(), population.best_fitness))
+                    plt.xlim([0, time() - start_time])
+                    plt.ylim([0, 5000])
+                    fig.canvas.draw()
 
         except(KeyboardInterrupt, SystemExit):
             pass
-            
+
         finally:
             duration = time() - start_time
             try: print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={duration:.2f}s")
@@ -127,7 +150,7 @@ class Runner:
                 save_path = os.path.join(self.save_best_path, f"{self.save_best_final_prefix}{self.cycle}.png")
                 population.save_best(save_path)
                 print(f"\nBest solution saved at {save_path}")
-            
+
             if self.population_size > 1 and self.save_all_path:
                 save_path = os.path.join(self.save_all_path, f"{self.save_all_final_prefix}{self.cycle}.png")
                 population.save_all(save_path)
@@ -138,4 +161,3 @@ class Runner:
                 with open(save_path, "wb+") as f: # binary file
                     f.write(population.best_dna)
                 print(f"\nBest solution's DNA saved at {save_path}")
-

@@ -10,7 +10,8 @@ from utils import WHITE
 class Population:
     def __init__(self, width, height, polygon_count, vertices_count, fitness_func, population_size=1, dna_path=None, bg_color=WHITE, initial_colors_image=None):
         self.population_size = population_size # equal to the number of packs (one pack <=> one image)
-        
+        self.polygon_count = polygon_count
+
         self.packs = [Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color, initial_colors_image=initial_colors_image) for _ in range(population_size - 1)]
         if dna_path is None:
             self.packs.append(Pack(width, height, polygon_count, vertices_count, fitness_func, bg_color=bg_color, initial_colors_image=initial_colors_image))
@@ -29,7 +30,7 @@ class Population:
 
         self.curr_cycle = 0
 
-    def cycle(self, fitness_func, partial_fitness_func=None):
+    def cycle(self, fitness_func, partial_fitness_func=None, prophase = True):
         index = 0
         best_fitness = self.best_fitness
         for i in range(self.population_size):
@@ -38,6 +39,33 @@ class Population:
             if curr_fitness < best_fitness:
                 index = i
                 best_fitness = curr_fitness
+
+        if prophase == True:
+            father_pack = np.random.randint(0, self.population_size)
+            mother_pack = np.random.randint(0, self.population_size)
+            child_pack = copy.deepcopy(self.packs[mother_pack])
+            chiasma_start = np.random.randint(self.polygon_count/4, self.polygon_count/2)
+            chiasma_end = np.random.randint(chiasma_start, 3*self.polygon_count/4)
+            father_pack = np.random.randint(0, self.population_size)
+
+            worst_index = 0
+            worst_fitness = self.packs[0].fitness
+            for i in range(self.population_size):
+                curr_fitness = self.packs[i].fitness
+                if curr_fitness > worst_fitness:
+                    worst_fitness = curr_fitness
+                    worst_index = i
+
+            if father_pack != i: #can't reproduce by itself
+                for chiasma_locus in range(chiasma_start, chiasma_end):
+                    child_pack.polygons[chiasma_locus] = self.packs[father_pack].polygons[chiasma_locus]
+                    child_pack.colors[chiasma_locus] = self.packs[father_pack].colors[chiasma_locus]
+                child_pack.fitness = fitness_func(child_pack.image)
+                if child_pack.fitness < worst_fitness:
+                    self.packs.pop(worst_index)
+                    self.packs.insert(worst_index, child_pack) 
+
+
         if best_fitness < self.best_fitness:
             self.best_pack = copy.deepcopy(self.packs[index])
             self.best_fitness = best_fitness # == self.best_pack.fitness

@@ -16,21 +16,22 @@ except:
 
 runner = Runner(
     image_path, polygon_count, vertices_count,
-    population_size=1,
+    population_size=2,
     max_internal_size=(200, 200),
-    print_cycle=1_000
+    print_cycle=1
 )
 
 # NOTE these paths consider that you're running on the same directory as this file
 #      also, the min_fitness value to save the DNA should be changed depending on the fitness function
+runner.show_at(1, True)
+runner.reproduce_at(10)
 runner \
-    .init_with(dna_path=os.path.join("generated", "dna", "dna_ml_400000.pkl")) \
     .save_dna_to(save_path=os.path.join("generated", "dna"), min_fitness=100_000_000) \
     .save_best_to(save_path="generated", save_cycle=5_000) \
     .save_all_to(save_path="generated", save_cycle=10_000) \
     .set_fitness_func(FitnessCalculator(runner.image).mse, partial_fitness_func=FitnessCalculator(runner.image).partial_mse) \
 
-runner.run(use_partial_fitness=True, 
+runner.run(use_partial_fitness=True,
            use_image_colors=True)
 
 # Runner functions and params:
