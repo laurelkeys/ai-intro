@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-from utils import FitnessCalculator, avg_color, update_plot
+from utils import FitnessCalculator, avg_color
 from Population import Population
 
 class Runner:
@@ -53,8 +53,8 @@ class Runner:
         self.show_all = show_all
         return self
 
-    def reproduce_at(self, reprodution_cycle=100):
-        self.reprodution_cycle = reprodution_cycle
+    def reproduce_at(self, reproduction_cycle=100):
+        self.reproduction_cycle = reproduction_cycle
         return self
 
     def init_with(self, dna_path):
@@ -72,10 +72,12 @@ class Runner:
 
     def run(self, use_partial_fitness=True, use_image_colors=True):
         height, width, *_ = self.image.shape
-        plot, = plt.plot([], [])
-        fig = plt.gcf()
-        fig.show()
-        fig.canvas.draw()
+
+        if self.show_cycle != None:
+            plot, *_ = plt.plot([], [])
+            fig = plt.gcf()
+            fig.show()
+            fig.canvas.draw()
 
         print(f"(height, width, depth) = {self.image.shape}",
               end='\n' if sum(self.original_size) == sum(self.image.shape[0:2]) else f" [resized from {' by '.join(map(str, self.original_size))}]\n")
@@ -102,27 +104,21 @@ class Runner:
         should_save_best = lambda cycle: False if not self.save_best_cycle else cycle % self.save_best_cycle == 0
         should_save_all = lambda cycle: False if (not self.save_all_cycle) or (self.population_size <= 1) else cycle % self.save_all_cycle == 0
         should_show = lambda cycle: False if not self.show_cycle else cycle % self.show_cycle == 0
-        should_reproduce = lambda cycle: False if not self.reprodution_cycle else cycle % self.reprodution_cycle == 0
+        should_reproduce = lambda cycle: False if not self.reproduction_cycle else cycle % self.reproduction_cycle == 0
 
         try:
             while should_cycle(self.cycle):
                 if use_partial_fitness:
-                    if should_reproduce(self.cycle):
-                        population.cycle(self.fitness_func, self.partial_fitness_func, True)
-                    else:
-                        population.cycle(self.fitness_func, self.partial_fitness_func, False)
+                    population.cycle(self.fitness_func, self.partial_fitness_func, prophase=should_reproduce(self.cycle))
                 else:
-                    if should_reproduce(self.cycle):
-                        population.cycle(self.fitness_func, prophase=True)
-                    else:
-                        population.cycle(self.fitness_func, prophase=False)
+                    population.cycle(self.fitness_func, prophase=should_reproduce(self.cycle))
 
                 self.cycle += 1
+                curr_duration = time() - start_time
 
                 if should_print(self.cycle):
-                    try:
-                        print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={(time() - start_time):.2f}s")
-                    except ValueError: print(f"[{self.cycle}] fitness={population.best_fitness:.2f}, Δt={(time() - start_time):.2f}s")
+                    try: print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={(curr_duration):.2f}s")
+                    except ValueError: print(f"[{self.cycle}] fitness={population.best_fitness:.2f}, Δt={(curr_duration):.2f}s")
                 if should_save_best(self.cycle):
                     population.save_best(os.path.join(self.save_best_path, f"{self.save_best_prefix}{self.cycle}.png"))
                 if should_save_all(self.cycle):
@@ -132,9 +128,9 @@ class Runner:
                         population.show_all()
                     else:
                         population.show_best()
-                    plot.set_xdata(np.append(plot.get_xdata(), time() - start_time))
+                    plot.set_xdata(np.append(plot.get_xdata(), curr_duration))
                     plot.set_ydata(np.append(plot.get_ydata(), population.best_fitness))
-                    plt.xlim([0, time() - start_time])
+                    plt.xlim([0, curr_duration])
                     plt.ylim([0, 5000])
                     fig.canvas.draw()
 

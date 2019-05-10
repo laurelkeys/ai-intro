@@ -110,8 +110,3 @@ def vertices_color_mid(polygon, vertices_count, image, alpha=128):
         if y > max_y: max_y = y
     vertices_color_mid[0:3] = image[(min_y + max_y) // 2, (min_x + max_x) // 2, :]
     return vertices_color_mid
-
-def update_plot(hl, new_fitness, new_time):
-    hl.set_xdata(np.append(hl.get_xdata(), new_time))
-    hl.set_ydata(np.append(hl.get_ydata(), new_time))
-    plt.draw() 

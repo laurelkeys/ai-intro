@@ -23,13 +23,19 @@ runner = Runner(
 
 # NOTE these paths consider that you're running on the same directory as this file
 #      also, the min_fitness value to save the DNA should be changed depending on the fitness function
-runner.show_at(1, True)
-runner.reproduce_at(10)
-runner \
-    .save_dna_to(save_path=os.path.join("generated", "dna"), min_fitness=100_000_000) \
-    .save_best_to(save_path="generated", save_cycle=5_000) \
-    .save_all_to(save_path="generated", save_cycle=10_000) \
-    .set_fitness_func(FitnessCalculator(runner.image).mse, partial_fitness_func=FitnessCalculator(runner.image).partial_mse) \
+
+runner.save_dna_to(save_path=os.path.join("generated", "dna"), min_fitness=100_000_000)
+
+runner.save_best_to(save_path="generated", save_cycle=5_000)
+
+runner.save_all_to(save_path="generated", save_cycle=10_000)
+
+runner.show_at(show_cycle=1, show_all=True)
+
+runner.reproduce_at(reproduction_cycle=10)
+
+runner.set_fitness_func(FitnessCalculator(runner.image).mse, 
+                        partial_fitness_func=FitnessCalculator(runner.image).partial_mse)
 
 runner.run(use_partial_fitness=True,
            use_image_colors=True)
@@ -38,7 +44,8 @@ runner.run(use_partial_fitness=True,
 # - save_dna_to (save_path, prefix='dna_', min_fitness=float('inf'))
 # - save_best_to (save_path, save_cycle=None, prefix='', final_save_prefix='best_pack_')
 # - save_all_to (save_path, save_cycle=None, prefix='population_', final_save_prefix='final_population_')
-# - show_at (show_cycle=1, show_best_only=True)
+# - show_at (show_cycle=1, show_all=False)
+# - reproduce_at (reproduction_cycle=100):
 # - set_fitness_func (fitness_func, partial_fitness_func=None)
 # - init_with (dna_path)
 # - set_bg_color (bg_color)

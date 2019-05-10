@@ -30,7 +30,7 @@ class Population:
 
         self.curr_cycle = 0
 
-    def cycle(self, fitness_func, partial_fitness_func=None, prophase = True):
+    def cycle(self, fitness_func, partial_fitness_func=None, prophase=True):
         index = 0
         best_fitness = self.best_fitness
         for i in range(self.population_size):
