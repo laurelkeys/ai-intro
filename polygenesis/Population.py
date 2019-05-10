@@ -29,6 +29,33 @@ class Population:
         self.best_fitness = best_fitness # == self.best_pack.fitness
 
         self.curr_cycle = 0
+    
+    def __crossover(self, fitness_func):
+        mother_index = np.random.randint(0, self.population_size)
+        potential_partners = [*range(0, self.population_size)]
+        potential_partners.remove(mother_index)
+        father_index = np.random.choice(potential_partners)
+
+        child_pack = copy.deepcopy(self.packs[mother_index])
+        chiasma_start = np.random.randint(self.polygon_count // 4, self.polygon_count // 2)
+        chiasma_end = np.random.randint(chiasma_start, 3 * self.polygon_count // 4)
+
+        worst_index = 0
+        worst_fitness = self.packs[0].fitness
+        for i in range(self.population_size):
+            curr_fitness = self.packs[i].fitness
+            if curr_fitness > worst_fitness:
+                worst_fitness = curr_fitness
+                worst_index = i
+
+        for chiasma_locus in range(chiasma_start, chiasma_end + 1):
+            child_pack.polygons[chiasma_locus] = self.packs[father_index].polygons[chiasma_locus]
+            child_pack.colors[chiasma_locus] = self.packs[father_index].colors[chiasma_locus]
+        
+        child_pack.fitness = fitness_func(child_pack.image)
+        if child_pack.fitness < worst_fitness:
+            self.packs[worst_index] = child_pack
+
 
     def cycle(self, fitness_func, partial_fitness_func=None, prophase=True):
         index = 0
@@ -40,31 +67,8 @@ class Population:
                 index = i
                 best_fitness = curr_fitness
 
-        if prophase == True:
-            father_pack = np.random.randint(0, self.population_size)
-            mother_pack = np.random.randint(0, self.population_size)
-            child_pack = copy.deepcopy(self.packs[mother_pack])
-            chiasma_start = np.random.randint(self.polygon_count/4, self.polygon_count/2)
-            chiasma_end = np.random.randint(chiasma_start, 3*self.polygon_count/4)
-            father_pack = np.random.randint(0, self.population_size)
-
-            worst_index = 0
-            worst_fitness = self.packs[0].fitness
-            for i in range(self.population_size):
-                curr_fitness = self.packs[i].fitness
-                if curr_fitness > worst_fitness:
-                    worst_fitness = curr_fitness
-                    worst_index = i
-
-            if father_pack != i: #can't reproduce by itself
-                for chiasma_locus in range(chiasma_start, chiasma_end):
-                    child_pack.polygons[chiasma_locus] = self.packs[father_pack].polygons[chiasma_locus]
-                    child_pack.colors[chiasma_locus] = self.packs[father_pack].colors[chiasma_locus]
-                child_pack.fitness = fitness_func(child_pack.image)
-                if child_pack.fitness < worst_fitness:
-                    self.packs.pop(worst_index)
-                    self.packs.insert(worst_index, child_pack) 
-
+        if prophase and self.population_size > 1:
+            self.__crossover(fitness_func)
 
         if best_fitness < self.best_fitness:
             self.best_pack = copy.deepcopy(self.packs[index])
