@@ -16,7 +16,7 @@ except:
 
 runner = Runner(
     image_path, polygon_count, vertices_count,
-    population_size=2,
+    population_size=8,
     max_internal_size=(200, 200),
     print_cycle=1
 )
@@ -34,7 +34,7 @@ runner.show_at(show_cycle=1, show_all=True)
 
 runner.reproduce_at(reproduction_cycle=10)
 
-runner.set_fitness_func(FitnessCalculator(runner.image).mse, 
+runner.set_fitness_func(FitnessCalculator(runner.image).mse,
                         partial_fitness_func=FitnessCalculator(runner.image).partial_mse)
 
 runner.run(use_partial_fitness=True,
