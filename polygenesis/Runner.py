@@ -72,12 +72,16 @@ class Runner:
 
     def run(self, use_partial_fitness=True, use_image_colors=True):
         height, width, *_ = self.image.shape
+        first_fitness = 0
 
         if self.show_cycle != None:
             plot, *_ = plt.plot([], [])
             fig = plt.gcf()
             fig.show()
             fig.canvas.draw()
+            plt.xlabel('Generation', fontsize=12)
+            plt.ylabel('Fitness', fontsize=12)
+
 
         print(f"(height, width, depth) = {self.image.shape}",
               end='\n' if sum(self.original_size) == sum(self.image.shape[0:2]) else f" [resized from {' by '.join(map(str, self.original_size))}]\n")
@@ -128,10 +132,12 @@ class Runner:
                         population.show_all()
                     else:
                         population.show_best()
-                    plot.set_xdata(np.append(plot.get_xdata(), curr_duration))
+                    if self.cycle == 1:
+                        first_fitness = population.best_fitness
+                        plt.ylim([0, first_fitness + first_fitness/20])
+                    plot.set_xdata(np.append(plot.get_xdata(), self.cycle))
                     plot.set_ydata(np.append(plot.get_ydata(), population.best_fitness))
-                    plt.xlim([0, curr_duration])
-                    plt.ylim([0, 5000])
+                    plt.xlim([0, self.cycle])
                     fig.canvas.draw()
 
         except(KeyboardInterrupt, SystemExit):
