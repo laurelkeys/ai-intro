@@ -46,14 +46,14 @@ class Pack:
         def __mutate_vertex(self, polygon_index):
             polygons = self.polygons.copy()
             vertex_index = 2 * np.random.randint(low=0, high=self.vertices_count) # chooses one of the polygon's vertices to mutate
-            polygons[polygon_index, vertex_index] = np.random.randint(low=0, high=self.width + 1, dtype=np.int16)
-            polygons[polygon_index, vertex_index + 1] = np.random.randint(low=0, high=self.height + 1, dtype=np.int16)
+            polygons[polygon_index, vertex_index] = np.random.randint(low=0, high=self.width, dtype=np.int16)
+            polygons[polygon_index, vertex_index + 1] = np.random.randint(low=0, high=self.height, dtype=np.int16)
             return self.colors, polygons, self.polygons[polygon_index, :], polygons[polygon_index, :]
 
         def __mutate_polygon(self, polygon_index):
             polygons = self.polygons.copy()
-            polygons[polygon_index, 0::2] = np.tile(np.random.randint(low=0, high=self.width + 1, dtype=np.int16), self.vertices_count) # x's
-            polygons[polygon_index, 1::2] = np.tile(np.random.randint(low=0, high=self.height + 1, dtype=np.int16), self.vertices_count) # y's
+            polygons[polygon_index, 0::2] = np.tile(np.random.randint(low=0, high=self.width, dtype=np.int16), self.vertices_count) # x's
+            polygons[polygon_index, 1::2] = np.tile(np.random.randint(low=0, high=self.height, dtype=np.int16), self.vertices_count) # y's
             return self.colors, polygons, self.polygons[polygon_index, :], polygons[polygon_index, :]
 
         def __mutate_color(self, polygon_index):
