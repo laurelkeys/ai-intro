@@ -10,6 +10,7 @@ class Pack:
     def __init__(self, width, height, polygon_count, vertices_count, fitness_func, dna_path=None, bg_color=WHITE, initial_colors_image=None, initial_colors_func=vertices_color_mid):
         self.width = width
         self.height = height
+        self.polygon_count = polygon_count
         self.vertices_count = vertices_count
 
         if dna_path is not None:
@@ -128,3 +129,50 @@ class Pack:
         self.colors = dna_obj['colors']
         self.polygons = dna_obj['polygons']
         self.bg_color = dna_obj['bg_color']
+    
+    def mutate(self, fitness_func, hard_mutation=True):
+
+        mutate_vertex_delta_x = self.width if hard_mutation else self.width // 8 + 1
+        mutate_vertex_delta_y = self.height if hard_mutation else self.height // 8 + 1
+        mutate_color_delta = 255 if hard_mutation else 32
+        mutate_alpha_range = (32, 196)
+        mutate_order_delta = self.polygon_count if hard_mutation else self.polygon_count // 10  + 1
+
+        def __mutate_vertex(polygon_index, vertex_index=None):
+            if vertex_index == None:
+                vertex_index = 2 * np.random.randint(low=0, high=self.vertices_count) # chooses one of the polygon's vertices to mutate
+
+            perturbation_x = np.random.randint(low=-mutate_vertex_delta_x, high=mutate_vertex_delta_x + 1, dtype=np.int16)
+            perturbation_x = np.add(self.polygons[polygon_index, vertex_index], perturbation_x, dtype=np.int16)
+            self.polygons[polygon_index, vertex_index] = np.clip(perturbation_x, a_min=0, a_max=self.width - 1)
+
+            perturbation_y = np.random.randint(low=-mutate_vertex_delta_y, high=mutate_vertex_delta_y + 1, dtype=np.int16)
+            perturbation_y = np.add(self.polygons[polygon_index, vertex_index + 1], perturbation_y, dtype=np.int16)
+            self.polygons[polygon_index, vertex_index + 1] = np.clip(perturbation_y, a_min=0, a_max=self.height - 1)
+
+        def __mutate_polygon(polygon_index):
+            for vertex_index in range(0, self.vertices_count):
+                __mutate_vertex(polygon_index, 2 * vertex_index)
+
+        def __mutate_color(polygon_index):
+            perturbation = np.random.randint(low=-mutate_color_delta, high=mutate_color_delta + 1, size=3, dtype=np.int16)
+            perturbation = np.add(self.colors[polygon_index, :3], perturbation, dtype=np.int16)
+            self.colors[polygon_index, :3] = np.clip(perturbation, a_min=0, a_max=255).astype(np.uint8)
+
+        def __mutate_alpha(polygon_index):
+            self.colors[polygon_index, 3] = np.random.randint(mutate_alpha_range[0], mutate_alpha_range[1], dtype=np.uint8) # Alpha
+
+        def __mutate_order(polygon_index):
+            other_polygon_index = (polygon_index + np.random.randint(low=-mutate_order_delta, high=mutate_order_delta + 1)) % self.polygon_count
+            if polygon_index == other_polygon_index:
+                other_polygon_index = (other_polygon_index + 1) % self.polygon_count # chooses another polygon to swap drawing orders with
+
+            self.polygons[polygon_index], self.polygons[other_polygon_index] = self.polygons[other_polygon_index], self.polygons[polygon_index]
+
+        do_mutate = np.random.choice([__mutate_vertex, __mutate_polygon, __mutate_color, __mutate_alpha, __mutate_order])
+        polygon_index = np.random.randint(self.polygon_count)
+        # polygon_copy = copy.deepcopy(self.polygons[polygon_index, :])
+        do_mutate(polygon_index)
+        self.image = np.array(self.draw(self.colors, self.polygons))
+        self.fitness = fitness_func(self.image)
+        # return polygon_copy, self.polygons[polygon_index, :] # original vertices, mutated vertices

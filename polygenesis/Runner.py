@@ -17,7 +17,7 @@ class Runner:
         if max(pil_image.size) > max(max_internal_size):
             pil_image.thumbnail(max_internal_size) # keeps proportions
         self.image = np.array(pil_image, dtype=np.uint8)
-        # NOTE self.original_size == (widht, height), while self.image.shape == (height, width, depth)
+        # NOTE self.original_size == (width, height), while self.image.shape == (height, width, depth)
 
         self.polygon_count = polygon_count
         self.vertices_count = vertices_count
@@ -53,10 +53,6 @@ class Runner:
         self.show_all = show_all
         return self
 
-    def reproduce_at(self, reproduction_cycle=100):
-        self.reproduction_cycle = reproduction_cycle
-        return self
-
     def init_with(self, dna_path):
         self.initial_dna_path = dna_path # DNA of a Pack to be added to the initial Population
         return self
@@ -69,10 +65,30 @@ class Runner:
     def set_bg_color(self, bg_color):
         self.bg_color = bg_color
         return self
+    
+    def set_mutation_rate(self, rate):
+        self.mutation_rate = rate
+        return self
+    
+    def set_crossover_rate(self, rate):
+        self.crossover_rate = rate
+        return self
+    
+    def set_selection_strategy(self, selection_strategy):
+        self.selection_strategy = selection_strategy
+        return self
+    
+    def set_substitution_method(self, substitution_method):
+        self.substitution_method = substitution_method
+        return self
+
+    def set_mutation_params(self, hard_mutation_cycle_limit=None, hard_mutation_fitness_limit=None, random_mutation_prob=0.0):
+        self.hard_mutation_fitness_limit = hard_mutation_fitness_limit
+        self.random_mutation_prob = random_mutation_prob
+        return self
 
     def run(self, use_partial_fitness=True, use_image_colors=True):
         height, width, *_ = self.image.shape
-        first_fitness = 0
 
         if self.show_cycle != None:
             plot, *_ = plt.plot([], [])
@@ -81,7 +97,6 @@ class Runner:
             fig.canvas.draw()
             plt.xlabel('Generation', fontsize=12)
             plt.ylabel('Fitness', fontsize=12)
-
 
         print(f"(height, width, depth) = {self.image.shape}",
               end='\n' if sum(self.original_size) == sum(self.image.shape[0:2]) else f" [resized from {' by '.join(map(str, self.original_size))}]\n")
@@ -108,14 +123,13 @@ class Runner:
         should_save_best = lambda cycle: False if not self.save_best_cycle else cycle % self.save_best_cycle == 0
         should_save_all = lambda cycle: False if (not self.save_all_cycle) or (self.population_size <= 1) else cycle % self.save_all_cycle == 0
         should_show = lambda cycle: False if not self.show_cycle else cycle % self.show_cycle == 0
-        should_reproduce = lambda cycle: False if not self.reproduction_cycle else cycle % self.reproduction_cycle == 0
+        # should_hard_mutate = lambda
 
+        best_fitness = float('inf')
         try:
             while should_cycle(self.cycle):
-                if use_partial_fitness:
-                    population.cycle(self.fitness_func, self.partial_fitness_func, prophase=should_reproduce(self.cycle))
-                else:
-                    population.cycle(self.fitness_func, prophase=should_reproduce(self.cycle))
+                population.iterate(self.fitness_func, hard_mutation=best_fitness > 150_000_000 or np.random.random() < 0.001)
+                best_fitness = population.best_fitness
 
                 self.cycle += 1
                 curr_duration = time() - start_time

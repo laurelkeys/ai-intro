@@ -110,3 +110,54 @@ class Population:
     @property
     def best_dna(self):
         return self.best_pack.dna
+    
+    def __reproduce(self, partner1, partner2, fitness_func):
+        child1 = copy.deepcopy(partner1)
+        child2 = copy.deepcopy(partner2)
+       
+        for locus in range(self.polygon_count // 2, self.polygon_count):
+            child1.polygons[locus] = partner2.polygons[locus]
+            child1.colors[locus] = partner2.colors[locus]
+            child2.polygons[locus] = partner1.polygons[locus]
+            child2.colors[locus] = partner1.colors[locus]
+        
+        child1.image = child1.draw(child1.colors, child1.polygons)
+        child1.fitness = fitness_func(child1.image)
+        child2.image = child2.draw(child2.colors, child2.polygons)
+        child2.fitness = fitness_func(child2.image)
+        return child1, child2
+
+    # selection_strategy: 'first_packs', truncation', 'stochastic_acceptance', 'tournament', etc.
+    # substitution_method: 'elitism', 'replace_all', etc.
+    def iterate(self, fitness_func, hard_mutation=True, mutation_rate=1.0, crossover_rate=0.0, selection_strategy='first_packs', substitution_method='elitism'):
+        # both parents and children compete to stay alive (ES plus-selection)
+        selection_pool = list()
+
+        # selection and crossover
+        if selection_strategy == 'first_packs':
+            for i in range(0, int(crossover_rate * self.population_size)):
+                child1, child2 = self.__reproduce(self.packs[i], self.packs[(i+1) % self.population_size], fitness_func)
+                selection_pool.append(child1)
+                selection_pool.append(child2)
+        elif selection_strategy == 'truncation':
+            pass # TODO reproduce the most fit packs
+        else:
+            pass # FIXME
+
+        # mutation
+        selection_pool.extend(copy.deepcopy(self.packs))
+        for i in range(0, len(selection_pool)):
+            if np.random.random() < mutation_rate:
+                selection_pool[i].mutate(fitness_func, hard_mutation)
+
+        # substitution
+        if substitution_method == 'elitism':
+            selection_pool.extend(copy.deepcopy(self.packs))
+            selection_pool.sort(key=lambda pack: pack.fitness) # NOTE the lower the fitness (= objective function) the better
+            self.packs = selection_pool[0 : self.population_size]
+
+            # if self.packs[0].fitness < self.best_fitness:
+            self.best_pack = copy.deepcopy(self.packs[0])
+            self.best_fitness = self.packs[0].fitness
+        else:
+            pass # FIXME
