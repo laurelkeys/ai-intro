@@ -82,9 +82,9 @@ class Runner:
         self.substitution_method = substitution_method
         return self
 
-    def set_mutation_params(self, hard_mutation_cycle_limit=None, hard_mutation_fitness_limit=None, random_mutation_prob=0.0):
+    def set_mutation_params(self, hard_mutation_fitness_limit=None, random_hard_mutation_prob=0.0):
         self.hard_mutation_fitness_limit = hard_mutation_fitness_limit
-        self.random_mutation_prob = random_mutation_prob
+        self.random_hard_mutation_prob = random_hard_mutation_prob
         return self
 
     def run(self, use_partial_fitness=True, use_image_colors=True):
@@ -123,13 +123,19 @@ class Runner:
         should_save_best = lambda cycle: False if not self.save_best_cycle else cycle % self.save_best_cycle == 0
         should_save_all = lambda cycle: False if (not self.save_all_cycle) or (self.population_size <= 1) else cycle % self.save_all_cycle == 0
         should_show = lambda cycle: False if not self.show_cycle else cycle % self.show_cycle == 0
-        # should_hard_mutate = lambda
 
-        best_fitness = float('inf')
+        if not self.random_hard_mutation_prob: self.random_hard_mutation_prob = 0.0
+        should_hard_mutate = lambda fitness: \
+            np.random.random() < self.random_hard_mutation_prob or (False if not self.hard_mutation_fitness_limit else fitness >= self.hard_mutation_fitness_limit)
+
         try:
             while should_cycle(self.cycle):
-                population.iterate(self.fitness_func, hard_mutation=best_fitness > 150_000_000 or np.random.random() < 0.001)
-                best_fitness = population.best_fitness
+                population.iterate(self.fitness_func, 
+                                   hard_mutation=should_hard_mutate(population.best_fitness),
+                                   mutation_rate=self.mutation_rate or 1.0,
+                                   crossover_rate=self.crossover_rate or 0.0,
+                                   selection_strategy=self.selection_strategy or 'first_packs',
+                                   substitution_method=self.substitution_method or 'elitism')
 
                 self.cycle += 1
                 curr_duration = time() - start_time

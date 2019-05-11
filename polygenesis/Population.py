@@ -56,7 +56,6 @@ class Population:
         if child_pack.fitness < worst_fitness:
             self.packs[worst_index] = child_pack
 
-
     def cycle(self, fitness_func, partial_fitness_func=None, prophase=True):
         index = 0
         best_fitness = self.best_fitness
