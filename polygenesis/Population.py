@@ -19,17 +19,22 @@ class Population:
             self.packs.append(Pack(width, height, polygon_count, vertices_count, fitness_func, dna_path=dna_path)) # generates a Pack from it's DNA and adds it to self.packs
 
         index = 0
+        worst_index = 0
         best_fitness = self.packs[index].fitness
+        worst_fitness = self.packs[index].fitness
         for i in range(1, population_size):
             curr_fitness = self.packs[i].fitness
             if curr_fitness < best_fitness:
                 index = i
                 best_fitness = curr_fitness
+            if curr_fitness > worst_fitness:
+                worst_fitness = curr_fitness
         self.best_pack = copy.deepcopy(self.packs[index]) # <=> best_image
         self.best_fitness = best_fitness # == self.best_pack.fitness
+        self.worst_fitness = worst_fitness
 
         self.curr_cycle = 0
-    
+
     def __crossover(self, fitness_func):
         mother_index = np.random.randint(0, self.population_size)
         potential_partners = [*range(0, self.population_size)]
@@ -51,7 +56,7 @@ class Population:
         for chiasma_locus in range(chiasma_start, chiasma_end + 1):
             child_pack.polygons[chiasma_locus] = self.packs[father_index].polygons[chiasma_locus]
             child_pack.colors[chiasma_locus] = self.packs[father_index].colors[chiasma_locus]
-        
+
         child_pack.fitness = fitness_func(child_pack.image)
         if child_pack.fitness < worst_fitness:
             self.packs[worst_index] = child_pack
@@ -60,12 +65,15 @@ class Population:
     def cycle(self, fitness_func, partial_fitness_func=None, prophase=True):
         index = 0
         best_fitness = self.best_fitness
+        worst_fitness = self.best_fitness
         for i in range(self.population_size):
             self.packs[i].cycle(fitness_func, partial_fitness_func)
             curr_fitness = self.packs[i].fitness
             if curr_fitness < best_fitness:
                 index = i
                 best_fitness = curr_fitness
+            if curr_fitness > worst_fitness:
+                self.worst_fitness = curr_fitness 
 
         if prophase and self.population_size > 1:
             self.__crossover(fitness_func)

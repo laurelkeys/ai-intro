@@ -72,10 +72,12 @@ class Runner:
 
     def run(self, use_partial_fitness=True, use_image_colors=True):
         height, width, *_ = self.image.shape
-        first_fitness = 0
 
         if self.show_cycle != None:
-            plot, *_ = plt.plot([], [])
+            plot_best, *_ = plt.plot([], [])
+            plot_worst, *_ = plt.plot([], [])
+            plot_best.set_color("blue")
+            plot_worst.set_color("red")
             fig = plt.gcf()
             fig.show()
             fig.canvas.draw()
@@ -133,10 +135,11 @@ class Runner:
                     else:
                         population.show_best()
                     if self.cycle == 1:
-                        first_fitness = population.best_fitness
-                        plt.ylim([0, first_fitness + first_fitness/20])
-                    plot.set_xdata(np.append(plot.get_xdata(), self.cycle))
-                    plot.set_ydata(np.append(plot.get_ydata(), population.best_fitness))
+                        plt.ylim([0, population.worst_fitness + population.worst_fitness/20])
+                    plot_best.set_xdata(np.append(plot_best.get_xdata(), self.cycle))
+                    plot_best.set_ydata(np.append(plot_best.get_ydata(), population.best_fitness))
+                    plot_worst.set_xdata(np.append(plot_worst.get_xdata(), self.cycle))
+                    plot_worst.set_ydata(np.append(plot_worst.get_ydata(), population.worst_fitness))
                     plt.xlim([0, self.cycle])
                     fig.canvas.draw()
 
