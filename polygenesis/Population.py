@@ -126,7 +126,7 @@ class Population:
         child2.fitness = fitness_func(child2.image)
         return child1, child2
 
-    # selection_strategy: 'first_packs', truncation', 'stochastic_acceptance', 'tournament', etc.
+    # selection_strategy: 'first_packs', truncation', 'stochastic_acceptance', 'roulette_wheel', etc.
     # substitution_method: 'elitism', 'replace_all', etc.
     def iterate(self, fitness_func, hard_mutation=True, mutation_rate=1.0, crossover_rate=0.0, selection_strategy='first_packs', substitution_method='elitism'):
         # both parents and children compete to stay alive (ES plus-selection)
@@ -139,9 +139,31 @@ class Population:
                 selection_pool.append(child1)
                 selection_pool.append(child2)
         elif selection_strategy == 'truncation':
-            pass # TODO reproduce the most fit packs
+            selection_pool.sort(key=lambda pack: pack.fitness)
+            for i in range(0, int(crossover_rate * self.population_size)):
+                child1, child2 = self.__reproduce(self.packs[i], self.packs[(i+1) % self.population_size], fitness_func)
+                selection_pool.append(child1)
+                selection_pool.append(child2)
+        elif selection_strategy == 'stochastic_acceptance':
+            i = 0
+            crossover_amount = 0
+            while crossover_amount < int(crossover_rate * self.population_size):
+                if np.random.random() < self.packs[i].fitness / self.best_fitness:
+                    selection_pool.append(copy.deepcopy(self.packs[i]))
+                    crossover_amount += 1
+                i = (i + 1) % self.population_size
+        elif selection_strategy == 'roulette_wheel':
+            i = 0
+            crossover_amount = 0
+            fitness_sum = sum(pack.fitness for pack in self.packs)
+            while crossover_amount < int(crossover_rate * self.population_size):
+                if np.random.random() < self.packs[i].fitness / fitness_sum:
+                    selection_pool.append(copy.deepcopy(self.packs[i]))
+                    crossover_amount += 1
+                i = (i + 1) % self.population_size
+
         else:
-            pass # FIXME
+            raise ValueError(f"Unexpected selection_strategy ('{selection_strategy}')")
 
         # mutation
         selection_pool.extend(copy.deepcopy(self.packs))

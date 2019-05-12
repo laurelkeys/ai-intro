@@ -16,9 +16,9 @@ except:
 
 runner = Runner(
     image_path, polygon_count, vertices_count,
-    population_size=1,
+    population_size=6,
     max_internal_size=(200, 200),
-    print_cycle=1_000
+    print_cycle=50
 )
 
 # NOTE these paths consider that you're running on the same directory as this file
@@ -34,6 +34,7 @@ runner = Runner(
     # .set_bg_color(WHITE)
     .set_mutation_rate(1.0)
     .set_crossover_rate(0.5)
+    .set_selection_strategy('truncation') # 'first_packs', 'truncation', 'stochastic_acceptance', 'roulette_wheel'
     .set_mutation_params(hard_mutation_fitness_limit=150_000_000, random_hard_mutation_prob=0.001)
 ).run(use_partial_fitness=False,
       use_image_colors=True)
