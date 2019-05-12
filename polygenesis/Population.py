@@ -110,15 +110,33 @@ class Population:
     def best_dna(self):
         return self.best_pack.dna
     
-    def __reproduce(self, partner1, partner2, fitness_func):
+    def __reproduce(self, partner1, partner2, fitness_func, crossover_strategy='single_point'):
         child1 = copy.deepcopy(partner1)
         child2 = copy.deepcopy(partner2)
        
-        for locus in range(self.polygon_count // 2, self.polygon_count):
-            child1.polygons[locus] = partner2.polygons[locus]
-            child1.colors[locus] = partner2.colors[locus]
-            child2.polygons[locus] = partner1.polygons[locus]
-            child2.colors[locus] = partner1.colors[locus]
+        if crossover_strategy == 'single_point':
+            for locus in range(self.polygon_count // 2, self.polygon_count):
+                child1.polygons[locus] = partner2.polygons[locus]
+                child1.colors[locus] = partner2.colors[locus]
+                child2.polygons[locus] = partner1.polygons[locus]
+                child2.colors[locus] = partner1.colors[locus]
+        elif crossover_strategy == 'single_point_stochastic':
+            chiasma_start = np.random.randint(0, self.polygon_count // 2)
+            chiasma_end = np.random.randint(chiasma_start, self.polygon_count)
+            for locus in range(chiasma_start, chiasma_end):
+                child1.polygons[locus] = partner2.polygons[locus]
+                child1.colors[locus] = partner2.colors[locus]
+                child2.polygons[locus] = partner1.polygons[locus]
+                child2.colors[locus] = partner1.colors[locus]
+        elif crossover_strategy == 'uniform':
+            for locus in range(0, self.polygon_count):
+                if np.random.random() < 0.5:
+                    child1.polygons[locus] = partner2.polygons[locus]
+                    child1.colors[locus] = partner2.colors[locus]
+                    child2.polygons[locus] = partner1.polygons[locus]
+                    child2.colors[locus] = partner1.colors[locus]
+        else:
+            raise ValueError(f"Unexpected crossover_strategy ('{crossover_strategy}')")
         
         child1.image = child1.draw(child1.colors, child1.polygons)
         child1.fitness = fitness_func(child1.image)
@@ -126,20 +144,22 @@ class Population:
         child2.fitness = fitness_func(child2.image)
         return child1, child2
 
-    def iterate(self, fitness_func, hard_mutation=True, mutation_rate=1.0, crossover_rate=0.0, selection_strategy='truncation', substitution_method='plus_selection'):
+    # crossover_strategy: 'single_point', 'single_point_stochastic', 'uniform'
+    def iterate(self, fitness_func, hard_mutation=True, mutation_rate=1.0, crossover_rate=0.0, 
+                selection_strategy='truncation', crossover_strategy='single_point', substitution_method='plus_selection'):
         # both parents and children compete to stay alive (ES plus-selection)
         selection_pool = list()
 
         # selection and crossover
         if selection_strategy == 'first_packs':
             for i in range(0, int(crossover_rate * self.population_size)):
-                child1, child2 = self.__reproduce(self.packs[i], self.packs[(i+1) % self.population_size], fitness_func)
+                child1, child2 = self.__reproduce(self.packs[i], self.packs[(i+1) % self.population_size], fitness_func, crossover_strategy)
                 selection_pool.append(child1)
                 selection_pool.append(child2)
         elif selection_strategy == 'truncation':
             selection_pool.sort(key=lambda pack: pack.fitness) # elitism
             for i in range(0, int(crossover_rate * self.population_size)):
-                child1, child2 = self.__reproduce(self.packs[i], self.packs[(i+1) % self.population_size], fitness_func)
+                child1, child2 = self.__reproduce(self.packs[i], self.packs[(i+1) % self.population_size], fitness_func, crossover_strategy)
                 selection_pool.append(child1)
                 selection_pool.append(child2)
         elif selection_strategy == 'stochastic_acceptance':
@@ -183,7 +203,7 @@ class Population:
                 self.best_pack = copy.deepcopy(self.packs[0])
                 self.best_fitness = self.packs[0].fitness
         elif substitution_method == 'tournament':
-            k = 3 # k-ary tournament
+            k = 3 # k-ary tournament # TODO make an option to change it
             matches = np.random.choice(selection_pool, size=k*self.population_size)
             best_index = 0
             best_fitness = float('inf')
