@@ -115,15 +115,13 @@ class Population:
         child2 = copy.deepcopy(partner2)
        
         if crossover_strategy == 'single_point':
-            for locus in range(self.polygon_count // 2, self.polygon_count):
+            for locus in range(0, self.polygon_count // 2):
                 child1.polygons[locus] = partner2.polygons[locus]
                 child1.colors[locus] = partner2.colors[locus]
                 child2.polygons[locus] = partner1.polygons[locus]
                 child2.colors[locus] = partner1.colors[locus]
         elif crossover_strategy == 'single_point_stochastic':
-            chiasma_start = np.random.randint(0, self.polygon_count // 2)
-            chiasma_end = np.random.randint(chiasma_start, self.polygon_count)
-            for locus in range(chiasma_start, chiasma_end):
+            for locus in range(0, np.random.randint(0, self.polygon_count)):
                 child1.polygons[locus] = partner2.polygons[locus]
                 child1.colors[locus] = partner2.colors[locus]
                 child2.polygons[locus] = partner1.polygons[locus]
