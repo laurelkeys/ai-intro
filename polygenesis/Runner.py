@@ -78,6 +78,10 @@ class Runner:
         self.selection_strategy = selection_strategy
         return self
     
+    def set_crossover_strategy(self, crossover_strategy):
+        self.crossover_strategy = crossover_strategy
+        return self
+    
     def set_substitution_method(self, substitution_method):
         self.substitution_method = substitution_method
         return self
@@ -141,8 +145,9 @@ class Runner:
                                    hard_mutation=should_hard_mutate(population.best_fitness),
                                    mutation_rate=self.mutation_rate or 1.0,
                                    crossover_rate=self.crossover_rate or 0.0,
-                                   selection_strategy=self.selection_strategy or 'first_packs',
-                                   substitution_method=self.substitution_method or 'elitism')
+                                   selection_strategy=self.selection_strategy or 'truncation',
+                                   crossover_strategy=self.crossover_strategy or 'single_point',
+                                   substitution_method=self.substitution_method or 'tournament')
 
                 self.cycle += 1
                 unimproved_cycles = 0 if population.best_fitness != prev_best_fitness else unimproved_cycles + 1
