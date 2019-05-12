@@ -26,16 +26,18 @@ runner = Runner(
 
 (runner
     .save_dna_to(save_path=os.path.join("generated", "dna"), min_fitness=100_000_000)
-    .save_best_to(save_path="generated", save_cycle=5_000)
-    # .save_all_to(save_path="generated", save_cycle=10_000)
+    .save_best_to(save_path="generated", save_cycle=1_000)
+    .save_all_to(save_path="generated", save_cycle=5_000)
     # .show_at(show_cycle=1, show_all=True)
     .set_fitness_func(FitnessCalculator(runner.image).ssd,
                       partial_fitness_func=FitnessCalculator(runner.image).partial_ssd)
     # .set_bg_color(WHITE)
-    .set_mutation_rate(1.0)
-    .set_crossover_rate(0.5)
-    .set_selection_strategy('truncation') # 'first_packs', 'truncation', 'stochastic_acceptance', 'roulette_wheel'
+    .set_mutation_rate(0.2)
+    .set_crossover_rate(1.0)
+    .set_selection_strategy('stochastic_acceptance') # 'first_packs', 'truncation', 'stochastic_acceptance', 'roulette_wheel'
+    .set_substitution_method('tournament') # 'plus_selection', 'comma_selection', 'tournament'
     .set_mutation_params(hard_mutation_fitness_limit=150_000_000, random_hard_mutation_prob=0.001)
+    # .set_max_unimproved_cycles(1000)
 ).run(use_partial_fitness=False,
       use_image_colors=True)
 
@@ -52,3 +54,4 @@ runner = Runner(
 # - set_selection_strategy (selection_strategy)
 # - set_substitution_method (substitution_method)
 # - set_mutation_params (hard_mutation_fitness_limit=None, random_hard_mutation_prob=0.0)
+# - set_max_unimproved_cycles (max_unimproved_cycles)

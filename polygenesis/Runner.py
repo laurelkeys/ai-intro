@@ -86,6 +86,10 @@ class Runner:
         self.hard_mutation_fitness_limit = hard_mutation_fitness_limit
         self.random_hard_mutation_prob = random_hard_mutation_prob
         return self
+    
+    def set_max_unimproved_cycles(self, max_unimproved_cycles):
+        self.max_unimproved_cycles = max_unimproved_cycles
+        return self
 
     def run(self, use_partial_fitness=True, use_image_colors=True):
         height, width, *_ = self.image.shape
@@ -127,6 +131,9 @@ class Runner:
         if not self.random_hard_mutation_prob: self.random_hard_mutation_prob = 0.0
         should_hard_mutate = lambda fitness: \
             np.random.random() < self.random_hard_mutation_prob or (False if not self.hard_mutation_fitness_limit else fitness >= self.hard_mutation_fitness_limit)
+        
+        unimproved_cycles = 0
+        prev_best_fitness = None
 
         try:
             while should_cycle(self.cycle):
@@ -138,8 +145,13 @@ class Runner:
                                    substitution_method=self.substitution_method or 'elitism')
 
                 self.cycle += 1
-                curr_duration = time() - start_time
+                unimproved_cycles = 0 if population.best_fitness != prev_best_fitness else unimproved_cycles + 1
+                prev_best_fitness = population.best_fitness
+                if self.max_unimproved_cycles is not None and unimproved_cycles > self.max_unimproved_cycles:
+                    print(f"\nHalting, {unimproved_cycles} consecutive unimproved cycles")
+                    break
 
+                curr_duration = time() - start_time
                 if should_print(self.cycle):
                     try: print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={(curr_duration):.2f}s")
                     except ValueError: print(f"[{self.cycle}] fitness={population.best_fitness:.2f}, Δt={(curr_duration):.2f}s")
