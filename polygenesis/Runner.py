@@ -53,6 +53,11 @@ class Runner:
         self.show_all = show_all
         return self
 
+    def plot_at(self, plot_cycle=1, x_time=False):
+        self.plot_cycle = plot_cycle
+        self.x_time = x_time 
+        return self
+
     def reproduce_at(self, reproduction_cycle=100):
         self.reproduction_cycle = reproduction_cycle
         return self
@@ -73,7 +78,7 @@ class Runner:
     def run(self, use_partial_fitness=True, use_image_colors=True):
         height, width, *_ = self.image.shape
 
-        if self.show_cycle != None:
+        if self.plot_cycle != None: 
             plot_best, *_ = plt.plot([], [])
             plot_worst, *_ = plt.plot([], [])
             plot_best.set_color("blue")
@@ -81,8 +86,11 @@ class Runner:
             fig = plt.gcf()
             fig.show()
             fig.canvas.draw()
-            plt.xlabel('Generation', fontsize=12)
             plt.ylabel('Fitness', fontsize=12)
+            if self.x_time == True:
+                plt.xlabel('Time', fontsize=12)
+            else:
+                plt.xlabel('Fitness', fontsize=12)
 
 
         print(f"(height, width, depth) = {self.image.shape}",
@@ -110,6 +118,7 @@ class Runner:
         should_save_best = lambda cycle: False if not self.save_best_cycle else cycle % self.save_best_cycle == 0
         should_save_all = lambda cycle: False if (not self.save_all_cycle) or (self.population_size <= 1) else cycle % self.save_all_cycle == 0
         should_show = lambda cycle: False if not self.show_cycle else cycle % self.show_cycle == 0
+        should_plot = lambda cycle: False if not self.plot_cycle else cycle % self.plot_cycle == 0 
         should_reproduce = lambda cycle: False if not self.reproduction_cycle else cycle % self.reproduction_cycle == 0
 
         try:
@@ -133,15 +142,23 @@ class Runner:
                     if self.show_all:
                         population.show_all()
                     else:
-                        population.show_best()
+                        population.show_best() 
+                if should_plot(self.cycle):
                     if self.cycle == 1:
-                        plt.ylim([0, population.worst_fitness + population.worst_fitness/20])
-                    plot_best.set_xdata(np.append(plot_best.get_xdata(), self.cycle))
+                            plt.ylim([0, population.worst_fitness + population.worst_fitness/20])
                     plot_best.set_ydata(np.append(plot_best.get_ydata(), population.best_fitness))
-                    plot_worst.set_xdata(np.append(plot_worst.get_xdata(), self.cycle))
-                    plot_worst.set_ydata(np.append(plot_worst.get_ydata(), population.worst_fitness))
-                    plt.xlim([0, self.cycle])
-                    fig.canvas.draw()
+                    plot_worst.set_ydata(np.append(plot_worst.get_ydata(), population.worst_fitness))  
+                    if self.x_time == False: 
+                        plot_best.set_xdata(np.append(plot_best.get_xdata(), self.cycle)) 
+                        plot_worst.set_xdata(np.append(plot_worst.get_xdata(), self.cycle)) 
+                        plt.xlim([0, self.cycle]) 
+                    else:
+                        plot_best.set_xdata(np.append(plot_best.get_xdata(), time() - start_time)) 
+                        plot_worst.set_xdata(np.append(plot_worst.get_xdata(), time() - start_time)) 
+                        plt.xlim([0, time() - start_time]) 
+                    fig.canvas.draw() 
+                    
+
 
         except(KeyboardInterrupt, SystemExit):
             pass
@@ -155,6 +172,11 @@ class Runner:
                 save_path = os.path.join(self.save_best_path, f"{self.save_best_final_prefix}{self.cycle}.png")
                 population.save_best(save_path)
                 print(f"\nBest solution saved at {save_path}")
+            
+            if self.plot_cycle != None:
+                save_path = os.path.join(self.save_best_path, f"{self.cycle}_plot.png")
+                plt.savefig(save_path)
+                print(f"\nplot saved at {save_path}")
 
             if self.population_size > 1 and self.save_all_path:
                 save_path = os.path.join(self.save_all_path, f"{self.save_all_final_prefix}{self.cycle}.png")
@@ -165,4 +187,4 @@ class Runner:
                 save_path = os.path.join(self.save_dna_path, f"{self.save_dna_prefix}{self.cycle}.pkl")
                 with open(save_path, "wb+") as f: # binary file
                     f.write(population.best_dna)
-                print(f"\nBest solution's DNA saved at {save_path}")
+                print(f"\nBest solution's DNA saved at {save_path}")  

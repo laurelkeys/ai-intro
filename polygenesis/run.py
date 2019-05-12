@@ -30,7 +30,9 @@ runner.save_best_to(save_path="generated", save_cycle=5_000)
 
 runner.save_all_to(save_path="generated", save_cycle=10_000)
 
-runner.show_at(show_cycle=1, show_all=True)
+# runner.show_at(show_cycle=1, show_all=True)
+
+runner.plot_at(plot_cycle=1, x_time=True)
 
 runner.reproduce_at(reproduction_cycle=50)
 
@@ -45,6 +47,7 @@ runner.run(use_partial_fitness=True,
 # - save_best_to (save_path, save_cycle=None, prefix='', final_save_prefix='best_pack_')
 # - save_all_to (save_path, save_cycle=None, prefix='population_', final_save_prefix='final_population_')
 # - show_at (show_cycle=1, show_all=False)
+# - show_at (show_plot=1, x_time=False)
 # - reproduce_at (reproduction_cycle=100):
 # - set_fitness_func (fitness_func, partial_fitness_func=None)
 # - init_with (dna_path)
