@@ -28,7 +28,8 @@ runner = Runner(
     .save_dna_to(save_path=os.path.join("generated", "dna"), min_fitness=100_000_000)
     .save_best_to(save_path="generated", save_cycle=4_000)
     .save_all_to(save_path="generated", save_cycle=10_000)
-    .show_at(show_cycle=1, show_all=True)
+    # .show_at(show_cycle=1, show_all=True)
+    # .plot_at(plot_cycle=1, x_time=True)
     .set_fitness_func(FitnessCalculator(runner.image).ssd,
                       partial_fitness_func=FitnessCalculator(runner.image).partial_ssd)
     # .set_bg_color(WHITE)
@@ -39,7 +40,6 @@ runner = Runner(
     .set_substitution_method('comma_selection') # 'plus_selection', 'comma_selection', 'tournament'
     .set_mutation_params(hard_mutation_fitness_limit=150_000_000, random_hard_mutation_prob=0.001)
     # .set_max_unimproved_cycles(1000)
-    .init_with(os.path.join("generated", "dna", "dna_ml_400000.pkl"))
 ).run(use_partial_fitness=False,
       use_image_colors=True)
 
@@ -48,6 +48,7 @@ runner = Runner(
 # - save_best_to (save_path, save_cycle=None, prefix='', final_save_prefix='best_pack_')
 # - save_all_to (save_path, save_cycle=None, prefix='population_', final_save_prefix='final_population_')
 # - show_at (show_cycle=1, show_all=False)
+# - plot_at (plot_cycle=1, x_time=False)
 # - set_fitness_func (fitness_func, partial_fitness_func=None)
 # - init_with (dna_path)
 # - set_bg_color (bg_color)
