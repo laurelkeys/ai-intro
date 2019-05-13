@@ -2,6 +2,7 @@ import os
 from time import time
 
 import numpy as np
+import statistics
 import matplotlib.pyplot as plt
 from PIL import Image
 
@@ -47,16 +48,20 @@ class Runner:
         self.save_all_prefix = prefix
         self.save_all_final_prefix = final_save_prefix
         return self
+    
+    def save_plot_to(self, save_path, prefix='plot_'):
+        self.save_plot_path = save_path
+        self.save_plot_prefix = prefix
+        return self
 
     def show_at(self, show_cycle=1, show_all=False):
         self.show_cycle = show_cycle
         self.show_all = show_all
         return self
 
-    def plot_at(self, plot_cycle=1, x_time=False):
+    def plot_at(self, plot_cycle=1, plot_time_on_x=False):
         self.plot_cycle = plot_cycle
-        self.x_time = x_time
-        # TODO plot both time and cycle graphs
+        self.plot_time_on_x = plot_time_on_x
         return self
 
     def init_with(self, dna_path):
@@ -105,15 +110,17 @@ class Runner:
         height, width, *_ = self.image.shape
 
         if self.plot_cycle != None: 
-            plot_best, *_ = plt.plot([], [])
-            plot_worst, *_ = plt.plot([], [])
+            plot_avg, *_ = plt.plot([], [])
+            plot_best, *_ = plt.plot([], [], linestyle=':')
+            plot_worst, *_ = plt.plot([], [], linestyle=':')
+            plot_avg.set_color("orange")
             plot_best.set_color("blue")
             plot_worst.set_color("red")
             fig = plt.gcf()
             fig.show()
             fig.canvas.draw()
             plt.ylabel('Fitness', fontsize=12)
-            plt.xlabel('Time' if self.x_time else 'Cycle', fontsize=12)
+            plt.xlabel('Time' if self.plot_time_on_x else 'Cycle', fontsize=12)
 
         print(f"(height, width, depth) = {self.image.shape}",
               end='\n' if sum(self.original_size) == sum(self.image.shape[0:2]) else f" [resized from {' by '.join(map(str, self.original_size))}]\n")
@@ -180,18 +187,24 @@ class Runner:
                     else:
                         population.show_best() 
                 if should_plot(self.cycle):
+                    fitnesses = list(map(lambda pack: pack.fitness, population.packs))
+                    curr_avg_fitness = statistics.mean(fitnesses)
+                    curr_worst_fitness = max(fitnesses)
+                    
                     if self.cycle == 1:
-                        plt.ylim([0, 1.5 * population.worst_fitness])
+                        plt.ylim(top=1.1*curr_worst_fitness)
+                    plt.ylim(bottom=0.9*population.best_fitness)
+
+                    plot_avg.set_ydata(np.append(plot_avg.get_ydata(), curr_avg_fitness))
                     plot_best.set_ydata(np.append(plot_best.get_ydata(), population.best_fitness))
-                    plot_worst.set_ydata(np.append(plot_worst.get_ydata(), population.worst_fitness))  
-                    if self.x_time == False: 
-                        plot_best.set_xdata(np.append(plot_best.get_xdata(), self.cycle)) 
-                        plot_worst.set_xdata(np.append(plot_worst.get_xdata(), self.cycle)) 
-                        plt.xlim([0, self.cycle]) 
-                    else:
-                        plot_best.set_xdata(np.append(plot_best.get_xdata(), curr_duration)) 
-                        plot_worst.set_xdata(np.append(plot_worst.get_xdata(), curr_duration)) 
-                        plt.xlim([0, curr_duration]) 
+                    plot_worst.set_ydata(np.append(plot_worst.get_ydata(), curr_worst_fitness))
+
+                    plot_avg.set_xdata(np.append(plot_avg.get_xdata(), curr_duration if self.plot_time_on_x else self.cycle))
+                    plot_best.set_xdata(np.append(plot_best.get_xdata(), curr_duration if self.plot_time_on_x else self.cycle)) 
+                    plot_worst.set_xdata(np.append(plot_worst.get_xdata(), curr_duration if self.plot_time_on_x else self.cycle)) 
+                    
+                    plt.xlim([0, curr_duration if self.plot_time_on_x else self.cycle])
+
                     fig.canvas.draw() 
 
         except(KeyboardInterrupt, SystemExit):
@@ -207,9 +220,9 @@ class Runner:
                 population.save_best(save_path)
                 print(f"\nBest solution saved at {save_path}")
             
-            if self.plot_cycle != None:
-                save_path = os.path.join(self.save_best_path, f"plot_{'time' if self.x_time else 'cycle'}_{self.cycle}.png")
-                plt.savefig(save_path)
+            if self.save_plot_path:
+                save_path = os.path.join(self.save_plot_path, f"{self.save_plot_prefix}_{'time' if self.x_time else 'cycle'}_{self.cycle}.png")
+                plt.savefig(save_path, dpi=256, bbox_inches='tight')
                 print(f"\nPlot saved at {save_path}")
 
             if self.population_size > 1 and self.save_all_path:

@@ -20,17 +20,13 @@ class Population:
 
         index = 0
         best_fitness = self.packs[index].fitness
-        worst_fitness = self.packs[index].fitness
         for i in range(1, population_size):
             curr_fitness = self.packs[i].fitness
             if curr_fitness < best_fitness:
                 index = i
                 best_fitness = curr_fitness
-            if curr_fitness > worst_fitness:
-                worst_fitness = curr_fitness
         self.best_pack = copy.deepcopy(self.packs[index]) # <=> best_image
         self.best_fitness = best_fitness # == self.best_pack.fitness
-        self.worst_fitness = worst_fitness
 
         self.curr_cycle = 0
 
@@ -65,15 +61,12 @@ class Population:
     def cycle(self, fitness_func, partial_fitness_func=None, prophase=True):
         index = 0
         best_fitness = self.best_fitness
-        worst_fitness = self.packs[0].fitness
         for i in range(self.population_size):
             self.packs[i].cycle(fitness_func, partial_fitness_func)
             curr_fitness = self.packs[i].fitness
             if curr_fitness < best_fitness:
                 index = i
                 best_fitness = curr_fitness
-            if curr_fitness > worst_fitness:
-                worst_fitness = curr_fitness
 
         if prophase and self.population_size > 1:
             self.__crossover(fitness_func)
@@ -81,7 +74,6 @@ class Population:
         if best_fitness < self.best_fitness:
             self.best_pack = copy.deepcopy(self.packs[index])
             self.best_fitness = best_fitness # == self.best_pack.fitness
-        self.worst_fitness = worst_fitness
         self.curr_cycle += 1
 
     def save_best(self, save_path, save_format='PNG'):
