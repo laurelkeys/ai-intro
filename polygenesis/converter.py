@@ -1,11 +1,10 @@
+# NOTE: The Canvas class has been developed by Jon Carr (https://github.com/jwcarr/svg-polygons)
+
 import os
 import pickle
 
-# NOTE: The Canvas class has been developed by Jon Carr (https://github.com/jwcarr/svg-polygons)
 class Canvas:
 
-    width = 0
-    height = 0
     canvas = ''
     shape_count = 0
 
@@ -13,7 +12,7 @@ class Canvas:
         self.width = width
         self.height = height
 
-    def polygon(self, shape, border_colour='black', fill_colour=None, opacity=1.0):
+    def polygon(self, shape, border_colour=None, fill_colour=None, opacity=1.0):
         canvas = "\n  <g id='shape%s'>" % self.shape_count
         points = [(str(vertex[0]) + "," + str(vertex[1])) for vertex in shape]
         canvas += "\n    <polygon points='" + (" ".join(points)) + "' style='fill:%s; stroke:%s; fill-opacity:%s; stroke-opacity:%s; stroke-width:3; stroke-linejoin:miter;' />" % (fill_colour, border_colour, opacity, opacity)
@@ -56,4 +55,5 @@ def convert_and_save(dna_path, save_path, prefix=None):
     if not prefix: prefix = os.path.splitext(os.path.basename(os.path.normpath(dna_path)))[0]
     drawing.save(filename=os.path.join(save_path, prefix))
 
+# e.g.
 # convert_and_save(os.path.join("generated", "dna", "dna_ml_400000.pkl"), os.path.join("generated", "vector"))
