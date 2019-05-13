@@ -20,17 +20,13 @@ class Population:
 
         index = 0
         best_fitness = self.packs[index].fitness
-        worst_fitness = self.packs[index].fitness
         for i in range(1, population_size):
             curr_fitness = self.packs[i].fitness
             if curr_fitness < best_fitness:
                 index = i
                 best_fitness = curr_fitness
-            if curr_fitness > worst_fitness:
-                worst_fitness = curr_fitness
         self.best_pack = copy.deepcopy(self.packs[index]) # <=> best_image
         self.best_fitness = best_fitness # == self.best_pack.fitness
-        self.worst_fitness = worst_fitness
 
         self.curr_cycle = 0
 
@@ -62,19 +58,15 @@ class Population:
         if child_pack.fitness < worst_fitness:
             self.packs[worst_index] = child_pack
 
-
     def cycle(self, fitness_func, partial_fitness_func=None, prophase=True):
         index = 0
         best_fitness = self.best_fitness
-        worst_fitness = self.packs[0].fitness
         for i in range(self.population_size):
             self.packs[i].cycle(fitness_func, partial_fitness_func)
             curr_fitness = self.packs[i].fitness
             if curr_fitness < best_fitness:
                 index = i
                 best_fitness = curr_fitness
-            if curr_fitness > worst_fitness:
-                worst_fitness = curr_fitness
 
         if prophase and self.population_size > 1:
             self.__crossover(fitness_func)
@@ -82,7 +74,6 @@ class Population:
         if best_fitness < self.best_fitness:
             self.best_pack = copy.deepcopy(self.packs[index])
             self.best_fitness = best_fitness # == self.best_pack.fitness
-        self.worst_fitness = worst_fitness
         self.curr_cycle += 1
 
     def save_best(self, save_path, save_format='PNG'):
@@ -120,3 +111,111 @@ class Population:
     @property
     def best_dna(self):
         return self.best_pack.dna
+    
+    def __reproduce(self, partner1, partner2, fitness_func, crossover_strategy='single_point'):
+        child1 = copy.deepcopy(partner1)
+        child2 = copy.deepcopy(partner2)
+       
+        if crossover_strategy == 'single_point':
+            for locus in range(0, self.polygon_count // 2):
+                child1.polygons[locus] = partner2.polygons[locus]
+                child1.colors[locus] = partner2.colors[locus]
+                child2.polygons[locus] = partner1.polygons[locus]
+                child2.colors[locus] = partner1.colors[locus]
+        elif crossover_strategy == 'single_point_stochastic':
+            for locus in range(0, np.random.randint(0, self.polygon_count)):
+                child1.polygons[locus] = partner2.polygons[locus]
+                child1.colors[locus] = partner2.colors[locus]
+                child2.polygons[locus] = partner1.polygons[locus]
+                child2.colors[locus] = partner1.colors[locus]
+        elif crossover_strategy == 'uniform':
+            for locus in range(0, self.polygon_count):
+                if np.random.random() < 0.5:
+                    child1.polygons[locus] = partner2.polygons[locus]
+                    child1.colors[locus] = partner2.colors[locus]
+                    child2.polygons[locus] = partner1.polygons[locus]
+                    child2.colors[locus] = partner1.colors[locus]
+        else:
+            raise ValueError(f"Unexpected crossover_strategy ('{crossover_strategy}')")
+        
+        child1.image = child1.draw(child1.colors, child1.polygons)
+        child1.fitness = fitness_func(child1.image)
+        child2.image = child2.draw(child2.colors, child2.polygons)
+        child2.fitness = fitness_func(child2.image)
+        return child1, child2
+
+    # crossover_strategy: 'single_point', 'single_point_stochastic', 'uniform'
+    def iterate(self, fitness_func, hard_mutation=True, mutation_rate=1.0, crossover_rate=0.0, 
+                selection_strategy='truncation', crossover_strategy='single_point', substitution_method='plus_selection'):
+        # both parents and children compete to stay alive (ES plus-selection)
+        selection_pool = list()
+
+        # selection and crossover
+        if selection_strategy == 'first_packs':
+            for i in range(0, int(crossover_rate * self.population_size)):
+                child1, child2 = self.__reproduce(self.packs[i], self.packs[(i+1) % self.population_size], fitness_func, crossover_strategy)
+                selection_pool.append(child1)
+                selection_pool.append(child2)
+        elif selection_strategy == 'truncation':
+            selection_pool.sort(key=lambda pack: pack.fitness) # elitism
+            for i in range(0, int(crossover_rate * self.population_size)):
+                child1, child2 = self.__reproduce(self.packs[i], self.packs[(i+1) % self.population_size], fitness_func, crossover_strategy)
+                selection_pool.append(child1)
+                selection_pool.append(child2)
+        elif selection_strategy == 'stochastic_acceptance':
+            i = 0
+            crossover_amount = 0
+            while crossover_amount < int(crossover_rate * self.population_size):
+                if np.random.random() < self.packs[i].fitness / self.best_fitness:
+                    selection_pool.append(copy.deepcopy(self.packs[i]))
+                    crossover_amount += 1
+                i = (i + 1) % self.population_size
+        elif selection_strategy == 'roulette_wheel':
+            i = 0
+            crossover_amount = 0
+            fitness_sum = sum(pack.fitness for pack in self.packs)
+            while crossover_amount < int(crossover_rate * self.population_size):
+                if np.random.random() < self.packs[i].fitness / fitness_sum:
+                    selection_pool.append(copy.deepcopy(self.packs[i]))
+                    crossover_amount += 1
+                i = (i + 1) % self.population_size
+        else:
+            raise ValueError(f"Unexpected selection_strategy ('{selection_strategy}')")
+
+        # mutation
+        selection_pool.extend(copy.deepcopy(self.packs)) # FIXME
+        for i in range(0, len(selection_pool)):
+            if np.random.random() < mutation_rate:
+                selection_pool[i].mutate(fitness_func, hard_mutation)
+
+        # substitution
+        if substitution_method == 'plus_selection':
+            selection_pool.extend(copy.deepcopy(self.packs)) # puts the unmutated parents in the selection pool
+            selection_pool.sort(key=lambda pack: pack.fitness) # NOTE the lower the fitness (= objective function) the better
+            self.packs = selection_pool[0 : self.population_size]
+            if self.packs[0].fitness < self.best_fitness:
+                self.best_pack = copy.deepcopy(self.packs[0])
+                self.best_fitness = self.packs[0].fitness
+        elif substitution_method == 'comma_selection':
+            selection_pool.sort(key=lambda pack: pack.fitness) # NOTE the lower the fitness (= objective function) the better
+            self.packs = selection_pool[0 : self.population_size]
+            if self.packs[0].fitness < self.best_fitness:
+                self.best_pack = copy.deepcopy(self.packs[0])
+                self.best_fitness = self.packs[0].fitness
+        elif substitution_method == 'tournament':
+            k = 3 # k-ary tournament # TODO make an option to change it
+            matches = np.random.choice(selection_pool, size=k*self.population_size)
+            best_index = 0
+            best_fitness = float('inf')
+            for i in range(0, self.population_size):
+                match = matches[k*i : k*i + k]
+                self.packs[i] = min(match, key=lambda pack: pack.fitness) # NOTE the lower the fitness (= objective function) the better
+                if self.packs[i].fitness < best_fitness:
+                    best_index = i
+                    best_fitness = self.packs[i].fitness
+            if best_fitness < self.best_fitness:
+                self.best_pack = copy.deepcopy(self.packs[best_index])
+                self.best_fitness = best_fitness
+
+        else:
+            raise ValueError(f"Unexpected substitution_method ('{substitution_method}')")

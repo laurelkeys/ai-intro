@@ -16,39 +16,47 @@ except:
 
 runner = Runner(
     image_path, polygon_count, vertices_count,
-    population_size=8,
+    population_size=6,
     max_internal_size=(200, 200),
-    print_cycle=1
+    print_cycle=500
 )
 
 # NOTE these paths consider that you're running on the same directory as this file
 #      also, the min_fitness value to save the DNA should be changed depending on the fitness function
 
-runner.save_dna_to(save_path=os.path.join("generated", "dna"), min_fitness=100_000_000)
-
-runner.save_best_to(save_path="generated", save_cycle=5_000)
-
-runner.save_all_to(save_path="generated", save_cycle=10_000)
-
-# runner.show_at(show_cycle=1, show_all=True)
-
-runner.plot_at(plot_cycle=1, x_time=True)
-
-runner.reproduce_at(reproduction_cycle=50)
-
-runner.set_fitness_func(FitnessCalculator(runner.image).mse,
-                        partial_fitness_func=FitnessCalculator(runner.image).partial_mse)
-
-runner.run(use_partial_fitness=True,
-           use_image_colors=True)
+(runner
+    .save_dna_to(save_path=os.path.join("generated", "dna"), min_fitness=100_000_000)
+    .save_best_to(save_path="generated", save_cycle=4_000)
+    .save_all_to(save_path="generated", save_cycle=10_000)
+    .save_plot_to(save_path=os.path.join("generated", "plot"))
+    .show_at(show_cycle=1, show_all=True)
+    .plot_at(plot_cycle=1, plot_time_on_x=False)
+    .set_fitness_func(FitnessCalculator(runner.image).ssd,
+                      partial_fitness_func=FitnessCalculator(runner.image).partial_ssd)
+    # .set_bg_color(WHITE)
+    .set_mutation_rate(0.2)
+    .set_crossover_rate(0.5)
+    .set_selection_strategy('stochastic_acceptance') # 'first_packs', 'truncation', 'stochastic_acceptance', 'roulette_wheel'
+    .set_crossover_strategy('uniform') # 'single_point', 'single_point_stochastic', 'uniform'
+    .set_substitution_method('comma_selection') # 'plus_selection', 'comma_selection', 'tournament'
+    .set_mutation_params(hard_mutation_fitness_limit=150_000_000, random_hard_mutation_prob=0.001)
+    # .set_max_unimproved_cycles(1000)
+).run(use_partial_fitness=False,
+      use_image_colors=True)
 
 # Runner functions and params:
 # - save_dna_to (save_path, prefix='dna_', min_fitness=float('inf'))
 # - save_best_to (save_path, save_cycle=None, prefix='', final_save_prefix='best_pack_')
 # - save_all_to (save_path, save_cycle=None, prefix='population_', final_save_prefix='final_population_')
 # - show_at (show_cycle=1, show_all=False)
-# - show_at (show_plot=1, x_time=False)
-# - reproduce_at (reproduction_cycle=100):
+# - plot_at (plot_cycle=1, plot_time_on_x=False)
 # - set_fitness_func (fitness_func, partial_fitness_func=None)
 # - init_with (dna_path)
 # - set_bg_color (bg_color)
+# - set_mutation_rate (rate)
+# - set_crossover_rate (rate)
+# - set_selection_strategy (selection_strategy)
+# - set_crossover_strategy (crossover_strategy)
+# - set_substitution_method (substitution_method)
+# - set_mutation_params (hard_mutation_fitness_limit=None, random_hard_mutation_prob=0.0)
+# - set_max_unimproved_cycles (max_unimproved_cycles)
