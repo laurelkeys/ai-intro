@@ -33,7 +33,7 @@ class FitnessCalculator:
         # FIXME partial fitness leads to errors with the win_size on small bboxes
         return -1 * compare_ssim(self.original_image, pack_image, multichannel=True, gaussian_weights=True) # structural similarity index
 
-    def euclidian(self, pack_image):
+    def euclidean(self, pack_image):
         diff = np.subtract(self.original_image, pack_image, dtype=np.int16)
         return np.sqrt(np.sum(np.square(diff, dtype=np.int64), axis=2)).sum() # 3D euclidean distance
         # NOTE diff.shape == (height, width, depth), therefore the sum on axis 2 adds up the RGB channels
@@ -79,7 +79,7 @@ class FitnessCalculator:
         min_x, max_x, min_y, max_y = self.__bbox(vertices, mutant_vertices)
         return -1 * compare_psnr(self.original_image[min_y:max_y, min_x:max_x, :], pack_image[min_y:max_y, min_x:max_x, :])
 
-    def partial_euclidian(self, pack_image, vertices, mutant_vertices):
+    def partial_euclidean(self, pack_image, vertices, mutant_vertices):
         min_x, max_x, min_y, max_y = self.__bbox(vertices, mutant_vertices)
         diff = np.subtract(self.original_image[min_y:max_y, min_x:max_x, :], pack_image[min_y:max_y, min_x:max_x, :], dtype=np.int16)
         return np.sqrt(np.sum(np.square(diff, dtype=np.int32), axis=2)).sum()
