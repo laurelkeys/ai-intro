@@ -29,8 +29,8 @@ runner = Runner(
     .save_best_to(save_path="generated", save_cycle=4_000)
     # .save_all_to(save_path="generated", save_cycle=10_000)
     # .save_plot_to(save_path=os.path.join("generated", "plot"))
-    .show_at(show_cycle=1, show_all=True)
-    .plot_at(plot_cycle=1, show_plot=True, save_plot=True, save_path=os.path.join("generated", "plot"))
+    # .show_at(show_cycle=1, show_all=True)
+    .plot_at(plot_cycle=1, show_plot=False, save_plot=True, save_path=os.path.join("generated", "plot"))
     .set_fitness_func(FitnessCalculator(runner.image).ssd,
                       partial_fitness_func=FitnessCalculator(runner.image).partial_ssd)
     # .set_bg_color(WHITE)

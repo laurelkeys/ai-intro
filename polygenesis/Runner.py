@@ -2,12 +2,11 @@ import os
 from time import time
 
 import numpy as np
-import statistics
-import matplotlib.pyplot as plt
 from PIL import Image
 
 from utils import FitnessCalculator, avg_color
 from Population import Population
+from Plotter import Plotter
 
 class Runner:
     def __init__(self, image_path, polygon_count, vertices_count, population_size=1,
@@ -55,6 +54,8 @@ class Runner:
         return self
 
     def plot_at(self, plot_cycle=1, plot_time_on_x=False, show_plot=False, save_plot=False, save_path=None, prefix='plot_'):
+        # TODO add plot_cycle_on_x and create a list of Plotters
+        self.plotter = Plotter(xlabel='Time' if plot_time_on_x else 'Cycle', show_plot=show_plot)
         self.plot_cycle = plot_cycle
         self.plot_time_on_x = plot_time_on_x
         self.show_plot = show_plot
@@ -107,20 +108,7 @@ class Runner:
 
     def run(self, use_partial_fitness=True, use_image_colors=True):
         height, width, *_ = self.image.shape
-
-        if self.plot_cycle != None:
-            plot_worst, *_ = plt.plot([], [], linestyle=':', linewidth=4, alpha=0.7)
-            plot_best, *_ = plt.plot([], [], linestyle=':', linewidth=4)
-            plot_avg, *_ = plt.plot([], [], alpha=0.7)
-            plot_worst.set_color("red")
-            plot_best.set_color("blue")
-            plot_avg.set_color("orange")
-            fig = plt.gcf()
-            if self.show_plot: fig.show()
-            fig.canvas.draw()
-            plt.ylabel('Fitness', fontsize=12)
-            plt.xlabel('Time' if self.plot_time_on_x else 'Cycle', fontsize=12)
-
+        
         print(f"(height, width, depth) = {self.image.shape}",
               end='\n' if sum(self.original_size) == sum(self.image.shape[0:2]) else f" [resized from {' by '.join(map(str, self.original_size))}]\n")
 
@@ -148,7 +136,8 @@ class Runner:
         should_show = lambda cycle: False if not self.show_cycle else cycle % self.show_cycle == 0
         should_plot = lambda cycle: False if not self.plot_cycle else cycle % self.plot_cycle == 0 or self.plot_cycle == 1
 
-        if not self.random_hard_mutation_prob: self.random_hard_mutation_prob = 0.0
+        if not self.random_hard_mutation_prob:
+            self.random_hard_mutation_prob = 0.0
         should_hard_mutate = lambda fitness: \
             np.random.random() < self.random_hard_mutation_prob or (False if not self.hard_mutation_fitness_limit else fitness >= self.hard_mutation_fitness_limit)
         
@@ -186,25 +175,9 @@ class Runner:
                     else:
                         population.show_best() 
                 if should_plot(self.cycle):
-                    fitnesses = list(map(lambda pack: pack.fitness, population.packs))
-                    curr_avg_fitness = statistics.mean(fitnesses)
-                    curr_worst_fitness = max(fitnesses)
-                    
-                    if self.cycle == 1:
-                        plt.ylim(top=1.05*curr_worst_fitness)
-                    plt.ylim(bottom=0.95*population.best_fitness)
-
-                    plot_worst.set_ydata(np.append(plot_worst.get_ydata(), curr_worst_fitness))
-                    plot_best.set_ydata(np.append(plot_best.get_ydata(), population.best_fitness))
-                    plot_avg.set_ydata(np.append(plot_avg.get_ydata(), curr_avg_fitness))
-
-                    plot_worst.set_xdata(np.append(plot_worst.get_xdata(), curr_duration if self.plot_time_on_x else self.cycle)) 
-                    plot_best.set_xdata(np.append(plot_best.get_xdata(), curr_duration if self.plot_time_on_x else self.cycle)) 
-                    plot_avg.set_xdata(np.append(plot_avg.get_xdata(), curr_duration if self.plot_time_on_x else self.cycle))
-                    
-                    plt.xlim([0, curr_duration if self.plot_time_on_x else self.cycle])
-
-                    fig.canvas.draw() 
+                    self.plotter.update(xdata=curr_duration if self.plot_time_on_x else self.cycle, 
+                                        fitnesses=list(map(lambda pack: pack.fitness, population.packs)), 
+                                        all_time_best=population.best_fitness)
 
         except(KeyboardInterrupt, SystemExit):
             pass
@@ -220,9 +193,8 @@ class Runner:
                 print(f"\nBest solution saved at {save_path}")
             
             if self.save_plot:
-                save_path = os.path.join(self.save_plot_path, f"{self.save_plot_prefix}{'time_' if self.plot_time_on_x else 'cycle_'}{self.cycle}.png")
-                plt.savefig(save_path, dpi=256, bbox_inches='tight')
-                print(f"\nPlot saved at {save_path}")
+                self.plotter.save(save_path=self.save_plot_path, 
+                                  file_name=f"{self.save_plot_prefix}{'time_' if self.plot_time_on_x else 'cycle_'}{self.cycle}")
 
             if self.population_size > 1 and self.save_all_path:
                 save_path = os.path.join(self.save_all_path, f"{self.save_all_final_prefix}{self.cycle}.png")
