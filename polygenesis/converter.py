@@ -46,7 +46,7 @@ def convert_and_save(dna_path, save_path, prefix=None):
 
     width, height, bg_color = dna_obj['width'], dna_obj['height'], dna_obj['bg_color']
     drawing = Canvas(width, height)
-    drawing.polygon(shape=[(0, 0), (width, 0), (width, height), (0, height)], fill_colour=hex_string(bg_color), opacity=1.0)
+    drawing.polygon(shape=[(0, 0), (width-1, 0), (width-1, height-1), (0, height-1)], fill_colour=hex_string(bg_color), opacity=1.0)
 
     for color, polygon in zip(dna_obj['colors'], dna_obj['polygons']):
         polygon = [(x, y) for (x, y) in zip(polygon[0::2], polygon[1::2])] # [x, y, x, y, ...] -> [(x, y), (x, y), ...]
