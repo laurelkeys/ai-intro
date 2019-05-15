@@ -144,9 +144,7 @@ class Population:
         child2.fitness = fitness_func(child2.image)
         return child1, child2
 
-    # crossover_strategy: 'single_point', 'single_point_stochastic', 'uniform'
-    def iterate(self, fitness_func, hard_mutation=True, mutation_rate=1.0, crossover_rate=0.0, 
-                selection_strategy='truncation', crossover_strategy='single_point', substitution_method='plus_selection'):
+    def iterate(self, fitness_func, mutation_rate, crossover_rate, selection_strategy, crossover_strategy, substitution_method, hard_mutation=True):
         # both parents and children compete to stay alive (ES plus-selection)
         selection_pool = list()
 

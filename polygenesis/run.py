@@ -16,9 +16,9 @@ except:
 
 runner = Runner(
     image_path, polygon_count, vertices_count,
-    population_size=2,
+    population_size=8,
     max_internal_size=(200, 200),
-    print_cycle=500
+    print_cycle=50
 )
 
 # NOTE these paths consider that you're running on the same directory as this file
@@ -30,16 +30,15 @@ runner = Runner(
     # .save_all_to(save_path="generated", save_cycle=10_000)
     # .save_plot_to(save_path=os.path.join("generated", "plot"))
     # .show_at(show_cycle=1, show_all=True)
-    .plot_at(plot_cycle=1, plot_time_on_x=False, show_plot=True, save_plot=True, save_path=os.path.join("generated", "plot"))
-    .set_fitness_func(FitnessCalculator(runner.image).ssd,
-                      partial_fitness_func=FitnessCalculator(runner.image).partial_ssd)
+    # .plot_at(plot_cycle=1, plot_time_on_x=False, show_plot=True, save_plot=True, save_path=os.path.join("generated", "plot"))
+    .set_fitness_func(FitnessCalculator(runner.image).ssd)
     # .set_bg_color(WHITE)
-    .set_mutation_rate(0.1)
-    .set_crossover_rate(1.0)
-    .set_selection_strategy('truncation') # 'first_packs', 'truncation', 'stochastic_acceptance', 'roulette_wheel'
-    .set_crossover_strategy('single_point') # 'single_point', 'single_point_stochastic', 'uniform'
+    .set_mutation_rate(1.0)
+    .set_crossover_rate(0.63)
+    .set_selection_strategy('stochastic_acceptance') # 'first_packs', 'truncation', 'stochastic_acceptance', 'roulette_wheel'
+    .set_crossover_strategy('uniform') # 'single_point', 'single_point_stochastic', 'uniform'
     .set_substitution_method('plus_selection') # 'plus_selection', 'comma_selection', 'tournament'
     .set_mutation_params(hard_mutation_fitness_limit=150_000_000, random_hard_mutation_prob=0.005)
     # .set_max_unimproved_cycles(1000)
 
-).run(use_partial_fitness=False, use_image_colors=True)
+).run(use_image_colors=True)

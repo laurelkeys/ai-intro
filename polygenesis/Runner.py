@@ -25,6 +25,16 @@ class Runner:
         self.max_cycles = max_cycles
         self.print_cycle = print_cycle
 
+        # default values (if not set)
+        self.fitness_func = FitnessCalculator(self.image).sad
+        self.random_hard_mutation_prob = 0.0
+        self.mutation_rate = 1.0
+        self.crossover_rate = 0.0
+        self.selection_strategy = 'truncation'
+        self.crossover_strategy = 'uniform'
+        self.substitution_method = 'plus_selection'
+
+
     def __getattr__(self, name):
         return None # returns None when an attribute isn't found
 
@@ -67,9 +77,8 @@ class Runner:
         self.initial_dna_path = dna_path # DNA of a Pack to be added to the initial Population
         return self
 
-    def set_fitness_func(self, fitness_func, partial_fitness_func=None):
+    def set_fitness_func(self, fitness_func):
         self.fitness_func = fitness_func
-        self.partial_fitness_func = partial_fitness_func
         return self
 
     def set_bg_color(self, bg_color):
@@ -97,23 +106,24 @@ class Runner:
         return self
 
     def set_mutation_params(self, hard_mutation_fitness_limit=None, random_hard_mutation_prob=0.0):
-        self.hard_mutation_fitness_limit = hard_mutation_fitness_limit
-        self.random_hard_mutation_prob = random_hard_mutation_prob
+        self.hard_mutation_fitness_limit = hard_mutation_fitness_limit # applies soft mutations once the best fitness is lower than this
+        self.random_hard_mutation_prob = random_hard_mutation_prob # chance of a random hard mutation when applying soft mutations
         return self
     
     def set_max_unimproved_cycles(self, max_unimproved_cycles):
         self.max_unimproved_cycles = max_unimproved_cycles
         return self
 
-    def run(self, use_partial_fitness=True, use_image_colors=True):
-        height, width, *_ = self.image.shape
-        
-        print(f"(height, width, depth) = {self.image.shape}",
-              end='\n' if sum(self.original_size) == sum(self.image.shape[0:2]) else f" [resized from {' by '.join(map(str, self.original_size))}]\n")
+    def halt_on(self, max_unimproved_cycles=None, fitness_limit=None, duration_limit=None):
+        self.halt_on_max_unimproved_cycles = max_unimproved_cycles
+        self.halt_on_fitness_limit = fitness_limit
+        self.halt_on_duration_limit = duration_limit
+        return self
 
-        if not self.fitness_func:
-            self.fitness_func = FitnessCalculator(self.image).ssd
-            self.partial_fitness_func = FitnessCalculator(self.image).partial_ssd
+    def run(self, use_image_colors=True):
+        height, width, *_ = self.image.shape
+        print(f"(height, width, depth) = {self.image.shape}", end='')
+        print('' if sum(self.original_size) == sum(self.image.shape[0:2]) else f" [resized from {' by '.join(map(str, self.original_size))}]")
 
         population = Population(
             width, height,
@@ -134,11 +144,11 @@ class Runner:
         should_save_all = lambda cycle: False if (not self.save_all_cycle) or (self.population_size <= 1) else cycle % self.save_all_cycle == 0
         should_show = lambda cycle: False if not self.show_cycle else cycle % self.show_cycle == 0
         should_plot = lambda cycle: False if not self.plot_cycle else cycle % self.plot_cycle == 0 or self.plot_cycle == 1
-
-        if not self.random_hard_mutation_prob:
-            self.random_hard_mutation_prob = 0.0
-        should_hard_mutate = lambda fitness: \
-            np.random.random() < self.random_hard_mutation_prob or (False if not self.hard_mutation_fitness_limit else fitness >= self.hard_mutation_fitness_limit)
+        should_hard_mutate = lambda fitness: (np.random.random() < self.random_hard_mutation_prob or 
+                                             (False if not self.hard_mutation_fitness_limit else fitness >= self.hard_mutation_fitness_limit))
+        should_halt_on_cycle = lambda cycle: False if not self.halt_on_max_unimproved_cycles else cycle > self.halt_on_max_unimproved_cycles
+        should_halt_on_fitness = lambda fitness: False if not self.halt_on_fitness_limit else fitness <= self.halt_on_fitness_limit
+        should_halt_on_duration = lambda duration: False if not self.halt_on_duration_limit else duration >= self.halt_on_duration_limit
         
         unimproved_cycles = 0
         prev_best_fitness = None
@@ -147,20 +157,28 @@ class Runner:
             while should_cycle(self.cycle):
                 population.iterate(self.fitness_func, 
                                    hard_mutation=should_hard_mutate(population.best_fitness),
-                                   mutation_rate=self.mutation_rate or 1.0,
-                                   crossover_rate=self.crossover_rate or 0.0,
-                                   selection_strategy=self.selection_strategy or 'truncation',
-                                   crossover_strategy=self.crossover_strategy or 'single_point',
-                                   substitution_method=self.substitution_method or 'tournament')
+                                   mutation_rate=self.mutation_rate, crossover_rate=self.crossover_rate,
+                                   selection_strategy=self.selection_strategy, crossover_strategy=self.crossover_strategy,
+                                   substitution_method=self.substitution_method)
 
                 self.cycle += 1
+                # self.__halt_if_it_should(unimproved_cycles, prev_best_fitness, curr_duration)
+
                 unimproved_cycles = 0 if population.best_fitness != prev_best_fitness else unimproved_cycles + 1
-                prev_best_fitness = population.best_fitness
-                if self.max_unimproved_cycles is not None and unimproved_cycles > self.max_unimproved_cycles:
+                if should_halt_on_cycle(unimproved_cycles):
                     print(f"\nHalting, {unimproved_cycles} consecutive unimproved cycles")
+                    break
+                
+                prev_best_fitness = population.best_fitness
+                if should_halt_on_fitness(prev_best_fitness):
+                    print(f"\nHalting, {prev_best_fitness} fitness reached")
                     break
 
                 curr_duration = time() - start_time
+                if should_halt_on_duration(curr_duration):
+                    print(f"\nHalting, {curr_duration:.2f} seconds passed")
+                    break
+
                 if should_print(self.cycle):
                     try: print(f"[{self.cycle}] fitness={population.best_fitness:_d}, Δt={(curr_duration):.2f}s")
                     except ValueError: print(f"[{self.cycle}] fitness={population.best_fitness:.2f}, Δt={(curr_duration):.2f}s")
@@ -192,8 +210,7 @@ class Runner:
                 print(f"\nBest solution saved at {save_path}")
             
             if self.save_plot:
-                self.plotter.save(save_path=self.save_plot_path, 
-                                  file_name=f"{self.save_plot_prefix}{'time_' if self.plot_time_on_x else 'cycle_'}{self.cycle}")
+                self.plotter.save(save_path=self.save_plot_path, file_name=f"{self.save_plot_prefix}{'time_' if self.plot_time_on_x else 'cycle_'}{self.cycle}")
 
             if self.population_size > 1 and self.save_all_path:
                 save_path = os.path.join(self.save_all_path, f"{self.save_all_final_prefix}{self.cycle}.png")
