@@ -40,5 +40,6 @@ runner = Runner(
     .set_substitution_method('plus_selection') # 'plus_selection', 'comma_selection', 'tournament'
     .set_mutation_params(hard_mutation_fitness_limit=150_000_000, random_hard_mutation_prob=0.005)
     # .set_max_unimproved_cycles(1000)
+    # .halt_on(max_unimproved_cycles=None, fitness_limit=None, duration_limit=None)
 
 ).run(use_image_colors=True)

@@ -28,54 +28,6 @@ class Population:
         self.best_pack = copy.deepcopy(self.packs[index]) # <=> best_image
         self.best_fitness = best_fitness # == self.best_pack.fitness
 
-        self.curr_cycle = 0
-
-    def __crossover(self, fitness_func):
-        mother_index = np.random.randint(0, self.population_size)
-        potential_partners = [*range(0, self.population_size)]
-        potential_partners.remove(mother_index)
-        father_index = np.random.choice(potential_partners)
-
-        child_pack = copy.deepcopy(self.packs[mother_index])
-        chiasma_start = np.random.randint(self.polygon_count // 4, self.polygon_count // 2)
-        chiasma_end = np.random.randint(chiasma_start, 3 * self.polygon_count // 4)
-
-        worst_index = 0
-        worst_fitness = self.packs[0].fitness
-        for i in range(self.population_size):
-            curr_fitness = self.packs[i].fitness
-            if curr_fitness > worst_fitness:
-                worst_fitness = curr_fitness
-                worst_index = i
-
-        for chiasma_locus in range(chiasma_start, chiasma_end + 1):
-            child_pack.polygons[chiasma_locus] = self.packs[father_index].polygons[chiasma_locus]
-            child_pack.colors[chiasma_locus] = self.packs[father_index].colors[chiasma_locus]
-
-        child_pack.image = np.array(child_pack.draw(child_pack.colors, child_pack.polygons))
-        child_pack.fitness = fitness_func(child_pack.image)
-
-        if child_pack.fitness < worst_fitness:
-            self.packs[worst_index] = child_pack
-
-    def cycle(self, fitness_func, partial_fitness_func=None, prophase=True):
-        index = 0
-        best_fitness = self.best_fitness
-        for i in range(self.population_size):
-            self.packs[i].cycle(fitness_func, partial_fitness_func)
-            curr_fitness = self.packs[i].fitness
-            if curr_fitness < best_fitness:
-                index = i
-                best_fitness = curr_fitness
-
-        if prophase and self.population_size > 1:
-            self.__crossover(fitness_func)
-
-        if best_fitness < self.best_fitness:
-            self.best_pack = copy.deepcopy(self.packs[index])
-            self.best_fitness = best_fitness # == self.best_pack.fitness
-        self.curr_cycle += 1
-
     def save_best(self, save_path, save_format='PNG'):
         self.best_pack.save_image(save_path, save_format)
 
@@ -187,15 +139,16 @@ class Population:
                 selection_pool[i].mutate(fitness_func, hard_mutation)
 
         # substitution
+        # NOTE the lower the fitness (= objective function) the better
         if substitution_method == 'plus_selection':
             selection_pool.extend(copy.deepcopy(self.packs)) # puts the unmutated parents in the selection pool
-            selection_pool.sort(key=lambda pack: pack.fitness) # NOTE the lower the fitness (= objective function) the better
+            selection_pool.sort(key=lambda pack: pack.fitness)
             self.packs = selection_pool[0 : self.population_size]
             if self.packs[0].fitness < self.best_fitness:
                 self.best_pack = copy.deepcopy(self.packs[0])
                 self.best_fitness = self.packs[0].fitness
         elif substitution_method == 'comma_selection':
-            selection_pool.sort(key=lambda pack: pack.fitness) # NOTE the lower the fitness (= objective function) the better
+            selection_pool.sort(key=lambda pack: pack.fitness)
             self.packs = selection_pool[0 : self.population_size]
             if self.packs[0].fitness < self.best_fitness:
                 self.best_pack = copy.deepcopy(self.packs[0])
@@ -207,7 +160,7 @@ class Population:
             best_fitness = float('inf')
             for i in range(0, self.population_size):
                 match = matches[k*i : k*i + k]
-                self.packs[i] = min(match, key=lambda pack: pack.fitness) # NOTE the lower the fitness (= objective function) the better
+                self.packs[i] = min(match, key=lambda pack: pack.fitness)
                 if self.packs[i].fitness < best_fitness:
                     best_index = i
                     best_fitness = self.packs[i].fitness

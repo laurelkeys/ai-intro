@@ -146,9 +146,6 @@ class Runner:
         should_plot = lambda cycle: False if not self.plot_cycle else cycle % self.plot_cycle == 0 or self.plot_cycle == 1
         should_hard_mutate = lambda fitness: (np.random.random() < self.random_hard_mutation_prob or 
                                              (False if not self.hard_mutation_fitness_limit else fitness >= self.hard_mutation_fitness_limit))
-        should_halt_on_cycle = lambda cycle: False if not self.halt_on_max_unimproved_cycles else cycle > self.halt_on_max_unimproved_cycles
-        should_halt_on_fitness = lambda fitness: False if not self.halt_on_fitness_limit else fitness <= self.halt_on_fitness_limit
-        should_halt_on_duration = lambda duration: False if not self.halt_on_duration_limit else duration >= self.halt_on_duration_limit
         
         unimproved_cycles = 0
         prev_best_fitness = None
@@ -162,21 +159,10 @@ class Runner:
                                    substitution_method=self.substitution_method)
 
                 self.cycle += 1
-                # self.__halt_if_it_should(unimproved_cycles, prev_best_fitness, curr_duration)
-
                 unimproved_cycles = 0 if population.best_fitness != prev_best_fitness else unimproved_cycles + 1
-                if should_halt_on_cycle(unimproved_cycles):
-                    print(f"\nHalting, {unimproved_cycles} consecutive unimproved cycles")
-                    break
-                
                 prev_best_fitness = population.best_fitness
-                if should_halt_on_fitness(prev_best_fitness):
-                    print(f"\nHalting, {prev_best_fitness} fitness reached")
-                    break
-
                 curr_duration = time() - start_time
-                if should_halt_on_duration(curr_duration):
-                    print(f"\nHalting, {curr_duration:.2f} seconds passed")
+                if self.__should_halt(unimproved_cycles, prev_best_fitness, curr_duration):
                     break
 
                 if should_print(self.cycle):
@@ -221,4 +207,16 @@ class Runner:
                 save_path = os.path.join(self.save_dna_path, f"{self.save_dna_prefix}{self.cycle}.pkl")
                 with open(save_path, "wb+") as f: # binary file
                     f.write(population.best_dna)
-                print(f"\nBest solution's DNA saved at {save_path}")  
+                print(f"\nBest solution's DNA saved at {save_path}")
+    
+    def __should_halt(self, unimproved_cycles, prev_best_fitness, curr_duration):
+        if self.halt_on_max_unimproved_cycles != None and unimproved_cycles > self.halt_on_max_unimproved_cycles:
+            print(f"\nHalting, {unimproved_cycles} consecutive unimproved cycles")
+            return True        
+        if self.halt_on_fitness_limit != None and prev_best_fitness <= self.halt_on_fitness_limit:
+            print(f"\nHalting, {prev_best_fitness} fitness reached")
+            return True
+        if self.halt_on_duration_limit != None and curr_duration >= self.halt_on_duration_limit:
+            print(f"\nHalting, {curr_duration:.2f} seconds passed")
+            return True        
+        return False

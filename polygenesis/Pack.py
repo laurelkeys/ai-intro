@@ -29,7 +29,6 @@ class Pack:
 
         self.image = np.array(self.draw(self.colors, self.polygons), dtype=np.uint8)
         self.fitness = fitness_func(self.image)
-        self.curr_cycle = 0
 
     def draw(self, colors, polygons, scale=1):
         canvas = Image.new('RGB', (self.width * scale, self.height * scale), self.bg_color)
@@ -38,67 +37,6 @@ class Pack:
             drawer.polygon((scale * polygon).tolist(), tuple(color))
         del drawer
         return canvas
-
-    def mutant(self, return_vertices=False):
-
-        mutate_color_delta = 32
-        mutate_alpha_range = (32, 196)
-
-        def __mutate_vertex(self, polygon_index):
-            polygons = self.polygons.copy()
-            vertex_index = 2 * np.random.randint(low=0, high=self.vertices_count) # chooses one of the polygon's vertices to mutate
-            polygons[polygon_index, vertex_index] = np.random.randint(low=0, high=self.width, dtype=np.int16)
-            polygons[polygon_index, vertex_index + 1] = np.random.randint(low=0, high=self.height, dtype=np.int16)
-            return self.colors, polygons, self.polygons[polygon_index, :], polygons[polygon_index, :]
-
-        def __mutate_polygon(self, polygon_index):
-            polygons = self.polygons.copy()
-            polygons[polygon_index, 0::2] = np.tile(np.random.randint(low=0, high=self.width, dtype=np.int16), self.vertices_count) # x's
-            polygons[polygon_index, 1::2] = np.tile(np.random.randint(low=0, high=self.height, dtype=np.int16), self.vertices_count) # y's
-            return self.colors, polygons, self.polygons[polygon_index, :], polygons[polygon_index, :]
-
-        def __mutate_color(self, polygon_index):
-            colors = self.colors.copy()
-            color_mutation = np.random.randint(low=-mutate_color_delta, high=mutate_color_delta + 1, size=3, dtype=np.int8)
-            colors[polygon_index, :3] = np.clip(np.add(colors[polygon_index, :3], color_mutation, dtype=np.int16), 0, 255).astype(np.uint8)
-            return colors, self.polygons, self.polygons[polygon_index, :], self.polygons[polygon_index, :]
-
-        def __mutate_alpha(self, polygon_index):
-            colors = self.colors.copy()
-            colors[polygon_index, 3] = np.random.randint(mutate_alpha_range[0], mutate_alpha_range[1], dtype=np.uint8) # Alpha
-            return colors, self.polygons, self.polygons[polygon_index, :], self.polygons[polygon_index, :]
-
-        def __mutate_order(self, polygon_index):
-            other_polygon_index = np.random.randint(self.polygons.shape[0])
-            polygons = self.polygons.copy()
-            polygons[polygon_index], polygons[other_polygon_index] = polygons[other_polygon_index], polygons[polygon_index]
-            return self.colors, polygons, self.polygons[polygon_index, :], polygons[polygon_index, :]
-
-        mutation = np.random.choice([__mutate_vertex, __mutate_polygon, __mutate_color, __mutate_alpha, __mutate_order])
-        polygon_index = np.random.randint(self.polygons.shape[0]) # [0, polygons_count)
-        return mutation(self, polygon_index)
-
-    def cycle(self, fitness_func, partial_fitness_func=None):
-        if partial_fitness_func is not None:
-            child_colors, child_polygons, parent_vertices, child_vertices = self.mutant(return_vertices=True)
-            child_image = np.array(self.draw(child_colors, child_polygons), dtype=np.uint8)
-            child_fitness = partial_fitness_func(child_image, parent_vertices, child_vertices)
-            parent_fitness = partial_fitness_func(self.image, parent_vertices, child_vertices)
-            if child_fitness < parent_fitness: # NOTE the lower the fitness (= objective function) the better
-                self.colors = child_colors
-                self.polygons = child_polygons
-                self.image = child_image
-                self.fitness = fitness_func(self.image)
-        else:
-            child_colors, child_polygons, *_ = self.mutant()
-            child_image = np.array(self.draw(child_colors, child_polygons), dtype=np.uint8)
-            child_fitness = fitness_func(child_image)
-            if child_fitness < self.fitness: # NOTE the lower the fitness (= objective function) the better
-                self.colors = child_colors
-                self.polygons = child_polygons
-                self.image = child_image
-                self.fitness = child_fitness
-        self.curr_cycle += 1
 
     def save_image(self, save_path, save_format, scale=1):
         image = self.draw(self.colors, self.polygons, scale)
