@@ -41,8 +41,8 @@ class Pack:
         return canvas
 
     def save_image(self, save_path, save_format, scale=1):
-        directory = os.path.join(*((save_path.split("/"))[:-1]))
-        pathlib.Path(f'{directory}').mkdir(parents=True, exist_ok=True) 
+        directory, *_ = os.path.split(save_path)
+        pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
 
         image = self.draw(self.colors, self.polygons, scale)
         image.save(save_path, save_format)

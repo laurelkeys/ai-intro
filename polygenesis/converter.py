@@ -2,6 +2,7 @@
 
 import os
 import pickle
+from sys import argv
 
 class Canvas:
 
@@ -35,7 +36,7 @@ class Canvas:
         canvas += self.__add_footer()
         with open(filename + '.svg', 'w') as f:
             f.write(canvas)
-        print("Image saved at %s.svg" % filename)
+        print("\nImage saved at %s.svg" % filename)
 
 def hex_string(rgb_list):
     return "#%0.2X%0.2X%0.2X" % (rgb_list[0], rgb_list[1], rgb_list[2])
@@ -55,5 +56,13 @@ def convert_and_save(dna_path, save_path, prefix=None):
     if not prefix: prefix = os.path.splitext(os.path.basename(os.path.normpath(dna_path)))[0]
     drawing.save(filename=os.path.join(save_path, prefix))
 
-# e.g.
-convert_and_save(os.path.join("generated/ml.", "dna", "dna_ml_400000.pkl"), os.path.join("generated", "vector"))
+try:
+    dna_path = argv[1]
+    save_path = argv[2]
+    prefix = None if len(argv) <= 3 else argv[3]
+    convert_and_save(dna_path, save_path, prefix)
+except:
+    print("usage: python converter.py [dna_path save_path [prefix]]")
+
+# you can directly convert it, as for example:
+# convert_and_save(os.path.join("generated", "dna", "dna_ml_400000.pkl"), os.path.join("generated", "vector"))

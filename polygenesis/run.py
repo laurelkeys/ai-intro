@@ -5,6 +5,7 @@ from utils import WHITE, BLACK, FitnessCalculator
 
 try:
     image_path = argv[1]
+    image_name = os.path.splitext(os.path.split(image_path)[-1])[0]
     polygon_count = int(argv[2])
     vertices_count = 3 if len(argv) <= 3 else int(argv[3])
     max_cycles = -1 if len(argv) <= 4 else int(argv[4])
@@ -23,12 +24,13 @@ runner = Runner(
 
 # NOTE these paths consider that you're running on the same directory as this file
 #      also, the min_fitness value to save the DNA should be changed depending on the fitness function
-image_name = (image_path.split("/"))[-1] 
+
+save_path = "generated" # os.path.join("generated", image_name)
 
 (runner
-    .save_dna_to(save_path=os.path.join(f"generated/{image_name}", "dna"), min_fitness=100_000_000)
-    .save_best_to(save_path=f"generated/{image_name}", save_cycle=4_000)
-    .save_all_to(save_path=f"generated/{image_name}", save_cycle=10_000)
+    .save_dna_to(os.path.join(save_path, "dna"), min_fitness=100_000_000)
+    .save_best_to(save_path, save_cycle=4_000)
+    .save_all_to(save_path, save_cycle=10_000)
     # .save_plot_to(save_path=os.path.join("generated/{image_name}", "plot"))
     # .show_at(show_cycle=1, show_all=True)
     # .plot_at(plot_cycle=1, plot_time_on_x=False, show_plot=True, save_plot=True, save_path=os.path.join("generated", "plot"))

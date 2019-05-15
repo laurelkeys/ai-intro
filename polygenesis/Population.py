@@ -31,9 +31,6 @@ class Population:
         self.best_fitness = best_fitness # == self.best_pack.fitness
 
     def save_best(self, save_path, save_format='PNG'):
-        directory = os.path.join(*((save_path.split("/"))[:-1]))
-        pathlib.Path(f'{directory}').mkdir(parents=True, exist_ok=True) 
-
         self.best_pack.save_image(save_path, save_format)
 
     def show_best(self):
@@ -53,9 +50,8 @@ class Population:
         return canvas
 
     def save_all(self, save_path, save_format='PNG'): 
-        directory = os.path.join(*((save_path.split("/"))[:-1]))
-        pathlib.Path(f'{directory}').mkdir(parents=True, exist_ok=True) 
-
+        directory, *_ = os.path.split(save_path)
+        pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
         self.__draw_all().save(save_path, save_format)
 
     def show_all(self):
