@@ -1,5 +1,5 @@
 # Project 2
-# polygenesis/tests
+polygenesis/tests/*
 polygenesis/images/temp
 polygenesis/generated/*.png
 polygenesis/generated/dna/*.pkl
