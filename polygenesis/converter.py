@@ -56,4 +56,4 @@ def convert_and_save(dna_path, save_path, prefix=None):
     drawing.save(filename=os.path.join(save_path, prefix))
 
 # e.g.
-# convert_and_save(os.path.join("generated", "dna", "dna_ml_400000.pkl"), os.path.join("generated", "vector"))
+convert_and_save(os.path.join("generated/ml.", "dna", "dna_ml_400000.pkl"), os.path.join("generated", "vector"))
