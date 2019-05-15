@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
+from math import sqrt
 from skimage.measure import compare_nrmse, compare_psnr, compare_ssim
 
 BLACK = (0, 0, 0) # (red, green, blue[, alpha])
@@ -8,6 +10,25 @@ WHITE = (255, 255, 255) # (red, green, blue[, alpha])
 class FitnessCalculator:
     def __init__(self, original_image):
         self.original_image = original_image
+        height, width = original_image.shape[0:2]
+        self.max_sad = height*width*3*255
+        self.max_ssd = height*width*3*255*255
+        self.max_sed = height*width*sqrt(3)*255
+
+    def normalized_sad(self, pack_image):
+        diff = np.subtract(self.original_image, pack_image, dtype=np.int16)
+        sad = np.abs(diff, dtype=np.int16).sum() # sum absolute difference
+        return 100 * (sad / self.max_sad)
+
+    def normalized_ssd(self, pack_image):
+        diff = np.subtract(self.original_image, pack_image, dtype=np.int16)
+        ssd = np.square(diff, dtype=np.int64).sum() # sum squared difference
+        return 100 * (ssd / self.max_ssd)
+
+    def normalized_sed(self, pack_image):
+        diff = np.subtract(self.original_image, pack_image, dtype=np.int16)
+        sed = np.sqrt(np.sum(np.square(diff, dtype=np.int64), axis=2)).sum() # sum euclidean distance
+        return 100 * (sed / self.max_sed)
 
     def sad(self, pack_image):
         diff = np.subtract(self.original_image, pack_image, dtype=np.int16)

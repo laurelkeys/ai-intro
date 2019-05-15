@@ -127,12 +127,16 @@ class Population:
         elif selection_strategy == 'roulette_wheel':
             i = 0
             crossover_amount = 0
-            fitness_sum = sum(pack.fitness for pack in self.packs)
+            fitnesses = list(map(lambda pack: pack.fitness, self.packs))
+            fitness_sum = sum(fitnesses)
+            fitness_running_sum = [sum(fitnesses[0:i+1]) for i in range(0, self.population_size)]
             while crossover_amount < int(crossover_rate * self.population_size):
-                if np.random.random() < self.packs[i].fitness / fitness_sum:
-                    selection_pool.append(copy.deepcopy(self.packs[i]))
-                    crossover_amount += 1
-                i = (i + 1) % self.population_size
+                rand = np.random.uniform(low=0, high=fitness_sum)
+                for i in range(0, self.population_size):
+                    if rand < fitness_running_sum[i]:
+                        selection_pool.append(copy.deepcopy(self.packs[i]))
+                        crossover_amount += 1
+                        break
         else:
             raise ValueError(f"Unexpected selection_strategy ('{selection_strategy}')")
 

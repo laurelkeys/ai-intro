@@ -51,11 +51,11 @@ save_cycle  = 500
 
 # NOTE set values
 population_size     = 8
-mutation_rate       = 1.0
-crossover_rate      = 0.63
-selection_strategy  = 'stochastic_acceptance'  # 'first_packs', 'truncation', 'stochastic_acceptance', 'roulette_wheel'
+mutation_rate       = 0.5
+crossover_rate      = 0.5
+selection_strategy  = 'roulette_wheel'         # 'first_packs', 'truncation', 'stochastic_acceptance', 'roulette_wheel'
 crossover_strategy  = 'uniform'                # 'single_point', 'single_point_stochastic', 'uniform'
-substitution_method = 'plus_selection'         # 'plus_selection', 'comma_selection', 'tournament'
+substitution_method = 'comma_selection'        # 'plus_selection', 'comma_selection', 'tournament'
 
 runner = Runner(
     image_path, polygon_count, vertices_count,
@@ -65,13 +65,13 @@ runner = Runner(
 )
 
 # NOTE set values
-fitness_func                = FitnessCalculator(runner.image).ssd
+fitness_func                = FitnessCalculator(runner.image).normalized_ssd
 hard_mutation_fitness_limit = 150_000_000 # TODO change based on fitness_func
 
 # NOTE set values
 max_unimproved_cycles = None
 fitness_limit         = None
-duration_limit        = None
+duration_limit        = 60
 
 print_run()
 
