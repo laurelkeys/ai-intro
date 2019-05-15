@@ -1,4 +1,5 @@
 import os
+import pathlib
 from time import time
 
 import numpy as np
@@ -218,6 +219,8 @@ class Runner:
                 print(f"\nFinal population saved at {save_path}")
 
             if self.save_dna_path and population.best_fitness < self.save_dna_min_fitness:
+                pathlib.Path(f'{self.save_dna_path}').mkdir(parents=True, exist_ok=True) 
+
                 save_path = os.path.join(self.save_dna_path, f"{self.save_dna_prefix}{self.cycle}.pkl")
                 with open(save_path, "wb+") as f: # binary file
                     f.write(population.best_dna)

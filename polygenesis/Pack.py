@@ -1,6 +1,7 @@
 import copy
 import pickle
 
+import pathlib
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw
@@ -101,6 +102,9 @@ class Pack:
         self.curr_cycle += 1
 
     def save_image(self, save_path, save_format, scale=1):
+        directory = '/'.join((save_path.split("/"))[:-1])
+        pathlib.Path(f'{directory}').mkdir(parents=True, exist_ok=True) 
+
         image = self.draw(self.colors, self.polygons, scale)
         image.save(save_path, save_format)
 

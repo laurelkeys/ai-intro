@@ -23,12 +23,13 @@ runner = Runner(
 
 # NOTE these paths consider that you're running on the same directory as this file
 #      also, the min_fitness value to save the DNA should be changed depending on the fitness function
+image_name = (image_path.split("/"))[-1] 
 
 (runner
-    .save_dna_to(save_path=os.path.join("generated", "dna"), min_fitness=100_000_000)
-    .save_best_to(save_path="generated", save_cycle=4_000)
-    # .save_all_to(save_path="generated", save_cycle=10_000)
-    # .save_plot_to(save_path=os.path.join("generated", "plot"))
+    .save_dna_to(save_path=os.path.join(f"generated/{image_name}", "dna"), min_fitness=100_000_000)
+    .save_best_to(save_path=f"generated/{image_name}", save_cycle=4_000)
+    .save_all_to(save_path=f"generated/{image_name}", save_cycle=10_000)
+    # .save_plot_to(save_path=os.path.join("generated/{image_name}", "plot"))
     # .show_at(show_cycle=1, show_all=True)
     # .plot_at(plot_cycle=1, plot_time_on_x=False, show_plot=True, save_plot=True, save_path=os.path.join("generated", "plot"))
     .set_fitness_func(FitnessCalculator(runner.image).ssd)
