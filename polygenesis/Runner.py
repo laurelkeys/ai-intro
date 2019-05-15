@@ -54,7 +54,6 @@ class Runner:
         return self
 
     def plot_at(self, plot_cycle=1, plot_time_on_x=False, show_plot=False, save_plot=False, save_path=None, prefix='plot_'):
-        # TODO add plot_cycle_on_x and create a list of Plotters
         self.plotter = Plotter(xlabel='Time' if plot_time_on_x else 'Cycle', show_plot=show_plot)
         self.plot_cycle = plot_cycle
         self.plot_time_on_x = plot_time_on_x
