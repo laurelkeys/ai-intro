@@ -8,7 +8,6 @@ try:
     image_name = os.path.splitext(os.path.split(image_path)[-1])[0]
     polygon_count = int(argv[2])
     vertices_count = 3 if len(argv) <= 3 else int(argv[3])
-    assert(polygon_count >= 0 and polygon_count <= 255)
     assert(vertices_count >= 3 and vertices_count <= 255)
 except:
     print("usage: python run.py image_path polygon_count [vertices_count]")
@@ -24,6 +23,10 @@ def print_run():
 
     print(f"""
 Running with:
+    image_path     = {image_path}
+    polygon_count  = {polygon_count}
+    vertices_count = {vertices_count}
+
     population_size     = {population_size}
     mutation_rate       = {mutation_rate}
     crossover_rate      = {crossover_rate}
@@ -38,7 +41,9 @@ Running with:
 
 # ______________________________________________________________________________
 
-save_path = os.path.join("tests", image_name)
+save_path   = os.path.join("tests", image_name)
+print_cycle = 100
+save_cycle  = 500
 
 # NOTE set values
 population_size     = 8
@@ -52,7 +57,7 @@ runner = Runner(
     image_path, polygon_count, vertices_count,
     population_size=population_size,
     max_internal_size=(200, 200),
-    print_cycle=500
+    print_cycle=print_cycle
 )
 
 # NOTE set values
@@ -70,10 +75,10 @@ print_run()
 
 (runner
     .save_dna_to(os.path.join(save_path, "dna"))
-    .save_best_to(save_path, save_cycle=1_000)
-    .save_all_to(save_path, save_cycle=1_000)
+    .save_best_to(save_path, save_cycle)
+    .save_all_to(save_path, save_cycle)
 	
-	.plot_at(plot_cycle=100, plot_time_on_x=False, show_plot=False, 
+	.plot_at(plot_cycle=10, plot_time_on_x=False, show_plot=False, 
 	         save_plot=True, save_path=os.path.join(save_path, "plot"))
     
     # .set_bg_color(WHITE) # TODO uncomment for Stormtrooper
