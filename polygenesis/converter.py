@@ -62,7 +62,7 @@ try:
     prefix = None if len(argv) <= 3 else argv[3]
     convert_and_save(dna_path, save_path, prefix)
 except:
-    print("usage: python converter.py [dna_path save_path [prefix]]")
+    print("usage: python converter.py dna_path save_path [prefix]")
 
 # you can directly convert it, as for example:
 # convert_and_save(os.path.join("generated", "dna", "dna_ml_400000.pkl"), os.path.join("generated", "vector"))

@@ -110,10 +110,6 @@ class Runner:
         self.hard_mutation_fitness_limit = hard_mutation_fitness_limit # applies soft mutations once the best fitness is lower than this
         self.random_hard_mutation_prob = random_hard_mutation_prob # chance of a random hard mutation when applying soft mutations
         return self
-    
-    def set_max_unimproved_cycles(self, max_unimproved_cycles):
-        self.max_unimproved_cycles = max_unimproved_cycles
-        return self
 
     def halt_on(self, max_unimproved_cycles=None, fitness_limit=None, duration_limit=None):
         self.halt_on_max_unimproved_cycles = max_unimproved_cycles
@@ -197,6 +193,7 @@ class Runner:
                 print(f"\nBest solution saved at {save_path}")
             
             if self.save_plot:
+                pathlib.Path(self.save_plot_path).mkdir(parents=True, exist_ok=True)
                 self.plotter.save(save_path=self.save_plot_path, file_name=f"{self.save_plot_prefix}{'time_' if self.plot_time_on_x else 'cycle_'}{self.cycle}")
 
             if self.population_size > 1 and self.save_all_path:
