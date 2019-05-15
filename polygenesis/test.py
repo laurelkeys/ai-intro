@@ -9,6 +9,10 @@ try:
     polygon_count = int(argv[2])
     vertices_count = 3 if len(argv) <= 3 else int(argv[3])
     assert(vertices_count >= 3 and vertices_count <= 255)
+    if polygon_count != 64:
+        print(f"WARNING! polygon_count = {polygon_count} (default is 64)")
+    if vertices_count != 3:
+        print(f"WARNING! vertices_count = {vertices_count} (default is 3)")
 except:
     print("usage: python run.py image_path polygon_count [vertices_count]")
     exit()
