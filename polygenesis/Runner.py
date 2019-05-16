@@ -111,10 +111,11 @@ class Runner:
         self.random_hard_mutation_prob = random_hard_mutation_prob # chance of a random hard mutation when applying soft mutations
         return self
 
-    def halt_on(self, max_unimproved_cycles=None, fitness_limit=None, duration_limit=None):
+    def halt_on(self, max_unimproved_cycles=None, fitness_limit=None, duration_limit=None, cycle_limit=None):
         self.halt_on_max_unimproved_cycles = max_unimproved_cycles
         self.halt_on_fitness_limit = fitness_limit
         self.halt_on_duration_limit = duration_limit
+        self.halt_on_cycle_limit = cycle_limit
         return self
 
     def run(self, use_image_colors=True):
@@ -217,5 +218,8 @@ class Runner:
             return True
         if self.halt_on_duration_limit != None and curr_duration >= self.halt_on_duration_limit:
             print(f"\nHalting, {curr_duration:.2f} seconds passed")
-            return True        
+            return True
+        if self.halt_on_cycle_limit != None and self.cycle >= self.halt_on_cycle_limit:
+            print(f"\nHalting, {self.cycle}th cycle reached")
+            return True
         return False

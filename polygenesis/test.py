@@ -24,6 +24,7 @@ def print_run():
     if max_unimproved_cycles != None: stopping_criteria += f"\n    max_unimproved_cycles = {max_unimproved_cycles}"
     if fitness_limit != None: stopping_criteria += f"\n    fitness_limit         = {fitness_limit}"
     if duration_limit != None: stopping_criteria += f"\n    duration_limit        = {duration_limit}"
+    if cycle_limit != None: stopping_criteria += f"\n    cycle_limit           = {duration_limit}"
 
     print(f"""
 Running with:
@@ -39,7 +40,7 @@ Running with:
     substitution_method = {substitution_method}
 
     fitness_func                = {fitness_func.__name__}
-    hard_mutation_fitness_limit = {hard_mutation_fitness_limit:_d}
+    hard_mutation_fitness_limit = {hard_mutation_fitness_limit}
     {stopping_criteria}
 """)
 
@@ -66,12 +67,13 @@ runner = Runner(
 
 # NOTE set values
 fitness_func                = FitnessCalculator(runner.image).normalized_ssd
-hard_mutation_fitness_limit = 150_000_000 # TODO change based on fitness_func
+hard_mutation_fitness_limit = 4.0 # TODO change based on fitness_func
 
 # NOTE set values
 max_unimproved_cycles = None
 fitness_limit         = None
-duration_limit        = 60
+duration_limit        = None
+cycle_limit           = None
 
 print_run()
 
@@ -96,6 +98,6 @@ print_run()
     
 	.set_mutation_params(hard_mutation_fitness_limit, random_hard_mutation_prob=0.005)
     
-	.halt_on(max_unimproved_cycles, fitness_limit, duration_limit)
+	.halt_on(max_unimproved_cycles, fitness_limit, duration_limit, cycle_limit)
 
 ).run(use_image_colors=True)
