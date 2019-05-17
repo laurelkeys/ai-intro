@@ -6,6 +6,13 @@ polygenesis/generated/dna/*.pkl
 polygenesis/generated/plot/*.png
 polygenesis/generated/vector/*.svg
 
+!polygenesis/generated/dna/ml_sad.pkl
+!polygenesis/generated/dna/ml_ssd.pkl
+!polygenesis/generated/dna/ml_sed.pkl
+!polygenesis/generated/vector/ml_sad.svg
+!polygenesis/generated/vector/ml_ssd.svg
+!polygenesis/generated/vector/ml_sed.svg
+
 # VS Code
 .vscode
 
