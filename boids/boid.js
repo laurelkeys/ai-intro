@@ -95,7 +95,7 @@ class Boid {
     let cohesion = this.cohesion(boids);
     let separation = this.separation(boids);
 
-    alignment.mult(alignSlider.value());
+    alignment.mult(alignmentSlider.value());
     cohesion.mult(cohesionSlider.value());
     separation.mult(separationSlider.value());
 

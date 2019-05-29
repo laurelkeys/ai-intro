@@ -11,10 +11,21 @@ const flock = [];
 let alignSlider, cohesionSlider, separationSlider;
 
 function setup() {
-  createCanvas(640, 360);
-  alignSlider = createSlider(0, 2, 1, 0.1);
+  createCanvas(640, 480);
+  
+
+  sDiv = createDiv('Separation');
+  separationSlider = createSlider(0, 2, 1, 0.1)
+  separationSlider.parent(sDiv)
+
+  aDiv = createDiv('Alignment');
+  alignmentSlider = createSlider(0, 2, 1, 0.1);
+  alignmentSlider.parent(aDiv)
+
+  cDiv = createDiv('Cohesion');
   cohesionSlider = createSlider(0, 2, 1, 0.1);
-  separationSlider = createSlider(0, 2, 1, 0.1);
+  cohesionSlider.parent(cDiv)
+
   for (let i = 0; i < 200; i++) {
     flock.push(new Boid());
   }
