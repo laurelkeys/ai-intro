@@ -18,9 +18,7 @@ class Boid {
     
     steer(boids) {
         // calculates the steering behaviors
-        let alignment = createVector();
-        let cohesion = createVector();
-        let separation = createVector();
+        let alignment = createVector(), cohesion = createVector(), separation = createVector();
         
         let total = 0;
         for (let other of boids) {
@@ -76,9 +74,22 @@ class Boid {
     }
     
     show() {
-        strokeWeight(8);
+        strokeWeight(2);
         stroke(255);
-        point(this.position.x, this.position.y);
+        
+        push();
+        
+        translate(this.position.x, this.position.y);
+        rotate(this.velocity.heading() + radians(90));
+
+        let unitLength = 2;
+        beginShape();
+        vertex(0, -2*unitLength);
+        vertex(-unitLength, unitLength);
+        vertex(unitLength, unitLength);
+        endShape(CLOSE);
+        
+        pop();
     }
     
     wraparound() {
