@@ -36,9 +36,9 @@ save_path = "generated" # os.path.join("generated", image_name)
     # .set_bg_color(WHITE)
     .set_mutation_rate(1.0)
     .set_crossover_rate(0.63)
-    .set_selection_strategy('stochastic_acceptance') # 'first_packs', 'truncation', 'stochastic_acceptance', 'roulette_wheel'
-    .set_crossover_strategy('uniform') # 'single_point', 'single_point_stochastic', 'uniform'
-    .set_substitution_method('plus_selection') # 'plus_selection', 'comma_selection', 'tournament'
+    .set_selection_strategy('truncation') # 'first_packs', 'truncation', 'stochastic_acceptance', 'roulette_wheel'
+    .set_crossover_strategy('single_point_stochastic') # 'single_point', 'single_point_stochastic', 'uniform'
+    .set_substitution_method('comma_selection') # 'plus_selection', 'comma_selection', 'tournament'
     .set_mutation_params(hard_mutation_fitness_limit=150_000_000, random_hard_mutation_prob=0.005)
     # .halt_on(max_unimproved_cycles=None, fitness_limit=None, duration_limit=None)
 
