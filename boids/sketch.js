@@ -32,10 +32,11 @@ function setup() {
 
 function draw() {
     background(51);
+    let boidsSnapshot = [...boids];
     for (let boid of boids) {
-        boid.wraparound();
-        boid.flock(boids);
+        boid.flock(boidsSnapshot);
         boid.update();
+        boid.wraparound();
         boid.show();
     }
 }
