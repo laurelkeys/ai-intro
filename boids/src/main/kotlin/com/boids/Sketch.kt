@@ -9,7 +9,6 @@ import java.util.ArrayList
 fun PApplet.random(high: Int) = random(high.toFloat())
 
 class Sketch(private val boidsCount: Int) : PApplet() {
-
     companion object {
         fun run(boidsCount: Int = 150) {
             val sketch = Sketch(boidsCount)
@@ -23,14 +22,15 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     private var maxForce: Float = 0.4f
     private var maxSpeed: Float = 4f
 
-    private var perceptionRadius: Float = 50f // alignmentRadius and cohesionRadius
-    private var showPerceptionRadius = false
-    private var separationRadius: Float = 25f
-    private var showSeparationRadius = false
-
     private var alignmentWeight: Float = 1f
     private var cohesionWeight: Float = 1f
     private var separationWeight: Float = 1.5f
+
+    private var perceptionRadius: Float = 50f // alignmentRadius and cohesionRadius
+    private var separationRadius: Float = 25f
+
+    private var showPerceptionRadius = false
+    private var showSeparationRadius = false
 
     override fun settings() {
         size(displayWidth / 2, displayHeight / 2)
@@ -42,9 +42,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         setupSliders()
         repeat(boidsCount) {
             flock.addBoid(
-                Boid(
-                    random(width), random(height)
-                )
+                Boid(random(width), random(height))
             )
         }
     }
@@ -111,7 +109,6 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     }
 
     inner class Flock {
-
         val boids = ArrayList<Boid>()
 
         fun addBoid(boid: Boid) = boids.add(boid)
@@ -128,19 +125,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         var acceleration: PVector = PVector(0f, 0f),
         private val sizeUnit: Float = 2f
     ) {
-
         var position: PVector = PVector(x, y)
-
-        init {
-            /*
-            require(x >= 0f && x <= width)
-            require(y >= 0f && y <= height)
-            require(perceptionRadius >= separationRadius)
-            require(sizeUnit > 0f)
-            require(maxForce > 0f)
-            require(maxSpeed > 0f)
-            */
-        }
 
         fun run(boids: ArrayList<Boid>) {
             flock(boids)
@@ -174,7 +159,6 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                 position.x < -sizeUnit -> position.x = width + sizeUnit
                 position.x > width + sizeUnit -> position.x = -sizeUnit
             }
-
             when {
                 position.y < -sizeUnit -> position.y = height + sizeUnit
                 position.y > height + sizeUnit -> position.y = -sizeUnit
@@ -237,16 +221,15 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             }
 
             if (count > 0) {
-                alignment.setMag(maxSpeed)
+                alignment.div(count)
                 alignment.sub(velocity)
+                alignment.normalize()
 
                 cohesion.div(count)
                 cohesion.sub(position)
-                cohesion.setMag(maxSpeed)
-                cohesion.sub(velocity)
+                cohesion.normalize()
 
-                separation.setMag(maxSpeed)
-                separation.sub(velocity)
+                separation.normalize()
             }
 
             return Triple(alignment, cohesion, separation)
