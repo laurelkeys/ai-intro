@@ -33,6 +33,7 @@ DEFUZZIFY hChg
         TERM none := (-180, 0) (0, 1) (180, 0);
         TERM right := (0, 0) (180, 1) (360, 0);
         METHOD : COG; // LM, RM, MM
+        ACCU : MAX;
         DEFAULT := 0;
         RANGE := (-360 .. 360); // TODO: check if (-180 .. 180) changes results
 END_DEFUZZIFY
@@ -42,25 +43,25 @@ DEFUZZIFY sChg
         TERM none := (-100, 0) (0, 1) (100, 0);
         TERM faster := (0, 0) (100, 1) (200, 0);
         METHOD : COG; // LM, RM, MM
+        ACCU : MAX;
         DEFAULT := 0;
         RANGE := (-200 .. 200); // TODO: check if (-100 .. 100) changes results
 END_DEFUZZIFY
 
 RULEBLOCK alignment
-        ACT : MIN;
-        ACCU : MAX;
-        AND : PROD; // MIN
+        AND : MIN; // PROD
 		OR : MAX;
-        RULE 1 : IF (hDiff IS none) THEN hChg IS none;
-        RULE 2 : IF (sDiff IS none) THEN sChg IS none;
-        RULE 3 : IF (dist IS far) AND (hDiff IS right) THEN hChg IS none;
-        RULE 4 : IF (dist IS close) AND (hDiff IS right) THEN hChg IS right;
-        RULE 5 : IF (dist IS far) AND (hDiff IS left) THEN hChg IS none;
-        RULE 6 : IF (dist IS close) AND (hDiff IS left) THEN hChg IS left;
-        RULE 7 : IF (dist IS far) AND (sDiff IS slower) THEN sChg IS none;
-        RULE 8 : IF (dist IS close) AND (sDiff IS slower) THEN sChg IS slower;
-        RULE 9 : IF (dist IS far) AND (sDiff IS faster) THEN sChg IS faster;
-        RULE 10 : IF (dist IS close) AND (sDiff IS faster) THEN sChg IS faster;
+        ACT : MIN;
+        RULE 1 : if (hDiff is none) then hChg is none;
+        RULE 2 : if (sDiff is none) then sChg is none;
+        RULE 3 : if (dist is far) and (hDiff is right) then hChg is none;
+        RULE 4 : if (dist is close) and (hDiff is right) then hChg is right;
+        RULE 5 : if (dist is far) and (hDiff is left) then hChg is none;
+        RULE 6 : if (dist is close) and (hDiff is left) then hChg is left;
+        RULE 7 : if (dist is far) and (sDiff is slower) then sChg is none;
+        RULE 8 : if (dist is close) and (sDiff is slower) then sChg is slower;
+        RULE 9 : if (dist is far) and (sDiff is faster) then sChg is faster;
+        RULE 10 : if (dist is close) and (sDiff is faster) then sChg is faster;
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK

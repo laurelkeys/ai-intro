@@ -147,15 +147,15 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         }
 
         private fun wraparound() {
-            if (position.x < -sizeUnit)
-                position.x = width + sizeUnit
-            else if (position.x > width + sizeUnit)
-                position.x = -sizeUnit
+            when {
+                position.x < -sizeUnit -> position.x = width + sizeUnit
+                position.x > width + sizeUnit -> position.x = -sizeUnit
+            }
 
-            if (position.y < -sizeUnit)
-                position.y = height + sizeUnit
-            else if (position.y > height + sizeUnit)
-                position.y = -sizeUnit
+            when {
+                position.y < -sizeUnit -> position.y = height + sizeUnit
+                position.y > height + sizeUnit -> position.y = -sizeUnit
+            }
         }
 
         private fun render() {
@@ -188,11 +188,11 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                     ++count
                     alignment.add(other.velocity)
                     cohesion.add(other.position)
-                    if (dist < separationRadius)
+                    if (separationRadius > dist)
                         separation.add(
                             PVector
                                 .sub(position, other.position) // the separation force is inversely
-                                .div(dist * dist)           // proportional to the square of the distance
+                                .div(dist * dist)              // proportional to the square of the distance
                         )
                 }
             }
