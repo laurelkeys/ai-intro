@@ -56,6 +56,7 @@ class Boid {
         let cohesion = steering.cohere;
         let separation = steering.separate;
         
+        // weight forces
         alignment.mult(alignmentSlider.value());
         cohesion.mult(cohesionSlider.value());
         separation.mult(separationSlider.value());
@@ -67,9 +68,9 @@ class Boid {
     }
     
     update() {
-        this.position.add(this.velocity);
         this.velocity.add(this.acceleration);
         this.velocity.limit(this.maxSpeed);
+        this.position.add(this.velocity);
         this.acceleration.mult(0);
     }
     
