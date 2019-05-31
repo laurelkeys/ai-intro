@@ -17,16 +17,20 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         }
     }
 
-    lateinit var controller: ControlP5
+    private lateinit var controller: ControlP5
 
     private val flock = Flock()
-    var maxForce: Float = 0.4f
-    var maxSpeed: Float = 4f
-    var perceptionRadius: Float = 50f // alignmentRadius and cohesionRadius
-    var separationRadius: Float = 25f
-    var alignmentWeight: Float = 1f
-    var cohesionWeight: Float = 1f
-    var separationWeight: Float = 1.5f
+    private var maxForce: Float = 0.4f
+    private var maxSpeed: Float = 4f
+
+    private var perceptionRadius: Float = 50f // alignmentRadius and cohesionRadius
+    private var showPerceptionRadius = false
+    private var separationRadius: Float = 25f
+    private var showSeparationRadius = false
+
+    private var alignmentWeight: Float = 1f
+    private var cohesionWeight: Float = 1f
+    private var separationWeight: Float = 1.5f
 
     override fun settings() {
         size(displayWidth / 2, displayHeight / 2)
@@ -34,6 +38,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
     override fun setup() {
         controller = ControlP5(this)
+        setupToggles()
         setupSliders()
         repeat(boidsCount) {
             flock.addBoid(
@@ -42,6 +47,26 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                 )
             )
         }
+    }
+
+    private fun setupToggles() {
+        controller
+            .addToggle("Show perception radius")
+            .setLabel("perception")
+            .setPosition(width - 50f, 10f)
+            .setSize(40, 10)
+            .setValue(!showPerceptionRadius)
+            .setMode(ControlP5.SWITCH)
+            .addCallback { if (it.action == ACTION_BROADCAST) showPerceptionRadius = it.controller.value == 0f }
+
+        controller
+            .addToggle("Show separation radius")
+            .setLabel("separation")
+            .setPosition(width - 50f, 45f)
+            .setSize(40, 10)
+            .setValue(!showSeparationRadius)
+            .setMode(ControlP5.SWITCH)
+            .addCallback { if (it.action == ACTION_BROADCAST) showSeparationRadius = it.controller.value == 0f }
     }
 
     private fun setupSliders() {
@@ -82,12 +107,12 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     }
 
     override fun mousePressed() {
-        flock.addBoid(Boid(mouseX, mouseY))
+        flock.addBoid(Boid(mouseX / 1f, mouseY / 1f))
     }
 
     inner class Flock {
 
-        private val boids = ArrayList<Boid>()
+        val boids = ArrayList<Boid>()
 
         fun addBoid(boid: Boid) = boids.add(boid)
 
@@ -99,14 +124,12 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
     inner class Boid(
         x: Float, y: Float,
-        private var velocity: PVector = PVector.random2D(),
-        private var acceleration: PVector = PVector(0f, 0f),
+        var velocity: PVector = PVector.random2D(),
+        var acceleration: PVector = PVector(0f, 0f),
         private val sizeUnit: Float = 2f
     ) {
 
-        constructor(x: Int, y: Int) : this(x.toFloat(), y.toFloat())
-
-        private var position: PVector = PVector(x, y)
+        var position: PVector = PVector(x, y)
 
         init {
             /*
@@ -173,7 +196,23 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                 sizeUnit, sizeUnit
             )
 
+            renderRadii()
+
             popMatrix() // restores the prior coordinate system
+        }
+
+        private fun renderRadii() {
+            noStroke()
+
+            if (showPerceptionRadius) {
+                fill(250f, 5f, 110f, 100f)
+                ellipse(0f, 0f, perceptionRadius, perceptionRadius)
+            }
+
+            if (showSeparationRadius) {
+                fill(0f, 250f, 250f, 100f)
+                ellipse(0f, 0f, separationRadius, separationRadius)
+            }
         }
 
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
