@@ -109,7 +109,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     }
 
     inner class Flock {
-        val boids = ArrayList<Boid>()
+        private val boids = ArrayList<Boid>()
 
         fun addBoid(boid: Boid) = boids.add(boid)
 
@@ -136,23 +136,18 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun flock(boids: ArrayList<Boid>) {
             val behavior = steer(boids)
+            /*
             applyForce(
                 behavior.first.mult(alignmentWeight),
                 behavior.second.mult(cohesionWeight),
                 behavior.third.mult(separationWeight)
             )
-
-//            val fAlign = fuzzyAlign(boids)
-//            if (fAlign.x < 1e-8) fAlign.x = 0f
-//            if (fAlign.y < 1e-8) fAlign.y = 0f
-//            println("Crisp alignment: ${behavior.first}")
-//            println("Fuzzy alignment: $fAlign")
-
-//            applyForce(
-//                fAlign.mult(alignmentWeight),
-//                behavior.second.mult(cohesionWeight),
-//                behavior.third.mult(separationWeight)
-//            )
+            */
+            applyForce(
+                fuzzyAlign(boids).mult(alignmentWeight),
+                behavior.second.mult(cohesionWeight),
+                behavior.third.mult(separationWeight)
+            )
         }
 
         private fun applyForce(vararg force: PVector) {
@@ -211,40 +206,20 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             }
         }
 
-        /**
-         * Input variables
-         *   dist: distance in % of perception radius
-         *   hDiff: heading difference in degrees
-         *   sDiff: speed difference in % of max speed
-         *
-         * Output variables
-         *   hChg: heading change in degrees
-         *   sChg: speed change in % of max speed
-         */
         private fun fuzzyAlign(boids: ArrayList<Boid>): PVector {
-
             val alignment = PVector(0f, 0f)
-
-            var count = 0f
             for (other in boids) {
-                ++count
-
-                var fDist = PVector.dist(position, other.position) / perceptionRadius
-                var fHeadingDiff = PVector.angleBetween(velocity, other.velocity)
-                //var fSpeedDiff = PVector.dot(other.velocity, velocity) / velocity.mag()
-                var fSpeedDiff = PVector.dot(other.velocity, velocity) / maxSpeed
-
-                // TODO verify if values should be clipped
-                fDist = fDist.clip(0f, 100f)
-                fHeadingDiff = fHeadingDiff.clip(-180f, 180f)
-                fSpeedDiff = fSpeedDiff.clip(-100f, 100f)
-                AlignmentControl.compute(fDist, fHeadingDiff, fSpeedDiff)
-
-                val steer = PVector.fromAngle(AlignmentControl.headingChange.value.toFloat())
-                steer.mult(AlignmentControl.speedChange.value.toFloat()) // could divide by 100f, but will normalize later
-                alignment.add(steer)
+                val dist = PVector.dist(position, other.position)
+                if (other != this && dist < perceptionRadius && dist > 0) {
+                    ControlSystem.compute(
+                        distance = dist / perceptionRadius,
+                        headingDiff = degrees(PVector.angleBetween(velocity, other.velocity))
+                    )
+                    val steer = PVector.fromAngle(radians(ControlSystem.headingChange.value.toFloat()))
+                    //steer.div(dist * dist)
+                    alignment.add(steer)
+                }
             }
-
             return alignment.normalize()
         }
 
