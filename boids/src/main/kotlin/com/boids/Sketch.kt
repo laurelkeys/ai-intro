@@ -3,14 +3,16 @@ package com.boids
 import controlP5.ControlP5
 import controlP5.ControlP5Constants.ACTION_BROADCAST
 import processing.core.PApplet
+import processing.core.PConstants
 import processing.core.PVector
 import java.util.ArrayList
+import kotlin.math.pow
 
 fun PApplet.random(high: Int) = random(high.toFloat())
 
 class Sketch(private val boidsCount: Int) : PApplet() {
     companion object {
-        fun run(boidsCount: Int = 50) {
+        fun run(boidsCount: Int = 1) {
             val sketch = Sketch(boidsCount)
             sketch.runSketch()
         }
@@ -20,13 +22,13 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
     private val flock = Flock()
     private var maxForce: Float = 0.4f
-    private var maxSpeed: Float = 4f
+    private var maxSpeed: Float = 2f
 
     private var alignmentWeight: Float = 1f
     private var cohesionWeight: Float = 1f
     private var separationWeight: Float = 1.5f
 
-    private var perceptionRadius: Float = 50f // alignmentRadius and cohesionRadius
+    private var perceptionRadius: Float = 100f // alignmentRadius and cohesionRadius
     private var separationRadius: Float = 25f
 
     private var showPerceptionRadius = false
@@ -69,33 +71,33 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
     private fun setupSliders() {
         controller
-            .addSlider("Alignment", 0f, 10f, 1f, 10, height - 50, 100, 10)
+            .addSlider("Alignment", 0f, 10f, alignmentWeight, 10, height - 50, 100, 10)
             .addCallback { if (it.action == ACTION_BROADCAST) alignmentWeight = it.controller.value }
 
         controller
-            .addSlider("Cohesion", 0f, 10f, 1f, 10, height - 35, 100, 10)
+            .addSlider("Cohesion", 0f, 10f, cohesionWeight, 10, height - 35, 100, 10)
             .addCallback { if (it.action == ACTION_BROADCAST) cohesionWeight = it.controller.value }
 
         controller
-            .addSlider("Separation", 0f, 10f, 1.5f, 10, height - 20, 100, 10)
+            .addSlider("Separation", 0f, 10f, separationWeight, 10, height - 20, 100, 10)
             .addCallback { if (it.action == ACTION_BROADCAST) separationWeight = it.controller.value }
 
         controller
-            .addSlider("Max force", 0f, 2f, 0.4f, width - 190, height - 65, 100, 10)
+            .addSlider("Max force", 0f, 2f, maxForce, width - 190, height - 65, 100, 10)
             .addCallback { if (it.action == ACTION_BROADCAST) maxForce = it.controller.value }
 
         controller
-            .addSlider("Max speed", 0f, 8f, 4f, width - 190, height - 50, 100, 10)
+            .addSlider("Max speed", 0f, 8f, maxSpeed, width - 190, height - 50, 100, 10)
             .addCallback { if (it.action == ACTION_BROADCAST) maxSpeed = it.controller.value }
 
         val maxRadius = min(width, height) / 2f
 
         controller
-            .addSlider("Perception radius", 0f, maxRadius, 50f, width - 190, height - 35, 100, 10)
+            .addSlider("Perception radius", 0f, maxRadius, perceptionRadius, width - 190, height - 35, 100, 10)
             .addCallback { if (it.action == ACTION_BROADCAST) perceptionRadius = it.controller.value }
 
         controller
-            .addSlider("Separation radius", 0f, maxRadius, 25f, width - 190, height - 20, 100, 10)
+            .addSlider("Separation radius", 0f, maxRadius, separationRadius, width - 190, height - 20, 100, 10)
             .addCallback { if (it.action == ACTION_BROADCAST) separationRadius = it.controller.value }
     }
 
@@ -105,7 +107,9 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     }
 
     override fun mousePressed() {
-        flock.addBoid(Boid(mouseX / 1f, mouseY / 1f))
+        if (mouseButton == RIGHT) {
+            flock.addBoid(Boid(mouseX.toFloat(), mouseY.toFloat()))
+        }
     }
 
     inner class Flock {
@@ -179,7 +183,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             pushMatrix() // saves the current coordinate system to the stack
 
             translate(position.x, position.y)
-            rotate(velocity.heading() + PApplet.radians(90f))
+            rotate(velocity.heading() + radians(90f))
 
             triangle(
                 0f, -2 * sizeUnit,
@@ -208,19 +212,35 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun fuzzyAlign(boids: ArrayList<Boid>): PVector {
             val alignment = PVector(0f, 0f)
+
             for (other in boids) {
                 val dist = PVector.dist(position, other.position)
-                if (other != this && dist < perceptionRadius && dist > 0) {
+                if (other != this && dist <= perceptionRadius) {
                     ControlSystem.compute(
                         distance = dist / perceptionRadius,
-                        headingDiff = degrees(PVector.angleBetween(velocity, other.velocity))
+                        headingDiff = fuzzyHeadingDiff(velocity, other.velocity)
                     )
-                    val steer = PVector.fromAngle(radians(ControlSystem.headingChange.value.toFloat()))
-                    //steer.div(dist * dist)
+                    val steer = PVector
+                        .fromAngle(velocity.heading())
+                        .rotate(-radians(ControlSystem.headingChange.value.toFloat())) // rotates counterclockwise
                     alignment.add(steer)
                 }
             }
             return alignment.normalize()
+        }
+
+        // returns the heading difference value as expected by the fuzzy control system
+        private fun fuzzyHeadingDiff(myHeading: PVector, otherHeading: PVector): Float {
+            // vector perpendicular to my heading and to it's right side
+            val myRightAngleHeading = PVector
+                .fromAngle(velocity.heading())
+                .rotate(radians(-90f)) // rotates counterclockwise
+            val hAngle = degrees(PVector.angleBetween(otherHeading, myHeading)) // in 0..180
+            val rAngle = degrees(PVector.angleBetween(otherHeading, myRightAngleHeading)) // in 0..180
+            return when {
+                rAngle < 90f -> hAngle // other is on my right
+                else -> -hAngle // other is on my left
+            }
         }
 
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
