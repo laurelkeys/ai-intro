@@ -1,3 +1,5 @@
+package com.boids
+
 import controlP5.ControlP5
 import controlP5.ControlP5Constants.ACTION_BROADCAST
 import processing.core.PApplet
