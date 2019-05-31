@@ -36,6 +36,9 @@ object AlignmentControl {
     fun compute(distance: Int, headingDiff: Int, speedDiff: Int) =
         compute(distance.toDouble(), headingDiff.toDouble(), speedDiff.toDouble())
 
+    fun compute(distance: Float, headingDiff: Float, speedDiff: Float) =
+        compute(distance.toDouble(), headingDiff.toDouble(), speedDiff.toDouble())
+
     fun compute(distance: Double, headingDiff: Double, speedDiff: Double) {
         this.distance.value = distance
         this.headingDiff.value = headingDiff

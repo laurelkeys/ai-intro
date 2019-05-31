@@ -10,7 +10,7 @@ fun PApplet.random(high: Int) = random(high.toFloat())
 
 class Sketch(private val boidsCount: Int) : PApplet() {
     companion object {
-        fun run(boidsCount: Int = 150) {
+        fun run(boidsCount: Int = 50) {
             val sketch = Sketch(boidsCount)
             sketch.runSketch()
         }
@@ -141,6 +141,18 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                 behavior.second.mult(cohesionWeight),
                 behavior.third.mult(separationWeight)
             )
+
+//            val fAlign = fuzzyAlign(boids)
+//            if (fAlign.x < 1e-8) fAlign.x = 0f
+//            if (fAlign.y < 1e-8) fAlign.y = 0f
+//            println("Crisp alignment: ${behavior.first}")
+//            println("Fuzzy alignment: $fAlign")
+
+//            applyForce(
+//                fAlign.mult(alignmentWeight),
+//                behavior.second.mult(cohesionWeight),
+//                behavior.third.mult(separationWeight)
+//            )
         }
 
         private fun applyForce(vararg force: PVector) {
@@ -199,6 +211,43 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             }
         }
 
+        /**
+         * Input variables
+         *   dist: distance in % of perception radius
+         *   hDiff: heading difference in degrees
+         *   sDiff: speed difference in % of max speed
+         *
+         * Output variables
+         *   hChg: heading change in degrees
+         *   sChg: speed change in % of max speed
+         */
+        private fun fuzzyAlign(boids: ArrayList<Boid>): PVector {
+
+            val alignment = PVector(0f, 0f)
+
+            var count = 0f
+            for (other in boids) {
+                ++count
+
+                var fDist = PVector.dist(position, other.position) / perceptionRadius
+                var fHeadingDiff = PVector.angleBetween(velocity, other.velocity)
+                //var fSpeedDiff = PVector.dot(other.velocity, velocity) / velocity.mag()
+                var fSpeedDiff = PVector.dot(other.velocity, velocity) / maxSpeed
+
+                // TODO verify if values should be clipped
+                fDist = fDist.clip(0f, 100f)
+                fHeadingDiff = fHeadingDiff.clip(-180f, 180f)
+                fSpeedDiff = fSpeedDiff.clip(-100f, 100f)
+                AlignmentControl.compute(fDist, fHeadingDiff, fSpeedDiff)
+
+                val steer = PVector.fromAngle(AlignmentControl.headingChange.value.toFloat())
+                steer.mult(AlignmentControl.speedChange.value.toFloat()) // could divide by 100f, but will normalize later
+                alignment.add(steer)
+            }
+
+            return alignment.normalize()
+        }
+
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
             val alignment = PVector(0f, 0f)
             val cohesion = PVector(0f, 0f)
@@ -235,6 +284,12 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             return Triple(alignment, cohesion, separation)
         }
     }
+}
+
+private fun Float.clip(min: Float, max: Float) = when {
+    this < min -> min
+    this > max -> max
+    else -> this
 }
 
 fun main(args: Array<String>) {
