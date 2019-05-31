@@ -12,7 +12,7 @@ fun PApplet.random(high: Int) = random(high.toFloat())
 
 class Sketch(private val boidsCount: Int) : PApplet() {
     companion object {
-        fun run(boidsCount: Int = 1) {
+        fun run(boidsCount: Int = 50) {
             val sketch = Sketch(boidsCount)
             sketch.runSketch()
         }
@@ -212,10 +212,9 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun fuzzyAlign(boids: ArrayList<Boid>): PVector {
             val alignment = PVector(0f, 0f)
-
             for (other in boids) {
                 val dist = PVector.dist(position, other.position)
-                if (other != this && dist <= perceptionRadius) {
+                if (other != this && dist <= perceptionRadius && dist > 0) {
                     ControlSystem.compute(
                         distance = dist / perceptionRadius,
                         headingDiff = fuzzyHeadingDiff(velocity, other.velocity)
@@ -223,7 +222,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                     val steer = PVector
                         .fromAngle(velocity.heading())
                         .rotate(-radians(ControlSystem.headingChange.value.toFloat())) // rotates counterclockwise
-                    alignment.add(steer)
+                    alignment.add(steer) // NOTE might want to divide steer by dist*dist before adding
                 }
             }
             return alignment.normalize()

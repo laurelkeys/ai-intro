@@ -32,10 +32,10 @@ DEFUZZIFY hChg
 END_DEFUZZIFY
 
 RULEBLOCK alignment
-        AND : MIN; // PROD
+        AND : PROD; // MIN
 		OR : MAX;
         ACT : MIN;
-        RULE 3 : if (dist is tooClose) then hChg is none;
+        RULE 1 : if (dist is tooClose) then hChg is none;
         RULE 2 : if (dist is tooFar) then hChg is none;
         RULE 3 : if (dist is good) and (hDiff is none) then hChg is none;
         RULE 4 : if (dist is good) and (hDiff is left) then hChg is left;
