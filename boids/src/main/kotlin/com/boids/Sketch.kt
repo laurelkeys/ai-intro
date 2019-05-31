@@ -202,15 +202,15 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         }
 
         private fun renderRadii() {
-            noStroke()
+            noFill()
 
             if (showPerceptionRadius) {
-                fill(250f, 5f, 110f, 100f)
+                stroke(250f, 5f, 110f, 100f)
                 ellipse(0f, 0f, perceptionRadius, perceptionRadius)
             }
 
             if (showSeparationRadius) {
-                fill(0f, 250f, 250f, 100f)
+                stroke(0f, 250f, 250f, 100f)
                 ellipse(0f, 0f, separationRadius, separationRadius)
             }
         }
