@@ -32,13 +32,15 @@ END_DEFUZZIFY
 
 RULEBLOCK cohesion
         AND : PROD; // MIN
-		OR : MAX;
+        OR : MAX;
         ACT : MIN;
-        RULE 1 : if (dist is tooFar) then hChg is none; // TODO: test removing
-        RULE 2 : if (dist is closeEnough) then hChg is none;
-        RULE 3 : if (dist is tooFar) and (pDiff is none) then hChg is none;
-        RULE 4 : if (dist is tooFar) and (pDiff is left) then hChg is left;
-        RULE 5 : if (dist is tooFar) and (pDiff is right) then hChg is right;
+        //RULE 1 : if (dist is closeEnough) then hChg is none;
+        //RULE 2 : if (dist is tooFar) and (pDiff is none) then hChg is none;
+        //RULE 3 : if (dist is tooFar) and (pDiff is left) then hChg is left;
+        //RULE 4 : if (dist is tooFar) and (pDiff is right) then hChg is right;
+        RULE 1 : if (pDiff is none) then hChg is none;
+        RULE 2 : if (pDiff is right) then hChg is right;
+        RULE 3 : if (pDiff is left) then hChg is left;
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK

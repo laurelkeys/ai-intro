@@ -12,7 +12,7 @@ fun PApplet.random(high: Int) = random(high.toFloat())
 
 class Sketch(private val boidsCount: Int) : PApplet() {
     companion object {
-        fun run(boidsCount: Int = 1) {
+        fun run(boidsCount: Int = 2) {
             val sketch = Sketch(boidsCount)
             sketch.runSketch()
         }
@@ -24,15 +24,15 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     private var maxForce: Float = 0.4f
     private var maxSpeed: Float = 2f
 
-    private var alignmentWeight: Float = 1f
-    private var cohesionWeight: Float = 1f
-    private var separationWeight: Float = 1.5f
+    private var alignmentWeight: Float = 0.1f
+    private var cohesionWeight: Float = 2.7f
+    private var separationWeight: Float = 3f
 
     private var perceptionRadius: Float = 100f // alignmentRadius and cohesionRadius
     private var separationRadius: Float = 25f
 
-    private var showPerceptionRadius = false
-    private var showSeparationRadius = false
+    private var showPerceptionRadius = true
+    private var showSeparationRadius = true
 
     override fun settings() {
         size(displayWidth / 2, displayHeight / 2)
@@ -149,6 +149,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             */
             applyForce(
                 behavior.first.mult(alignmentWeight),
+//                behavior.second.mult(cohesionWeight),
                 fuzzyCohere(boids).mult(cohesionWeight),
                 behavior.third.mult(separationWeight)
             )
@@ -161,7 +162,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun update() {
             velocity.add(acceleration).limit(maxSpeed)
-//            velocity.add(acceleration).setMag(maxSpeed) // constant velocity
+            //velocity.add(acceleration).setMag(maxSpeed) // constant velocity
             position.add(velocity)
             acceleration.mult(0f)
         }
@@ -258,13 +259,17 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                         positionDiff = angleDiff(position, other.position)
                     )
                     val steer = PVector
-                        .fromAngle(velocity.heading())
+                        .fromAngle(0f)
                         .rotate(-radians(Cohesion.headingChange.value.toFloat())) // rotates counterclockwise
                     cohesion.add(steer) // NOTE might want to divide steer by dist*dist before adding
                 }
             }
-            if (count > 0) cohesion.sub(position)
-            return cohesion.normalize()
+//            if (count > 0) cohesion.sub(position)
+            return PVector
+                .fromAngle(velocity.heading())
+                .rotate(cohesion.heading())
+                .normalize()
+//            return cohesion.normalize()
         }
 
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {

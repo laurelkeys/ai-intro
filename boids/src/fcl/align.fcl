@@ -33,7 +33,7 @@ END_DEFUZZIFY
 
 RULEBLOCK alignment
         AND : PROD; // MIN
-		OR : MAX;
+        OR : MAX;
         ACT : MIN;
         RULE 1 : if (dist is tooClose) then hChg is none;
         RULE 2 : if (dist is tooFar) then hChg is none;
