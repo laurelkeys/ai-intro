@@ -142,19 +142,29 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun flock(boids: ArrayList<Boid>) {
             val behavior = steer(boids)
-            /*
+
+            val alignment = behavior.first
+            val cohesion = fuzzyCohere(boids) //behavior.second
+            val separation = behavior.third
+            drawSteeringForces(alignment, cohesion, separation)
+
             applyForce(
-                behavior.first.mult(alignmentWeight),
-                behavior.second.mult(cohesionWeight),
-                behavior.third.mult(separationWeight)
+                alignment.mult(alignmentWeight),
+                cohesion.mult(cohesionWeight),
+                separation.mult(separationWeight)
             )
-            */
-            applyForce(
-                behavior.first.mult(alignmentWeight),
-//                behavior.second.mult(cohesionWeight),
-                fuzzyCohere(boids).mult(cohesionWeight),
-                behavior.third.mult(separationWeight)
-            )
+        }
+
+        private fun drawSteeringForces(alignment: PVector, cohesion: PVector, separation: PVector) {
+            pushMatrix()
+            translate(position.x, position.y)
+            stroke(255f, 0f, 0f, 128f) // RED: alignment
+            line(0f, 0f, forceScale * alignment.x, forceScale * alignment.y)
+            stroke(0f, 255f, 0f, 128f) // GREEN: cohesion
+            line(0f, 0f, forceScale * cohesion.x, forceScale * cohesion.y)
+            stroke(0f, 0f, 255f, 128f) // BLUE: separation
+            line(0f, 0f, forceScale * separation.x, forceScale * separation.y)
+            popMatrix()
         }
 
         private fun applyForce(vararg force: PVector) {
@@ -192,7 +202,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                 -sizeUnit, sizeUnit,
                 -sizeUnit, -sizeUnit
             )
-            line(0f, 0f, forceScale, 0f) // heading
+            //line(0f, 0f, forceScale, 0f) // heading
             renderRadii()
 
             popMatrix() // restores the prior coordinate system
@@ -260,11 +270,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             }
 
             if (count == 0f) cohesion.set(velocity)
-            cohesion.normalize()
-
-            stroke(0f, 255f, 0f)
-            line(position.x, position.y, position.x + forceScale * cohesion.x, position.y + forceScale * cohesion.y)
-            return cohesion
+            return cohesion.normalize()
         }
 
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
