@@ -5,15 +5,15 @@ import com.fuzzylite.variable.InputVariable
 import com.fuzzylite.variable.OutputVariable
 import java.nio.file.Paths
 
-object Alignment {
+object Cohesion {
 
     private val engine = FclImporter().fromFile(
-        Paths.get(".", "src", "fcl", "align.fcl").toFile()
+        Paths.get(".", "src", "fcl", "cohere.fcl").toFile()
     )
 
     // antecedent
     val distance: InputVariable
-    val headingDiff: InputVariable
+    val positionDiff: InputVariable
 
     // consequent
     val headingChange: OutputVariable
@@ -24,20 +24,20 @@ object Alignment {
             throw RuntimeException("[engine error] engine is not ready:\n$status")
 
         distance = engine.getInputVariable("dist")
-        headingDiff = engine.getInputVariable("hDiff")
+        positionDiff = engine.getInputVariable("pDiff")
 
         headingChange = engine.getOutputVariable("hChg")
     }
 
-    fun compute(distance: Int, headingDiff: Int) =
-        compute(distance.toDouble(), headingDiff.toDouble())
+    fun compute(distance: Int, positionDiff: Int) =
+        compute(distance.toDouble(), positionDiff.toDouble())
 
-    fun compute(distance: Float, headingDiff: Float) =
-        compute(distance.toDouble(), headingDiff.toDouble())
+    fun compute(distance: Float, positionDiff: Float) =
+        compute(distance.toDouble(), positionDiff.toDouble())
 
-    fun compute(distance: Double, headingDiff: Double) {
-        Alignment.distance.value = distance
-        Alignment.headingDiff.value = headingDiff
+    fun compute(distance: Double, positionDiff: Double) {
+        Cohesion.distance.value = distance
+        Cohesion.positionDiff.value = positionDiff
         compute()
     }
 

@@ -11,20 +11,20 @@ END_VAR
 
 FUZZIFY dist
         TERM tooClose := (0, 1) (80, 0);
-        TERM good := (0, 0) (60, 1) (120, 0);
+        TERM good := Triangle 0 60 120;
         TERM tooFar := (40, 0) (100, 1);
 END_FUZZIFY
 
 FUZZIFY hDiff
         TERM left := (-180, 1) (0, 0);
-        TERM none := (-180, 0) (0, 1) (180, 0);
+        TERM none := Triangle -180 0 180;
         TERM right := (0, 0) (180, 1);
 END_FUZZIFY
 
 DEFUZZIFY hChg
-        TERM left := (-360, 0) (-180, 1) (0, 0);
-        TERM none := (-180, 0) (0, 1) (180, 0);
-        TERM right := (0, 0) (180, 1) (360, 0);
+        TERM left := Triangle -360 -180 0;
+        TERM none := Triangle -180 0 180;
+        TERM right := Triangle 0 180 360;
         METHOD : COG; // LM, RM, MM
         ACCU : MAX;
         DEFAULT := 0;

@@ -1,18 +1,18 @@
 package com.boids
 
+import com.boids.control.Alignment
+import com.boids.control.Cohesion
 import controlP5.ControlP5
 import controlP5.ControlP5Constants.ACTION_BROADCAST
 import processing.core.PApplet
-import processing.core.PConstants
 import processing.core.PVector
 import java.util.ArrayList
-import kotlin.math.pow
 
 fun PApplet.random(high: Int) = random(high.toFloat())
 
 class Sketch(private val boidsCount: Int) : PApplet() {
     companion object {
-        fun run(boidsCount: Int = 50) {
+        fun run(boidsCount: Int = 1) {
             val sketch = Sketch(boidsCount)
             sketch.runSketch()
         }
@@ -148,8 +148,8 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             )
             */
             applyForce(
-                fuzzyAlign(boids).mult(alignmentWeight),
-                behavior.second.mult(cohesionWeight),
+                behavior.first.mult(alignmentWeight),
+                fuzzyCohere(boids).mult(cohesionWeight),
                 behavior.third.mult(separationWeight)
             )
         }
@@ -161,6 +161,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun update() {
             velocity.add(acceleration).limit(maxSpeed)
+//            velocity.add(acceleration).setMag(maxSpeed) // constant velocity
             position.add(velocity)
             acceleration.mult(0f)
         }
@@ -210,26 +211,8 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             }
         }
 
-        private fun fuzzyAlign(boids: ArrayList<Boid>): PVector {
-            val alignment = PVector(0f, 0f)
-            for (other in boids) {
-                val dist = PVector.dist(position, other.position)
-                if (other != this && dist <= perceptionRadius && dist > 0) {
-                    ControlSystem.compute(
-                        distance = dist / perceptionRadius,
-                        headingDiff = fuzzyHeadingDiff(velocity, other.velocity)
-                    )
-                    val steer = PVector
-                        .fromAngle(velocity.heading())
-                        .rotate(-radians(ControlSystem.headingChange.value.toFloat())) // rotates counterclockwise
-                    alignment.add(steer) // NOTE might want to divide steer by dist*dist before adding
-                }
-            }
-            return alignment.normalize()
-        }
-
-        // returns the heading difference value as expected by the fuzzy control system
-        private fun fuzzyHeadingDiff(myHeading: PVector, otherHeading: PVector): Float {
+        // returns the angle difference value as expected by the fuzzy control system
+        private fun angleDiff(myHeading: PVector, otherHeading: PVector): Float {
             // vector perpendicular to my heading and to it's right side
             val myRightAngleHeading = PVector
                 .fromAngle(velocity.heading())
@@ -240,6 +223,48 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                 rAngle < 90f -> hAngle // other is on my right
                 else -> -hAngle // other is on my left
             }
+        }
+
+        private fun fuzzyAlign(boids: ArrayList<Boid>): PVector {
+            val alignment = PVector(0f, 0f)
+            var count = 0
+            for (other in boids) {
+                val dist = PVector.dist(position, other.position)
+                if (other != this && dist <= perceptionRadius && dist > 0) {
+                    ++count
+                    Alignment.compute(
+                        distance = dist / perceptionRadius,
+                        headingDiff = angleDiff(velocity, other.velocity)
+                    )
+                    val steer = PVector
+                        .fromAngle(velocity.heading())
+                        .rotate(-radians(Alignment.headingChange.value.toFloat())) // rotates counterclockwise
+                    alignment.add(steer.div(dist * dist)) // NOTE might want to divide steer by dist*dist before adding
+                }
+            }
+            if (count > 0) alignment.sub(velocity)
+            return alignment.normalize()
+        }
+
+        private fun fuzzyCohere(boids: ArrayList<Boid>): PVector {
+            val cohesion = PVector(0f, 0f)
+            var count = 0
+            for (other in boids) {
+                val dist = PVector.dist(position, other.position)
+                if (other != this && dist <= perceptionRadius && dist > 0) {
+                    ++count
+                    Cohesion.compute(
+                        distance = dist / perceptionRadius,
+                        positionDiff = angleDiff(position, other.position)
+                    )
+                    val steer = PVector
+                        .fromAngle(velocity.heading())
+                        .rotate(-radians(Cohesion.headingChange.value.toFloat())) // rotates counterclockwise
+                    cohesion.add(steer) // NOTE might want to divide steer by dist*dist before adding
+                }
+            }
+            if (count > 0) cohesion.sub(position)
+            return cohesion.normalize()
         }
 
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
