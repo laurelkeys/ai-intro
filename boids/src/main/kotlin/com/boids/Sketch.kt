@@ -12,7 +12,7 @@ fun PApplet.random(high: Int) = random(high.toFloat())
 
 class Sketch(private val boidsCount: Int) : PApplet() {
     companion object {
-        fun run(boidsCount: Int = 2) {
+        fun run(boidsCount: Int = 1) {
             val sketch = Sketch(boidsCount)
             sketch.runSketch()
         }
@@ -75,7 +75,8 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             .addCallback { if (it.action == ACTION_BROADCAST) alignmentWeight = it.controller.value }
 
         controller
-            .addSlider("Cohesion", 0f, 10f, cohesionWeight, 10, height - 35, 100, 10)
+            //.addSlider("Cohesion", 0f, 10f, cohesionWeight, 10, height - 35, 100, 10)
+            .addSlider("Cohesion", 0f, 100f, cohesionWeight, 10, height - 35, 100, 10)
             .addCallback { if (it.action == ACTION_BROADCAST) cohesionWeight = it.controller.value }
 
         controller
@@ -130,6 +131,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         private val sizeUnit: Float = 2f
     ) {
         var position: PVector = PVector(x, y)
+        private var forceScale = 40f // vector drawing scaling
 
         fun run(boids: ArrayList<Boid>) {
             flock(boids)
@@ -162,7 +164,6 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun update() {
             velocity.add(acceleration).limit(maxSpeed)
-            //velocity.add(acceleration).setMag(maxSpeed) // constant velocity
             position.add(velocity)
             acceleration.mult(0f)
         }
@@ -183,16 +184,15 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             stroke(255)
 
             pushMatrix() // saves the current coordinate system to the stack
-
             translate(position.x, position.y)
-            rotate(velocity.heading() + radians(90f))
+            rotate(velocity.heading())
 
             triangle(
-                0f, -2 * sizeUnit,
+                2 * sizeUnit, 0f,
                 -sizeUnit, sizeUnit,
-                sizeUnit, sizeUnit
+                -sizeUnit, -sizeUnit
             )
-
+            line(0f, 0f, forceScale, 0f) // heading
             renderRadii()
 
             popMatrix() // restores the prior coordinate system
@@ -249,27 +249,22 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun fuzzyCohere(boids: ArrayList<Boid>): PVector {
             val cohesion = PVector(0f, 0f)
-            var count = 0
+
+            var count = 0f
             for (other in boids) {
                 val dist = PVector.dist(position, other.position)
-                if (other != this && dist <= perceptionRadius && dist > 0) {
+                if (other != this && dist <= perceptionRadius) {
                     ++count
-                    Cohesion.compute(
-                        distance = dist / perceptionRadius,
-                        positionDiff = angleDiff(position, other.position)
-                    )
-                    val steer = PVector
-                        .fromAngle(0f)
-                        .rotate(-radians(Cohesion.headingChange.value.toFloat())) // rotates counterclockwise
-                    cohesion.add(steer) // NOTE might want to divide steer by dist*dist before adding
+                    cohesion.add(PVector.sub(other.position, position).div(dist * dist))
                 }
             }
-//            if (count > 0) cohesion.sub(position)
-            return PVector
-                .fromAngle(velocity.heading())
-                .rotate(cohesion.heading())
-                .normalize()
-//            return cohesion.normalize()
+
+            if (count == 0f) cohesion.set(velocity)
+            cohesion.normalize()
+
+            stroke(0f, 255f, 0f)
+            line(position.x, position.y, position.x + forceScale * cohesion.x, position.y + forceScale * cohesion.y)
+            return cohesion
         }
 
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
