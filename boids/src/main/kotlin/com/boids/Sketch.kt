@@ -130,7 +130,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         fun addBoid(boid: Boid) = boids.add(boid)
 
         fun run() {
-            // TODO take a snapshot of boids
+            // FIXME take a snapshot of boids
             for (boid in boids) boid.run(boids)
         }
     }
@@ -168,12 +168,22 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun drawSteeringForces(alignment: PVector, cohesion: PVector, separation: PVector) {
             pushPop(position.x, position.y) {
-                stroke(255f, 0f, 0f, 128f) // RED: alignment
-                line(0f, 0f, forceScale * alignment.x, forceScale * alignment.y)
-                stroke(0f, 255f, 0f, 128f) // GREEN: cohesion
+                // RED: alignment
+                //stroke(255f, 0f, 0f, 128f)
+                //line(0f, 0f, forceScale * alignment.x, forceScale * alignment.y)
+                // GREEN: cohesion
+                stroke(0f, 255f, 0f, 128f)
                 line(0f, 0f, forceScale * cohesion.x, forceScale * cohesion.y)
-                stroke(0f, 0f, 255f, 128f) // BLUE: separation
-                line(0f, 0f, forceScale * separation.x, forceScale * separation.y)
+                // BLUE: separation
+                //stroke(0f, 0f, 255f, 128f)
+                //line(0f, 0f, forceScale * separation.x, forceScale * separation.y)
+
+                textSize(12f)
+                text(
+                    "%.2f°".format(angleDiff(from = velocity, to = cohesion)),
+                    2f * forceScale * cohesion.x,
+                    2f * forceScale * cohesion.y
+                )
             }
         }
 
