@@ -119,8 +119,8 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         fun addBoid(boid: Boid) = boids.add(boid)
 
         fun run() {
-            val snapshot = ArrayList(boids)
-            for (boid in boids) boid.run(snapshot)
+            // TODO take a snapshot of boids
+            for (boid in boids) boid.run(boids)
         }
     }
 
@@ -156,15 +156,14 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         }
 
         private fun drawSteeringForces(alignment: PVector, cohesion: PVector, separation: PVector) {
-            pushMatrix()
-            translate(position.x, position.y)
-            stroke(255f, 0f, 0f, 128f) // RED: alignment
-            line(0f, 0f, forceScale * alignment.x, forceScale * alignment.y)
-            stroke(0f, 255f, 0f, 128f) // GREEN: cohesion
-            line(0f, 0f, forceScale * cohesion.x, forceScale * cohesion.y)
-            stroke(0f, 0f, 255f, 128f) // BLUE: separation
-            line(0f, 0f, forceScale * separation.x, forceScale * separation.y)
-            popMatrix()
+            pushPop(position.x, position.y) {
+                stroke(255f, 0f, 0f, 128f) // RED: alignment
+                line(0f, 0f, forceScale * alignment.x, forceScale * alignment.y)
+                stroke(0f, 255f, 0f, 128f) // GREEN: cohesion
+                line(0f, 0f, forceScale * cohesion.x, forceScale * cohesion.y)
+                stroke(0f, 0f, 255f, 128f) // BLUE: separation
+                line(0f, 0f, forceScale * separation.x, forceScale * separation.y)
+            }
         }
 
         private fun applyForce(vararg force: PVector) {
@@ -192,20 +191,15 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         private fun render() {
             strokeWeight(2f)
             stroke(255)
-
-            pushMatrix() // saves the current coordinate system to the stack
-            translate(position.x, position.y)
-            rotate(velocity.heading())
-
-            triangle(
-                2 * sizeUnit, 0f,
-                -sizeUnit, sizeUnit,
-                -sizeUnit, -sizeUnit
-            )
-            //line(0f, 0f, forceScale, 0f) // heading
-            renderRadii()
-
-            popMatrix() // restores the prior coordinate system
+            pushPop(position.x, position.y, velocity.heading()) {
+                triangle(
+                    2 * sizeUnit, 0f,
+                    -sizeUnit, sizeUnit,
+                    -sizeUnit, -sizeUnit
+                )
+                //line(0f, 0f, forceScale, 0f) // heading
+                renderRadii()
+            }
         }
 
         private fun renderRadii() {
@@ -259,7 +253,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun fuzzyCohere(boids: ArrayList<Boid>): PVector {
             val cohesion = PVector(0f, 0f)
-
+            /*
             var count = 0f
             for (other in boids) {
                 val dist = PVector.dist(position, other.position)
@@ -268,9 +262,27 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                     cohesion.add(PVector.sub(other.position, position).div(dist * dist))
                 }
             }
-
             if (count == 0f) cohesion.set(velocity)
             return cohesion.normalize()
+            */
+            cohesion.add(PVector.sub(PVector(mouseX / 1f, mouseY / 1f), position))
+            cohesion.normalize()
+            pushPop(position.x, position.y) {
+                textSize(12f)
+
+                val dot = PVector.dot(cohesion, velocity) // dot product between [x1, y1] and [x2, y2]
+                val det = velocity.x * cohesion.y - velocity.y * cohesion.x // determinant
+                val angle = degrees(atan2(det, dot)) // atan2(y, x) or atan2(sin, cos)
+
+                stroke(0f, 255f, 0f, 128f) // GREEN: cohesion
+                line(0f, 0f, forceScale * cohesion.x, forceScale * cohesion.y)
+
+                forceScale *= 2
+                text("%.2f°".format(angle), forceScale * cohesion.x, forceScale * cohesion.y)
+                forceScale /= 2
+            }
+
+            return cohesion
         }
 
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
@@ -315,6 +327,16 @@ private fun Float.clip(min: Float, max: Float) = when {
     this < min -> min
     this > max -> max
     else -> this
+}
+
+private fun PApplet.pushPop(x: Float = 0f, y: Float = 0f, angle: Float = 0f, transformation: () -> Unit) {
+    pushMatrix() // saves the current coordinate system to the stack
+    translate(x, y)
+    rotate(angle)
+
+    transformation()
+
+    popMatrix() // restores the prior coordinate system
 }
 
 fun main(args: Array<String>) {
