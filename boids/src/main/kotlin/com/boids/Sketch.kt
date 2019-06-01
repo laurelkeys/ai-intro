@@ -2,6 +2,7 @@ package com.boids
 
 import com.boids.control.Alignment
 import com.boids.control.Cohesion
+import com.boids.control.Separation
 import controlP5.ControlP5
 import controlP5.ControlP5Constants.ACTION_BROADCAST
 import processing.core.PApplet
@@ -265,6 +266,27 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             }
             if (count > 0) cohesion.sub(position)
             return cohesion.normalize()
+        }
+
+        private fun fuzzySeparate(boids: ArrayList<Boid>): PVector {
+            val separation = PVector(0f, 0f)
+            var count = 0
+            for (other in boids) {
+                val dist = PVector.dist(position, other.position)
+                if (other != this && dist <= perceptionRadius && dist > 0) {
+                    ++count
+                    Separation.compute(
+                        distance = dist / perceptionRadius,
+                        positionDiff = angleDiff(position, other.position)
+                    )
+                    val steer = PVector
+                        .fromAngle(velocity.heading())
+                        .rotate(-radians(Cohesion.headingChange.value.toFloat())) // rotates counterclockwise
+                    separation.add(steer) // NOTE might want to divide steer by dist*dist before adding
+                }
+            }
+            if (count > 0) separation.sub(position)
+            return separation.normalize()
         }
 
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
