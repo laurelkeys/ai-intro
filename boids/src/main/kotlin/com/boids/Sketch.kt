@@ -33,6 +33,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
     private var showPerceptionRadius = true
     private var showSeparationRadius = true
+    private var showForces = true
 
     override fun settings() {
         size(displayWidth / 2, displayHeight / 2)
@@ -67,6 +68,15 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             .setValue(!showSeparationRadius)
             .setMode(ControlP5.SWITCH)
             .addCallback { if (it.action == ACTION_BROADCAST) showSeparationRadius = it.controller.value == 0f }
+
+        controller
+            .addToggle("Show steering forces")
+            .setLabel("forces")
+            .setPosition(width - 50f, 80f)
+            .setSize(40, 10)
+            .setValue(!showForces)
+            .setMode(ControlP5.SWITCH)
+            .addCallback { if (it.action == ACTION_BROADCAST) showForces = it.controller.value == 0f }
     }
 
     private fun setupSliders() {
@@ -146,7 +156,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             val alignment = behavior.first
             val cohesion = fuzzyCohere(boids) //behavior.second
             val separation = behavior.third
-            drawSteeringForces(alignment, cohesion, separation)
+            if (showForces) drawSteeringForces(alignment, cohesion, separation)
 
             applyForce(
                 alignment.mult(alignmentWeight),
@@ -197,7 +207,6 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                     -sizeUnit, sizeUnit,
                     -sizeUnit, -sizeUnit
                 )
-                //line(0f, 0f, forceScale, 0f) // heading
                 renderRadii()
             }
         }
@@ -213,20 +222,6 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             if (showSeparationRadius) {
                 stroke(0f, 250f, 250f, 100f)
                 ellipse(0f, 0f, separationRadius, separationRadius)
-            }
-        }
-
-        // returns the angle difference value as expected by the fuzzy control system
-        private fun angleDiff(myHeading: PVector, otherHeading: PVector): Float {
-            // vector perpendicular to my heading and to it's right side
-            val myRightAngleHeading = PVector
-                .fromAngle(velocity.heading())
-                .rotate(radians(-90f)) // rotates counterclockwise
-            val hAngle = degrees(PVector.angleBetween(otherHeading, myHeading)) // in 0..180
-            val rAngle = degrees(PVector.angleBetween(otherHeading, myRightAngleHeading)) // in 0..180
-            return when {
-                rAngle < 90f -> hAngle // other is on my right
-                else -> -hAngle // other is on my left
             }
         }
 
@@ -253,7 +248,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun fuzzyCohere(boids: ArrayList<Boid>): PVector {
             val cohesion = PVector(0f, 0f)
-            /*
+
             var count = 0f
             for (other in boids) {
                 val dist = PVector.dist(position, other.position)
@@ -264,25 +259,6 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             }
             if (count == 0f) cohesion.set(velocity)
             return cohesion.normalize()
-            */
-            cohesion.add(PVector.sub(PVector(mouseX / 1f, mouseY / 1f), position))
-            cohesion.normalize()
-            pushPop(position.x, position.y) {
-                textSize(12f)
-
-                val dot = PVector.dot(cohesion, velocity) // dot product between [x1, y1] and [x2, y2]
-                val det = velocity.x * cohesion.y - velocity.y * cohesion.x // determinant
-                val angle = degrees(atan2(det, dot)) // atan2(y, x) or atan2(sin, cos)
-
-                stroke(0f, 255f, 0f, 128f) // GREEN: cohesion
-                line(0f, 0f, forceScale * cohesion.x, forceScale * cohesion.y)
-
-                forceScale *= 2
-                text("%.2f°".format(angle), forceScale * cohesion.x, forceScale * cohesion.y)
-                forceScale /= 2
-            }
-
-            return cohesion
         }
 
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
@@ -321,12 +297,13 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             return Triple(alignment, cohesion, separation)
         }
     }
-}
 
-private fun Float.clip(min: Float, max: Float) = when {
-    this < min -> min
-    this > max -> max
-    else -> this
+    // returns the angle difference value as expected by the fuzzy control system
+    private fun angleDiff(from: PVector, to: PVector): Float {
+        val dot = from.x * to.x + from.y * to.y // dot product between [x1, y1] and [x2, y2]
+        val det = from.x * to.y - from.y * to.x // determinant
+        return degrees(atan2(det, dot)) // atan2(y, x) or atan2(sin, cos)
+    }
 }
 
 private fun PApplet.pushPop(x: Float = 0f, y: Float = 0f, angle: Float = 0f, transformation: () -> Unit) {
