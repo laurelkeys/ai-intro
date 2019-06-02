@@ -177,13 +177,6 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                 // BLUE: separation
                 //stroke(0f, 0f, 255f, 128f)
                 //line(0f, 0f, forceScale * separation.x, forceScale * separation.y)
-
-                textSize(12f)
-                text(
-                    "%.2f°".format(angleDiff(from = velocity, to = cohesion)),
-                    2f * forceScale * cohesion.x,
-                    2f * forceScale * cohesion.y
-                )
             }
         }
 
@@ -263,12 +256,32 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             var count = 0f
             for (other in boids) {
                 val dist = PVector.dist(position, other.position)
-                if (other != this && dist <= perceptionRadius) {
+                if (other != this && dist <= perceptionRadius && dist > 0) {
                     ++count
                     cohesion.add(PVector.sub(other.position, position).div(dist * dist))
+
+                    Cohesion.compute(
+                        dist / perceptionRadius,
+                        positionDiff = angleDiff(from = velocity, to = PVector.sub(other.position, position))
+                    )
+
+                    val steer = PVector
+                        .fromAngle(velocity.heading())
+                        .rotate(radians(-Cohesion.positionDiff.value.toFloat()))
+                        //.rotate(radians(-Cohesion.headingChange.value.toFloat())) // rotates counterclockwise
+                    pushPop(position) {
+                        textSize(12f)
+                        text(
+                            "%.2f°".format(degrees(steer.heading())),
+                            2f * forceScale * steer.x,
+                            2f * forceScale * steer.y
+                        )
+                        stroke(255f, 255f, 0f, 128f)
+                        line(0f, 0f, forceScale * steer.x, forceScale * steer.y)
+                    }
                 }
             }
-            if (count == 0f) cohesion.set(velocity)
+            if (count == 0f) cohesion.set(velocity) // keeps the same heading direction
             return cohesion.normalize()
         }
 
@@ -336,6 +349,10 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         val det = from.x * to.y - from.y * to.x // determinant
         return degrees(atan2(det, dot)) // atan2(y, x) or atan2(sin, cos)
     }
+}
+
+private fun PApplet.pushPop(origin: PVector, angle: Float = 0f, transformation: () -> Unit) {
+    pushPop(origin.x, origin.y, angle, transformation)
 }
 
 private fun PApplet.pushPop(x: Float = 0f, y: Float = 0f, angle: Float = 0f, transformation: () -> Unit) {

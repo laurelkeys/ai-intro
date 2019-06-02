@@ -29,17 +29,13 @@ DEFUZZIFY hChg
         METHOD : COG; // LM, RM, MM
         ACCU : MAX;
         DEFAULT := 0;
-        RANGE := (-360 .. 360); // TODO: check if (-180 .. 180) changes results
+        RANGE := (-180 .. 180);
 END_DEFUZZIFY
 
 RULEBLOCK cohesion
         AND : PROD; // MIN
         OR : MAX;
         ACT : MIN;
-        //RULE 1 : if (dist is closeEnough) then hChg is none;
-        //RULE 2 : if (dist is tooFar) and (pDiff is none) then hChg is none;
-        //RULE 3 : if (dist is tooFar) and (pDiff is left) then hChg is left;
-        //RULE 4 : if (dist is tooFar) and (pDiff is right) then hChg is right;
         RULE 1 : if (pDiff is front) then hChg is front;
         RULE 2 : if (pDiff is back) then hChg is back;
         RULE 3 : if (pDiff is right) then hChg is right;
