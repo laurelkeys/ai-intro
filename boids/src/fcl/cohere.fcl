@@ -1,45 +1,61 @@
 FUNCTION_BLOCK cohesion
 
 VAR_INPUT
-        dist : REAL; // distance (% of perception radius)
-        pDiff : REAL; // position difference (in degrees)
+    distance : REAL; // distance (% of perception radius)
+    position : REAL; // perceived neighbor's angular offset (in degrees)
 END_VAR
 
 VAR_OUTPUT
-        hChg : REAL; // heading change (in degrees)
+    headingChange : REAL; // flight direction change (in degrees)
+    speedChange : REAL;   // needed change of speed (% max speed) TODO: use
 END_VAR
 
-FUZZIFY dist
-        TERM closeEnough := (0, 1) (40, 1) (100, 0);
-        TERM tooFar := (0, 0) (40, 0) (100, 1);
+FUZZIFY distance
+    TERM closeEnough := (0, 1) (40, 1) (100, 0);
+    TERM tooFar      := (0, 0) (40, 0) (100, 1);
 END_FUZZIFY
 
-FUZZIFY pDiff
-	TERM left_or_behind				:=		( -180, 1 ) ( 0, 0 ) ( 180, 0 );
-	TERM in_front 		:=		trian -180 0 180;
-	TERM right_or_behind 		:= 		( -180, 0 ) ( 0, 0 ) ( 180, 1 );
+FUZZIFY position
+    TERM front := trian -180 0 180;
+    TERM leftOrBehind  := (-180, 1) (0, 0) (180, 0);
+    TERM rightOrBehind := (-180, 0) (0, 0) (180, 1);
 END_FUZZIFY
 
-DEFUZZIFY hChg
-	TERM turn_left			:=		trian -360 -180 0;
-	TERM keep_direction		:=		trian -180 0 180;
-	TERM turn_right			:=		trian 0 180 360;
-
-	METHOD	: COG;
+DEFUZZIFY headingChange
+	TERM none      := trian -180    0 180;
+	TERM turnLeft  := trian -360 -180   0;
+	TERM turnRight := trian    0  180 360;
+	METHOD  : COG;
 	DEFAULT	:= 0;
 END_DEFUZZIFY
 
+DEFUZZIFY speedChange
+	TERM decelerate := trian -200 -100   0;
+	TERM keep       := trian -100    0 100;
+	TERM accelerate := trian    0  100 200;
+	METHOD	: COG;
+	DEFAULT := 0;
+END_DEFUZZIFY
+
 RULEBLOCK cohesion
-        AND : MIN; // MIN
-        //OR : MAX;
-        ACT : MIN;
-        ACCU : MAX;
-        //RULE 1 : if (pDiff is front) then hChg is front;
-        //RULE 2 : if (pDiff is right) then hChg is right;
-        //RULE 3 : if (pDiff is left) then hChg is left;
-	RULE 5 : IF pDiff IS in_front THEN hChg IS keep_direction;
-	RULE 6 : IF pDiff IS left_or_behind THEN hChg IS turn_left;
-	RULE 8 : IF pDiff IS right_or_behind THEN hChg IS turn_right;
+	AND	 : MIN; // PROD
+	OR   : MAX;
+ 	ACT	 : MIN;
+	ACCU : MAX;
+	/*
+	RULE 1 : IF distance IS closeEnough THEN headingChange IS none;
+	RULE 2 : IF distance IS tooFar THEN headingChange IS none;
+	RULE 3 : IF distance IS closeEnough THEN speedChange IS keep;
+	RULE 4 : IF distance IS tooFar THEN speedChange IS keep;
+	RULE 5 : IF distance IS tooFar AND position IS front THEN speedChange IS accelerate;
+	RULE 6 : IF distance IS tooFar AND position IS leftOrBehind THEN headingChange IS turnLeft;
+	RULE 7 : IF distance IS tooFar AND position IS leftOrBehind THEN speedChange IS decelerate;
+	RULE 8 : IF distance IS tooFar AND position IS rightOrBehind THEN headingChange IS turnRight;
+	RULE 9 : IF distance IS tooFar AND position IS rightOrBehind THEN speedChange IS decelerate;
+	*/
+	RULE 1 : IF position IS front THEN headingChange IS none;
+	RULE 2 : IF position IS leftOrBehind THEN headingChange IS turnLeft;
+	RULE 3 : IF position IS rightOrBehind THEN headingChange IS turnRight;
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK
