@@ -7,7 +7,6 @@ END_VAR
 
 VAR_OUTPUT
     headingChange : REAL; // flight direction change (in degrees)
-    speedChange : REAL;   // needed change of speed (% max speed) TODO: use
 END_VAR
 
 FUZZIFY distance
@@ -29,14 +28,6 @@ DEFUZZIFY headingChange
 	DEFAULT	:= 0;
 END_DEFUZZIFY
 
-DEFUZZIFY speedChange
-	TERM decelerate := trian -200 -100   0;
-	TERM keep       := trian -100    0 100;
-	TERM accelerate := trian    0  100 200;
-	METHOD	: COG;
-	DEFAULT := 0;
-END_DEFUZZIFY
-
 RULEBLOCK cohesion
 	AND	 : MIN; // PROD
 	OR   : MAX;
@@ -45,13 +36,8 @@ RULEBLOCK cohesion
 	/*
 	RULE 1 : IF distance IS closeEnough THEN headingChange IS none;
 	RULE 2 : IF distance IS tooFar THEN headingChange IS none;
-	RULE 3 : IF distance IS closeEnough THEN speedChange IS keep;
-	RULE 4 : IF distance IS tooFar THEN speedChange IS keep;
-	RULE 5 : IF distance IS tooFar AND position IS front THEN speedChange IS accelerate;
 	RULE 6 : IF distance IS tooFar AND position IS leftOrBehind THEN headingChange IS turnLeft;
-	RULE 7 : IF distance IS tooFar AND position IS leftOrBehind THEN speedChange IS decelerate;
 	RULE 8 : IF distance IS tooFar AND position IS rightOrBehind THEN headingChange IS turnRight;
-	RULE 9 : IF distance IS tooFar AND position IS rightOrBehind THEN speedChange IS decelerate;
 	*/
 	RULE 1 : IF position IS front THEN headingChange IS none;
 	RULE 2 : IF position IS leftOrBehind THEN headingChange IS turnLeft;
