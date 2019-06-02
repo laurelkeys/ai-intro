@@ -9,6 +9,9 @@ version '1.0-SNAPSHOT'
 repositories {
     mavenCentral()
     maven { url "https://clojars.org/repo" }
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
@@ -18,6 +21,9 @@ dependencies {
     compile 'controlp5:controlp5:2.2.4-SNAPSHOT'
     compile group: 'org.processing', name: 'core', version: '3.3.6'
     compile group: 'com.fuzzylite', name: 'jfuzzylite', version: '6.0.1'
+
+    compile (name:'jFuzzyLogic', ext:'jar')
+
 }
 
 compileKotlin {
