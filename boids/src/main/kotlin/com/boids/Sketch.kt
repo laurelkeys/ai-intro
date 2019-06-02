@@ -13,7 +13,7 @@ fun PApplet.random(high: Int) = random(high.toFloat())
 
 class Sketch(private val boidsCount: Int) : PApplet() {
     companion object {
-        fun run(boidsCount: Int = 1) {
+        fun run(boidsCount: Int = 50) {
             val sketch = Sketch(boidsCount)
             sketch.runSketch()
         }
@@ -253,34 +253,25 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
         private fun fuzzyCohere(boids: ArrayList<Boid>): PVector {
             val cohesion = PVector(0f, 0f)
-
             var count = 0f
             for (other in boids) {
-                val dist = PVector.dist(position, other.position)
-                if (other != this && dist <= perceptionRadius && dist > 0) {
+                if (other != this) {
                     ++count
-                    Cohesion.evaluate(
-                        dist / perceptionRadius.toDouble(),
-                        positionDiff = angleDiff(from = velocity, to = PVector.sub(other.position, position)).toDouble()
-                    )
-
-                    val steer = PVector
-                        .fromAngle(velocity.heading())
-                        .rotate(radians(Cohesion.headingChange.value.toFloat()))
-                        //.rotate(radians(-Cohesion.headingChange.value.toFloat())) // rotates counterclockwise
-                    pushPop(position) {
-                        textSize(12f)
-                        text(
-                            "%.2f°".format(degrees(steer.heading())),
-                            2f * forceScale * steer.x,
-                            2f * forceScale * steer.y
-                        )
-                        stroke(255f, 255f, 0f, 128f)
-                        line(0f, 0f, forceScale * steer.x, forceScale * steer.y)
+                    val distVector = PVector.sub(other.position, position)
+                    distVector.mag().let { dist ->
+                        if (0 < dist && dist <= perceptionRadius) {
+                            Cohesion.evaluate(
+                                dist / perceptionRadius,
+                                angleDiff(velocity, distVector)
+                            )
+                            cohesion.add(
+                                PVector
+                                    .fromAngle(velocity.heading())
+                                    .rotate(radians(Cohesion.headingChange.value.toFloat()))
+                                    .div(dist * dist) // TODO use fuzzy logic to calculate the proportionality
+                            )
+                        }
                     }
-
-                    cohesion.add(steer.div(dist * dist)) // TODO use fuzzy logic to calculate the proportionality
-                    //cohesion.add(PVector.sub(other.position, position).div(dist * dist))
                 }
             }
             if (count == 0f) cohesion.set(velocity) // keeps the same heading direction
@@ -306,7 +297,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 //            }
 //            if (count > 0) separation.sub(position)
 //            return separation.normalize()
-            return  PVector(0f, 0f)
+            return PVector(0f, 0f)
         }
 
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
