@@ -14,7 +14,7 @@ object TestTipper {
     @JvmStatic
     fun main(args: Array<String>) {
         // Load from 'FCL' file
-        val fileName = Paths.get(".", "src", "fcl", "align.fcl").toAbsolutePath().toString()
+        val fileName = Paths.get(".", "src", "fcl", "separate.fcl").toAbsolutePath().toString()
         val fis = FIS.load(fileName, true)
 
         // Error while loading?

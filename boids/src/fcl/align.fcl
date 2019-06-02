@@ -11,22 +11,21 @@ END_VAR
 
 FUZZIFY dist
         TERM tooClose := (0, 1) (80, 0);
-        TERM good := Triangle 0 60 120;
+        TERM good := trian 0 60 120;
         TERM tooFar := (40, 0) (100, 1);
 END_FUZZIFY
 
 FUZZIFY hDiff
         TERM left := (-180, 1) (0, 0);
-        TERM none := Triangle -180 0 180;
+        TERM none := trian -180 0 180;
         TERM right := (0, 0) (180, 1);
 END_FUZZIFY
 
 DEFUZZIFY hChg
-        TERM left := Triangle -360 -180 0;
-        TERM none := Triangle -180 0 180;
-        TERM right := Triangle 0 180 360;
+        TERM left := trian -360 -180 0;
+        TERM none := trian -180 0 180;
+        TERM right := trian 0 180 360;
         METHOD : COG; // LM, RM, MM
-        ACCU : MAX;
         DEFAULT := 0;
         RANGE := (-360 .. 360); // TODO: check if (-180 .. 180) changes results
 END_DEFUZZIFY
@@ -35,6 +34,7 @@ RULEBLOCK alignment
         AND : PROD; // MIN
         OR : MAX;
         ACT : MIN;
+        ACCU : MAX;
         RULE 1 : if (dist is tooClose) then hChg is none;
         RULE 2 : if (dist is tooFar) then hChg is none;
         RULE 3 : if (dist is good) and (hDiff is none) then hChg is none;

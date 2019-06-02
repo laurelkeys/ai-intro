@@ -15,19 +15,18 @@ FUZZIFY dist
 END_FUZZIFY
 
 FUZZIFY pDiff
-        TERM left := Triangle -180 -90 0;
-        TERM right := Triangle 0 90 180;
-        TERM front := Triangle -90 0 90;
+        TERM left := trian -180 -90 0;
+        TERM right := trian 0 90 180;
+        TERM front := trian -90 0 90;
         TERM back := (-180, 1) (-90, 0) (90, 0) (180, 1);
 END_FUZZIFY
 
 DEFUZZIFY hChg
-        TERM left := Triangle -180 -90 0;
-        TERM right := Triangle 0 90 180;
-        TERM front := Triangle -90 0 90;
+        TERM left := trian -180 -90 0;
+        TERM right := trian 0 90 180;
+        TERM front := trian -90 0 90;
         TERM back := (-180, 1) (-90, 0) (90, 0) (180, 1);
         METHOD : COG; // LM, RM, MM
-        ACCU : MAX;
         DEFAULT := 0;
         RANGE := (-180 .. 180);
 END_DEFUZZIFY
@@ -36,6 +35,7 @@ RULEBLOCK cohesion
         AND : PROD; // MIN
         OR : MAX;
         ACT : MIN;
+        ACCU : MAX;
         RULE 1 : if (pDiff is front) then hChg is front;
         RULE 2 : if (pDiff is back) then hChg is back;
         RULE 3 : if (pDiff is right) then hChg is right;
