@@ -15,28 +15,31 @@ FUZZIFY dist
 END_FUZZIFY
 
 FUZZIFY pDiff
-        TERM left := (-180, 1) (-90, 1) (0, 0);
-        TERM right := (0, 0) (90, 1) (180, 1);
-        TERM front := trian -90 0 90;
+	TERM left_or_behind				:=		( -180, 1 ) ( 0, 0 ) ( 180, 0 );
+	TERM in_front 		:=		trian -180 0 180;
+	TERM right_or_behind 		:= 		( -180, 0 ) ( 0, 0 ) ( 180, 1 );
 END_FUZZIFY
 
 DEFUZZIFY hChg
-        TERM left := (-180, 1) (-90, 1) (0, 0);
-        TERM right := (0, 0) (90, 1) (180, 1);
-        TERM front := trian -90 0 90;
-        METHOD : COG; // COG, COA, LM, RM, MM
-        DEFAULT := 0;
-        RANGE := (-180 .. 180);
+	TERM turn_left			:=		trian -360 -180 0;
+	TERM keep_direction		:=		trian -180 0 180;
+	TERM turn_right			:=		trian 0 180 360;
+
+	METHOD	: COG;
+	DEFAULT	:= 0;
 END_DEFUZZIFY
 
 RULEBLOCK cohesion
-        AND : PROD; // MIN
-        OR : MAX;
+        AND : MIN; // MIN
+        //OR : MAX;
         ACT : MIN;
         ACCU : MAX;
-        RULE 1 : if (pDiff is front) then hChg is front;
-        RULE 2 : if (pDiff is right) then hChg is right;
-        RULE 3 : if (pDiff is left) then hChg is left;
+        //RULE 1 : if (pDiff is front) then hChg is front;
+        //RULE 2 : if (pDiff is right) then hChg is right;
+        //RULE 3 : if (pDiff is left) then hChg is left;
+	RULE 5 : IF pDiff IS in_front THEN hChg IS keep_direction;
+	RULE 6 : IF pDiff IS left_or_behind THEN hChg IS turn_left;
+	RULE 8 : IF pDiff IS right_or_behind THEN hChg IS turn_right;
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK
