@@ -14,7 +14,7 @@ object TestTipper {
     @JvmStatic
     fun main(args: Array<String>) {
         // Load from 'FCL' file
-        val fileName = Paths.get(".", "src", "fcl", "separate.fcl").toAbsolutePath().toString()
+        val fileName = Paths.get(".", "src", "fcl", "cohere.fcl").toAbsolutePath().toString()
         val fis = FIS.load(fileName, true)
 
         // Error while loading?
@@ -22,22 +22,33 @@ object TestTipper {
             System.err.println("Can't load file: '$fileName'")
             return
         }
+        val dist = fis.getVariable("dist")
+        val pDiff = fis.getVariable("pDiff")
+        val hChg = fis.getVariable("hChg")
 
         // Show
         JFuzzyChart.get().chart(fis)
 
         // Set inputs
-        fis!!.setVariable("service", 3.0)
-        fis!!.setVariable("food", 7.0)
+        while (true) {
+            val inp = readLine()!!.split(',')
+            dist.value = inp[0].toDouble()
+            pDiff.value = inp[1].toDouble()
 
-        // Evaluate
-        fis!!.evaluate()
+            // Evaluate
+            fis.evaluate()
 
-        // Show output variable's chart
-        val tip = fis.getVariable("tip")
-        JFuzzyChart.get().chart(tip, tip.getDefuzzifier(), true)
+            // Show output variable's chart
+            JFuzzyChart.get().chart(hChg, hChg.defuzzifier, true)
 
-        // Print ruleSet
-        System.out.println(fis)
+            // Show each rule (and degree of support)
+            fis
+                .getFunctionBlock("cohesion")
+                .getFuzzyRuleBlock("cohesion")
+                .rules.forEach { println(it) }
+
+            println("Antecedent: dist ${dist.value}, pDiff ${pDiff.value}")
+            println("Consequent: hChg ${hChg.value}")
+        }
     }
 }
