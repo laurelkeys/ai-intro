@@ -21,19 +21,19 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     private lateinit var controller: ControlP5
 
     private val flock = Flock()
-    private var maxForce: Float = 0.4f
+    private var maxForce: Float = 0.6f
     private var maxSpeed: Float = 2f
 
-    private var alignmentWeight: Float = 0.1f
-    private var cohesionWeight: Float = 2.7f
-    private var separationWeight: Float = 3f
+    private var alignmentWeight: Float = 0.3f
+    private var cohesionWeight: Float = 1.2f
+    private var separationWeight: Float = 1.25f
 
-    private var perceptionRadius: Float = 100f // alignmentRadius and cohesionRadius
-    private var separationRadius: Float = 25f
+    private var perceptionRadius: Float = 80f // alignmentRadius and cohesionRadius
+    private var separationRadius: Float = 30f
 
-    private var showPerceptionRadius = true
-    private var showSeparationRadius = true
-    private var showForces = true
+    private var showPerceptionRadius = false
+    private var showSeparationRadius = false
+    private var showForces = false
 
     override fun settings() {
         size(displayWidth / 2, displayHeight / 2)
@@ -122,14 +122,13 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         }
     }
 
-    inner class Flock {
-        private val boids = ArrayList<Boid>()
+    inner class Flock(private val boids: ArrayList<Boid> = ArrayList()) {
 
         fun addBoid(boid: Boid) = boids.add(boid)
 
         fun run() {
-            // FIXME take a snapshot of boids
-            for (boid in boids) boid.run(boids)
+            val snapshot = ArrayList(boids.map { Boid(it.position.x, it.position.y, it.velocity, it.acceleration) })
+            for (boid in boids) boid.run(snapshot)
         }
     }
 
@@ -153,8 +152,8 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             val behavior = steer(boids)
 
             val alignment = behavior.first
-            val cohesion = fuzzyCohere(boids) //behavior.second
-            val separation = fuzzySeparate(boids) //behavior.third
+            val cohesion = behavior.second //fuzzyCohere(boids)
+            val separation = behavior.third //fuzzySeparate(boids)
             if (showForces) drawSteeringForces(alignment, cohesion, separation)
 
             applyForce(
@@ -266,7 +265,6 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                                 PVector
                                     .fromAngle(velocity.heading())
                                     .rotate(radians(Cohesion.headingChange.value.toFloat()))
-                                    //.div(dist * dist) // TODO use fuzzy logic to calculate the proportionality
                             )
                         }
                     }
