@@ -284,9 +284,9 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                     ++count
                     val distVector = PVector.sub(other.position, position)
                     distVector.mag().let { dist ->
-                        if (0 < dist && dist <= perceptionRadius) {
+                        if (0 < dist && dist <= separationRadius) {
                             Separation.evaluate(
-                                dist / perceptionRadius,
+                                dist / separationRadius,
                                 angleDiff(velocity, distVector)
                             )
                             separation.add(

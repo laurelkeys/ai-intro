@@ -1,7 +1,7 @@
 FUNCTION_BLOCK separation
 
 VAR_INPUT
-    distance : REAL; // distance (% of perception radius)
+    distance : REAL; // distance (% of separation radius)
     position : REAL; // perceived neighbor's angular offset (in degrees)
 END_VAR
 
