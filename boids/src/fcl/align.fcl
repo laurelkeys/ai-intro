@@ -1,47 +1,49 @@
-// FIXME
-
 FUNCTION_BLOCK alignment
 
 VAR_INPUT
-        dist : REAL; // distance (% of perception radius)
-        hDiff : REAL; // heading difference (in degrees)
+    distance  : REAL; // distance (% of perception radius)
+    direction : REAL; // perceived neighbor's flight direction (in degrees)
 END_VAR
 
 VAR_OUTPUT
-        hChg : REAL; // heading change (in degrees)
+    headingChange : REAL; // flight direction change (in degrees)
 END_VAR
 
-FUZZIFY dist
-        TERM tooClose := (0, 1) (80, 0);
-        TERM good := trian 0 60 120;
-        TERM tooFar := (40, 0) (100, 1);
+FUZZIFY distance
+    TERM tooClose := (0, 1) (80, 0) (100, 0);
+    TERM good     := trian 0 60 120; // (0, 0) (60, 1) (100, 0.67);
+    TERM tooFar   := (0, 0) (40, 0) (100, 1);
 END_FUZZIFY
 
-FUZZIFY hDiff
-        TERM left := (-180, 1) (0, 0);
-        TERM none := trian -180 0 180;
-        TERM right := (0, 0) (180, 1);
+FUZZIFY direction
+    TERM same  := trian -180 0 180;
+    TERM left  := (-180, 1) (0, 0) (180, 0);
+    TERM right := (-180, 0) (0, 0) (180, 1);
 END_FUZZIFY
 
-DEFUZZIFY hChg
-        TERM left := trian -360 -180 0;
-        TERM none := trian -180 0 180;
-        TERM right := trian 0 180 360;
-        METHOD : COG; // LM, RM, MM
-        DEFAULT := 0;
-        RANGE := (-360 .. 360); // TODO: check if (-180 .. 180) changes results
+DEFUZZIFY headingChange
+	TERM none      := trian -180    0 180;
+	TERM turnLeft  := trian -360 -180   0;
+	TERM turnRight := trian    0  180 360;
+	METHOD  : COG;
+	DEFAULT	:= 0;
 END_DEFUZZIFY
 
 RULEBLOCK alignment
-        AND : PROD; // MIN
-        OR : MAX;
-        ACT : MIN;
-        ACCU : MAX;
-        RULE 1 : if (dist is tooClose) then hChg is none;
-        RULE 2 : if (dist is tooFar) then hChg is none;
-        RULE 3 : if (dist is good) and (hDiff is none) then hChg is none;
-        RULE 4 : if (dist is good) and (hDiff is left) then hChg is left;
-        RULE 5 : if (dist is good) and (hDiff is right) then hChg is right;
+	AND	 : MIN; // PROD
+	OR   : MAX;
+ 	ACT	 : MIN;
+	ACCU : MAX;
+	/*
+	RULE 1 : IF distance IS tooFar THEN headingChange IS none;
+	RULE 2 : IF distance IS tooClose THEN headingChange IS none;
+	RULE 5 : IF distance IS good AND direction IS same THEN headingChange IS none;
+	RULE 6 : IF distance IS good AND direction IS left THEN headingChange IS turnLeft;
+	RULE 7 : IF distance IS good AND direction IS right THEN headingChange IS turnRight;
+	*/
+	RULE 1 : IF direction IS same THEN headingChange IS none;
+	RULE 2 : IF direction IS left THEN headingChange IS turnLeft;
+	RULE 3 : IF direction IS right THEN headingChange IS turnRight;
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK

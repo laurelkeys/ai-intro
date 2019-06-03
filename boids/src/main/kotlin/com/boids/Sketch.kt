@@ -1,5 +1,6 @@
 package com.boids
 
+import com.boids.control.Alignment
 import com.boids.control.Cohesion
 import com.boids.control.Separation
 import controlP5.ControlP5
@@ -12,7 +13,7 @@ fun PApplet.random(high: Int) = random(high.toFloat())
 
 class Sketch(private val boidsCount: Int) : PApplet() {
     companion object {
-        fun run(boidsCount: Int = 50) {
+        fun run(boidsCount: Int = 1) {
             val sketch = Sketch(boidsCount)
             sketch.runSketch()
         }
@@ -151,9 +152,9 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         private fun flock(boids: ArrayList<Boid>) {
             val behavior = steer(boids)
 
-            val alignment = behavior.first
-            val cohesion = behavior.second //fuzzyCohere(boids)
-            val separation = behavior.third //fuzzySeparate(boids)
+            val alignment = fuzzyAlign(boids) //behavior.first
+            val cohesion = fuzzyCohere(boids) //behavior.second
+            val separation = fuzzySeparate(boids) //behavior.third
             if (showForces) drawSteeringForces(alignment, cohesion, separation)
 
             applyForce(
@@ -166,14 +167,14 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         private fun drawSteeringForces(alignment: PVector, cohesion: PVector, separation: PVector) {
             pushPop(position.x, position.y) {
                 // RED: alignment
-                stroke(255f, 0f, 0f, 128f)
+                stroke(255f, 255f, 0f, 128f)
                 line(0f, 0f, forceScale * alignment.x, forceScale * alignment.y)
                 // GREEN: cohesion
-                stroke(0f, 255f, 0f, 128f)
-                line(0f, 0f, forceScale * cohesion.x, forceScale * cohesion.y)
+                //stroke(0f, 255f, 0f, 128f)
+                //line(0f, 0f, forceScale * cohesion.x, forceScale * cohesion.y)
                 // BLUE: separation
-                stroke(0f, 0f, 255f, 128f)
-                line(0f, 0f, forceScale * separation.x, forceScale * separation.y)
+                //stroke(0f, 0f, 255f, 128f)
+                //line(0f, 0f, forceScale * separation.x, forceScale * separation.y)
             }
         }
 
@@ -245,7 +246,29 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 //            }
 //            if (count > 0) alignment.sub(velocity)
 //            return alignment.normalize()
-            return PVector(0f, 0f)
+            val alignment = PVector(0f, 0f)
+            var count = 0f
+            for (other in boids) {
+                if (other != this) {
+                    ++count
+                    val distVector = PVector.sub(other.position, position)
+                    distVector.mag().let { dist ->
+                        if (0 < dist && dist <= perceptionRadius) {
+                            Alignment.evaluate(
+                                dist / perceptionRadius,
+                                angleDiff(velocity, other.velocity)
+                            )
+                            alignment.add(
+                                PVector
+                                    .fromAngle(velocity.heading())
+                                    .rotate(radians(Alignment.headingChange.value.toFloat()))
+                            )
+                        }
+                    }
+                }
+            }
+            if (count == 0f) alignment.set(velocity) // keeps the same heading direction
+            return alignment.normalize()
         }
 
         private fun fuzzyCohere(boids: ArrayList<Boid>): PVector {
