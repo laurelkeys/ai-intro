@@ -1,45 +1,73 @@
 package com.boids.control
 
-import com.fuzzylite.imex.FclImporter
-import com.fuzzylite.variable.InputVariable
-import com.fuzzylite.variable.OutputVariable
+import net.sourceforge.jFuzzyLogic.FIS
+import net.sourceforge.jFuzzyLogic.plot.JFuzzyChart
+import net.sourceforge.jFuzzyLogic.rule.Variable
+import java.lang.RuntimeException
 import java.nio.file.Paths
 
 object Separation {
+    private val fclFileName = Paths.get(".", "src", "fcl", "separate.fcl").toString()
+    private val fis = FIS.load(fclFileName, true)
 
-    private val engine = FclImporter().fromFile(
-        Paths.get(".", "src", "fcl", "separate.fcl").toFile()
-    )
+    val distance: Variable = fis.getVariable("distance") // input
+    val position: Variable = fis.getVariable("position") // input
+    val headingChange: Variable = fis.getVariable("headingChange") // output
 
-    // antecedent
-    val distance: InputVariable
-    val positionDiff: InputVariable
-
-    // consequent
-    val headingChange: OutputVariable
+    private val chart = JFuzzyChart.get()
 
     init {
-        val status = StringBuilder()
-        if (!engine.isReady(status))
-            throw RuntimeException("[engine error] engine is not ready:\n$status")
-
-        distance = engine.getInputVariable("dist")
-        positionDiff = engine.getInputVariable("pDiff")
-
-        headingChange = engine.getOutputVariable("hChg")
+        if (fis == null) throw RuntimeException("[FIS error] couldn't load file")
+        if (chart == null) throw RuntimeException("[JFuzzyChart error] couldn't get JFuzzyChart")
     }
 
-    fun compute(distance: Int, positionDiff: Int) =
-        compute(distance.toDouble(), positionDiff.toDouble())
+    fun evaluate(distance: Float, position: Float) = evaluate(distance.toDouble(), position.toDouble())
 
-    fun compute(distance: Float, positionDiff: Float) =
-        compute(distance.toDouble(), positionDiff.toDouble())
-
-    fun compute(distance: Double, positionDiff: Double) {
-        Cohesion.distance.value = distance
-        Cohesion.positionDiff.value = positionDiff
-        compute()
+    fun evaluate(distance: Double, position: Double) {
+        this.distance.value = distance
+        this.position.value = position
+        evaluate()
     }
 
-    fun compute() = engine.process()
+    fun evaluate() = fis.evaluate()
+
+    // Show variable's membership functions
+    fun showFIS() {
+        chart.chart(fis)
+    }
+
+    // Show output variable's chart
+    fun showOutput() {
+        chart.chart(headingChange, headingChange.defuzzifier, true) // show defuzzifier
+        chart.chart(headingChange, true) // show each linguistic term
+    }
+
+    // Show each rule (and degree of support)
+    fun printRules() = fis
+        .getFunctionBlock("separation")
+        .getFuzzyRuleBlock("separation")
+        .rules.forEach { println(it) }
+}
+
+fun main() {
+    Separation.showFIS()
+    val bool = false
+
+    // bool == true: test individual inputs and see their charts
+    while (bool) {
+        val inp = readLine()!!.split(',')
+        Separation.evaluate(distance = inp[0].toDouble(), position = inp[1].toDouble())
+
+        Separation.printRules()
+        Separation.showOutput()
+
+        println("Antecedent: distance ${Separation.distance.value}, position ${Separation.position.value}")
+        println("Consequent: headingChange ${Separation.headingChange.value}")
+    }
+
+    // bool == false: test pDiff values from -180 to 180
+    for (i in -180..180 step 10) {
+        Separation.evaluate(distance = 100.0, position = i / 1.0)
+        println("$i -> ${Separation.headingChange.value}")
+    }
 }

@@ -10,9 +10,9 @@ object Cohesion {
     private val fclFileName = Paths.get(".", "src", "fcl", "cohere.fcl").toString()
     private val fis = FIS.load(fclFileName, true)
 
-    val distance: Variable = fis.getVariable("dist") // input
-    val positionDiff: Variable = fis.getVariable("pDiff") // input
-    val headingChange: Variable = fis.getVariable("hChg") // output
+    val distance: Variable = fis.getVariable("distance") // input
+    val position: Variable = fis.getVariable("position") // input
+    val headingChange: Variable = fis.getVariable("headingChange") // output
 
     private val chart = JFuzzyChart.get()
 
@@ -21,9 +21,11 @@ object Cohesion {
         if (chart == null) throw RuntimeException("[JFuzzyChart error] couldn't get JFuzzyChart")
     }
 
-    fun evaluate(distance: Double, positionDiff: Double) {
+    fun evaluate(distance: Float, position: Float) = evaluate(distance.toDouble(), position.toDouble())
+
+    fun evaluate(distance: Double, position: Double) {
         this.distance.value = distance
-        this.positionDiff.value = positionDiff
+        this.position.value = position
         evaluate()
     }
 
@@ -36,29 +38,36 @@ object Cohesion {
 
     // Show output variable's chart
     fun showOutput() {
-        //chart.chart(headingChange, headingChange.defuzzifier, true) // show defuzzifier
+        chart.chart(headingChange, headingChange.defuzzifier, true) // show defuzzifier
         chart.chart(headingChange, true) // show each linguistic term
     }
 
     // Show each rule (and degree of support)
-    fun printRules() {
-        fis
-            .getFunctionBlock("cohesion")
-            .getFuzzyRuleBlock("cohesion")
-            .rules.forEach { println(it) }
-    }
+    fun printRules() = fis
+        .getFunctionBlock("cohesion")
+        .getFuzzyRuleBlock("cohesion")
+        .rules.forEach { println(it) }
 }
 
 fun main() {
     Cohesion.showFIS()
-    while (true) {
+    val bool = false
+
+    // bool == true: test individual inputs and see their charts
+    while (bool) {
         val inp = readLine()!!.split(',')
-        Cohesion.evaluate(distance = inp[0].toDouble(), positionDiff = inp[1].toDouble())
+        Cohesion.evaluate(distance = inp[0].toDouble(), position = inp[1].toDouble())
 
         Cohesion.printRules()
         Cohesion.showOutput()
 
-        println("Antecedent: dist ${Cohesion.distance.value}, pDiff ${Cohesion.positionDiff.value}")
-        println("Consequent: hChg ${Cohesion.headingChange.value}")
+        println("Antecedent: distance ${Cohesion.distance.value}, position ${Cohesion.position.value}")
+        println("Consequent: headingChange ${Cohesion.headingChange.value}")
+    }
+
+    // bool == false: test pDiff values from -180 to 180
+    for (i in -180..180 step 10) {
+        Cohesion.evaluate(distance = 100.0, position = i / 1.0)
+        println("$i -> ${Cohesion.headingChange.value}")
     }
 }

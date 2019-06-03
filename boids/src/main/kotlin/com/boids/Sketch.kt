@@ -1,8 +1,7 @@
 package com.boids
 
-//import com.boids.control.Alignment
 import com.boids.control.Cohesion
-//import com.boids.control.Separation
+import com.boids.control.Separation
 import controlP5.ControlP5
 import controlP5.ControlP5Constants.ACTION_BROADCAST
 import processing.core.PApplet
@@ -86,8 +85,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             .addCallback { if (it.action == ACTION_BROADCAST) alignmentWeight = it.controller.value }
 
         controller
-            //.addSlider("Cohesion", 0f, 10f, cohesionWeight, 10, height - 35, 100, 10)
-            .addSlider("Cohesion", 0f, 100f, cohesionWeight, 10, height - 35, 100, 10)
+            .addSlider("Cohesion", 0f, 10f, cohesionWeight, 10, height - 35, 100, 10)
             .addCallback { if (it.action == ACTION_BROADCAST) cohesionWeight = it.controller.value }
 
         controller
@@ -156,7 +154,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
             val alignment = behavior.first
             val cohesion = fuzzyCohere(boids) //behavior.second
-            val separation = behavior.third
+            val separation = fuzzySeparate(boids) //behavior.third
             if (showForces) drawSteeringForces(alignment, cohesion, separation)
 
             applyForce(
@@ -169,14 +167,14 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         private fun drawSteeringForces(alignment: PVector, cohesion: PVector, separation: PVector) {
             pushPop(position.x, position.y) {
                 // RED: alignment
-                //stroke(255f, 0f, 0f, 128f)
-                //line(0f, 0f, forceScale * alignment.x, forceScale * alignment.y)
+                stroke(255f, 0f, 0f, 128f)
+                line(0f, 0f, forceScale * alignment.x, forceScale * alignment.y)
                 // GREEN: cohesion
                 stroke(0f, 255f, 0f, 128f)
                 line(0f, 0f, forceScale * cohesion.x, forceScale * cohesion.y)
                 // BLUE: separation
-                //stroke(0f, 0f, 255f, 128f)
-                //line(0f, 0f, forceScale * separation.x, forceScale * separation.y)
+                stroke(0f, 0f, 255f, 128f)
+                line(0f, 0f, forceScale * separation.x, forceScale * separation.y)
             }
         }
 
@@ -268,7 +266,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
                                 PVector
                                     .fromAngle(velocity.heading())
                                     .rotate(radians(Cohesion.headingChange.value.toFloat()))
-                                    .div(dist * dist) // TODO use fuzzy logic to calculate the proportionality
+                                    //.div(dist * dist) // TODO use fuzzy logic to calculate the proportionality
                             )
                         }
                     }
@@ -279,25 +277,30 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         }
 
         private fun fuzzySeparate(boids: ArrayList<Boid>): PVector {
-//            val separation = PVector(0f, 0f)
-//            var count = 0
-//            for (other in boids) {
-//                val dist = PVector.dist(position, other.position)
-//                if (other != this && dist <= perceptionRadius && dist > 0) {
-//                    ++count
-//                    Separation.compute(
-//                        distance = dist / perceptionRadius,
-//                        positionDiff = angleDiff(position, other.position)
-//                    )
-//                    val steer = PVector
-//                        .fromAngle(velocity.heading())
-//                        .rotate(-radians(Cohesion.headingChange.value.toFloat())) // rotates counterclockwise
-//                    separation.add(steer) // NOTE might want to divide steer by dist*dist before adding
-//                }
-//            }
-//            if (count > 0) separation.sub(position)
-//            return separation.normalize()
-            return PVector(0f, 0f)
+            val separation = PVector(0f, 0f)
+            var count = 0f
+            for (other in boids) {
+                if (other != this) {
+                    ++count
+                    val distVector = PVector.sub(other.position, position)
+                    distVector.mag().let { dist ->
+                        if (0 < dist && dist <= perceptionRadius) {
+                            Separation.evaluate(
+                                dist / perceptionRadius,
+                                angleDiff(velocity, distVector)
+                            )
+                            separation.add(
+                                PVector
+                                    .fromAngle(velocity.heading())
+                                    .rotate(radians(Separation.headingChange.value.toFloat()))
+                                    .div(dist * dist) // TODO use fuzzy logic to calculate the proportionality
+                            )
+                        }
+                    }
+                }
+            }
+            if (count == 0f) separation.set(velocity) // keeps the same heading direction
+            return separation.normalize()
         }
 
         private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
