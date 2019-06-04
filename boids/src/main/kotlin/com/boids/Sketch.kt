@@ -169,7 +169,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         }
 
         private fun drawSteeringForces(alignment: PVector, cohesion: PVector, separation: PVector) {
-            pushPop(position.x, position.y) {
+            pushPop(origin = position) {
                 // RED: alignment
                 stroke(255f, 0f, 0f, 128f)
                 line(0f, 0f, forceScale * alignment.x, forceScale * alignment.y)
@@ -207,7 +207,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         private fun render() {
             strokeWeight(2f)
             stroke(255)
-            pushPop(position.x, position.y, velocity.heading()) {
+            pushPop(origin = position, angle = velocity.heading()) {
                 triangle(
                     2 * sizeUnit, 0f,
                     -sizeUnit, sizeUnit,
