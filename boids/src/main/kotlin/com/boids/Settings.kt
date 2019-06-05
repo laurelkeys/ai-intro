@@ -3,6 +3,7 @@ package com.boids
 object Settings {
 
     const val VANILLA = true
+    const val SEEDED_RANDOM = true
 
     const val FLOCK_SIZE = 50
 

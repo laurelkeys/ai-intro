@@ -7,6 +7,7 @@ import com.boids.Settings.ALIGNMENT_WEIGHT
 import com.boids.Settings.COHESION_WEIGHT
 import com.boids.Settings.SEPARATION_WEIGHT
 import com.boids.Settings.PERCEPTION_RADIUS
+import com.boids.Settings.SEEDED_RANDOM
 import com.boids.Settings.SEPARATION_RADIUS
 import com.boids.Settings.SHOW_PERCEPTION_RADIUS
 import com.boids.Settings.SHOW_SEPARATION_RADIUS
@@ -55,7 +56,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         controller = ControlP5(this)
         setupToggles()
         setupSliders()
-        randomSeed(0L) // TODO remove for random results
+        if (SEEDED_RANDOM) randomSeed(0L)
         repeat(boidsCount) {
             flock.addBoid(
                 Boid(random(width.toFloat()), random(height.toFloat()))
