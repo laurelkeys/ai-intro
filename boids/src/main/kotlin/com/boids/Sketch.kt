@@ -1,5 +1,17 @@
 package com.boids
 
+import com.boids.Settings.FLOCK_SIZE
+import com.boids.Settings.MAX_FORCE
+import com.boids.Settings.MAX_SPEED
+import com.boids.Settings.ALIGNMENT_WEIGHT
+import com.boids.Settings.COHESION_WEIGHT
+import com.boids.Settings.SEPARATION_WEIGHT
+import com.boids.Settings.PERCEPTION_RADIUS
+import com.boids.Settings.SEPARATION_RADIUS
+import com.boids.Settings.SHOW_PERCEPTION_RADIUS
+import com.boids.Settings.SHOW_SEPARATION_RADIUS
+import com.boids.Settings.SHOW_FORCES
+
 import com.boids.control.Alignment
 import com.boids.control.Cohesion
 import com.boids.control.Separation
@@ -9,11 +21,10 @@ import processing.core.PApplet
 import processing.core.PVector
 import java.util.ArrayList
 
-fun PApplet.random(high: Int) = random(high.toFloat())
-
 class Sketch(private val boidsCount: Int) : PApplet() {
+
     companion object {
-        fun run(boidsCount: Int = 50) {
+        fun run(boidsCount: Int = FLOCK_SIZE) {
             val sketch = Sketch(boidsCount)
             sketch.runSketch()
         }
@@ -22,19 +33,19 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     private lateinit var controller: ControlP5
 
     private val flock = Flock()
-    private var maxForce: Float = 1f
-    private var maxSpeed: Float = 2f
+    private var maxForce: Float = MAX_FORCE
+    private var maxSpeed: Float = MAX_SPEED
 
-    private var alignmentWeight: Float = 0.3f
-    private var cohesionWeight: Float = 1.2f
-    private var separationWeight: Float = 1.25f
+    private var alignmentWeight: Float = ALIGNMENT_WEIGHT
+    private var cohesionWeight: Float = COHESION_WEIGHT
+    private var separationWeight: Float = SEPARATION_WEIGHT
 
-    private var perceptionRadius: Float = 80f // alignmentRadius and cohesionRadius
-    private var separationRadius: Float = 30f
+    private var perceptionRadius: Float = PERCEPTION_RADIUS
+    private var separationRadius: Float = SEPARATION_RADIUS
 
-    private var showPerceptionRadius = false
-    private var showSeparationRadius = false
-    private var showForces = false
+    private var showPerceptionRadius: Boolean = SHOW_PERCEPTION_RADIUS
+    private var showSeparationRadius: Boolean = SHOW_SEPARATION_RADIUS
+    private var showForces: Boolean = SHOW_FORCES
 
     override fun settings() {
         size(displayWidth / 2, displayHeight / 2)
@@ -47,7 +58,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         randomSeed(0L) // TODO remove for random results
         repeat(boidsCount) {
             flock.addBoid(
-                Boid(random(width), random(height))
+                Boid(random(width.toFloat()), random(height.toFloat()))
             )
         }
     }
@@ -143,6 +154,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         var acceleration: PVector = PVector(0f, 0f),
         private val sizeUnit: Float = 2f
     ) {
+
         var position: PVector = PVector(x, y)
         private var forceScale = 40f // vector drawing scaling
 

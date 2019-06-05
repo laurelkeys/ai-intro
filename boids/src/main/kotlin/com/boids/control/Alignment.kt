@@ -7,7 +7,7 @@ import java.lang.RuntimeException
 import java.nio.file.Paths
 
 object Alignment {
-    private val fclFileName = Paths.get(".", "src", "fcl", "align.fcl").toString()
+    private val fclFileName = Paths.get(".", "src", "fcl", "vanilla", "align.fcl").toString()
     private val fis = FIS.load(fclFileName, true)
 
     val distance: Variable = fis.getVariable("distance") // input
@@ -67,7 +67,7 @@ fun main() {
 
     // bool == false: test pDiff values from -180 to 180
     for (i in -180..180 step 10) {
-        Alignment.evaluate(distance = 100.0, direction = i / 1.0)
+        Alignment.evaluate(distance = 60.0, direction = i / 1.0)
         println("$i -> ${Alignment.headingChange.value}")
     }
 }

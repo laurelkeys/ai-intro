@@ -1,5 +1,6 @@
 package com.boids.control
 
+import com.boids.Settings.VANILLA
 import net.sourceforge.jFuzzyLogic.FIS
 import net.sourceforge.jFuzzyLogic.plot.JFuzzyChart
 import net.sourceforge.jFuzzyLogic.rule.Variable
@@ -7,7 +8,9 @@ import java.lang.RuntimeException
 import java.nio.file.Paths
 
 object Separation {
-    private val fclFileName = Paths.get(".", "src", "fcl", "separate.fcl").toString()
+    private val fclFileName =
+        if (VANILLA) Paths.get(".", "src", "fcl", "vanilla", "separate.fcl").toString()
+        else Paths.get(".", "src", "fcl", "separate.fcl").toString()
     private val fis = FIS.load(fclFileName, true)
 
     val distance: Variable = fis.getVariable("distance") // input
@@ -67,7 +70,7 @@ fun main() {
 
     // bool == false: test pDiff values from -180 to 180
     for (i in -180..180 step 10) {
-        Separation.evaluate(distance = 100.0, position = i / 1.0)
+        Separation.evaluate(distance = 0.0, position = i / 1.0)
         println("$i -> ${Separation.headingChange.value}")
     }
 }
