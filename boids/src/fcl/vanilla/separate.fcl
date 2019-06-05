@@ -33,15 +33,9 @@ RULEBLOCK separation
 	OR   : MAX;
  	ACT	 : MIN;
 	ACCU : MAX;
-	RULE 1 : IF distance IS farEnough THEN headingChange IS none;
-	RULE 2 : IF distance IS tooClose AND position IS behind THEN headingChange IS none;
-	RULE 6 : IF distance IS tooClose AND position IS leftOrFront THEN headingChange IS turnRight;
-	RULE 8 : IF distance IS tooClose AND position IS rightOrFront THEN headingChange IS turnLeft;
-	/*
 	RULE 1 : IF position IS behind THEN headingChange IS none;
 	RULE 2 : IF position IS leftOrFront THEN headingChange IS turnRight;
 	RULE 3 : IF position IS rightOrFront THEN headingChange IS turnLeft;
-	*/
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK

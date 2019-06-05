@@ -35,15 +35,9 @@ RULEBLOCK cohesion
 	OR   : MAX;
  	ACT	 : MIN;
 	ACCU : MAX;
-	RULE 1 : IF distance IS closeEnough THEN headingChange IS none;
-	RULE 2 : IF distance IS tooFar AND position IS front THEN headingChange IS none;
-	RULE 6 : IF distance IS tooFar AND position IS leftOrBehind THEN headingChange IS turnLeft;
-	RULE 8 : IF distance IS tooFar AND position IS rightOrBehind THEN headingChange IS turnRight;
-	/*
 	RULE 1 : IF position IS front THEN headingChange IS none;
 	RULE 2 : IF position IS leftOrBehind THEN headingChange IS turnLeft;
 	RULE 3 : IF position IS rightOrBehind THEN headingChange IS turnRight;
-	*/
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK

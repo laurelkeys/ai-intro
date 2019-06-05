@@ -34,13 +34,6 @@ RULEBLOCK alignment
 	OR   : MAX;
  	ACT	 : MIN;
 	ACCU : MAX;
-	/*
-	RULE 1 : IF distance IS tooFar THEN headingChange IS none;
-	RULE 2 : IF distance IS tooClose THEN headingChange IS none;
-	RULE 5 : IF distance IS good AND direction IS same THEN headingChange IS none;
-	RULE 6 : IF distance IS good AND direction IS left THEN headingChange IS turnLeft;
-	RULE 7 : IF distance IS good AND direction IS right THEN headingChange IS turnRight;
-	*/
 	RULE 1 : IF direction IS same THEN headingChange IS none;
 	RULE 2 : IF direction IS left THEN headingChange IS turnLeft;
 	RULE 3 : IF direction IS right THEN headingChange IS turnRight;
