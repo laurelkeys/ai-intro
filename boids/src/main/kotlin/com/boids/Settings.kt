@@ -23,5 +23,5 @@ const val SHOW_SEPARATION_RADIUS = false
 const val SHOW_FORCES = false
 const val SHOW_FPS = true
 
-const val PLOTTING = false
+const val PLOTTING = true
 const val METRICS_CHARTING_RATE = 300

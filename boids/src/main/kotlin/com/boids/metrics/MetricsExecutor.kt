@@ -9,7 +9,7 @@ object MetricsExecutor {
     }
 
     fun plot() {
-        MaxDistance.plot()
-        MinDistance.plot()
+        MaxDistance.save()
+        MinDistance.save()
     }
 }

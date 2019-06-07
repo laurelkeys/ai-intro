@@ -6,42 +6,53 @@ import org.jfree.chart.ChartUtilities
 import org.jfree.chart.plot.PlotOrientation
 import org.jfree.data.category.DefaultCategoryDataset
 import java.io.File
+import com.google.gson.Gson
+import java.io.FileWriter
+
 
 object MinDistance {
-    private val samples: MutableList<Float> = ArrayList()
+    private val minmin: MutableList<Float> = ArrayList()
+    private val minavg: MutableList<Float> = ArrayList()
+    private val maxmin: MutableList<Float> = ArrayList()
+
+
 
     fun sample(boids: List<Sketch.Boid>) {
-        val minDistance = (0 until boids.size - 1).map { i ->
+        val minDistances = (0 until boids.size - 1).map { i ->
             (i + 1 until boids.size).map { j ->
                 val first = boids[i]
                 val second = boids[j]
+                val distance = first.position.dist(second.position)
 
-                first.position.dist(second.position) // return the distance between the boids
+                distance // return the distance between the boids
             }.min() ?: Float.MAX_VALUE
-        }.min() ?: Float.MAX_VALUE
-
-        samples.add(minDistance)
-    }
-
-    fun plot() {
-        val dataset = DefaultCategoryDataset()
-
-        samples.forEachIndexed { index, fl ->
-            dataset.addValue(fl, "min", index)
         }
 
-        val chart = ChartFactory.createLineChart(
-            "Minimum inner distance",
-            "Frame",
-            "Distance",
-            dataset,
-            PlotOrientation.VERTICAL,
-            false,
-            false,
-            false
-        )
+        minmin.add(minDistances.min() ?: Float.MAX_VALUE)
+        maxmin.add(minDistances.max() ?: 0f)
+        minavg.add(minDistances.sum() / minDistances.size)
+    }
 
-        val lineChart = File("metrics/Min.jpeg")
-        ChartUtilities.saveChartAsJPEG(lineChart, chart, 1000, 500)
+    fun save() {
+        val gson = Gson()
+
+        val minminWriter = FileWriter("metrics/minmin.json")
+        val minavgWriter = FileWriter("metrics/minavg.json")
+        val maxminWriter = FileWriter("metrics/maxmin.json")
+
+        gson.toJson(minmin, minminWriter)
+        gson.toJson(minavg, minavgWriter)
+        gson.toJson(maxmin, maxminWriter)
+
+        minminWriter.flush()
+        minminWriter.close()
+        minavgWriter.flush()
+        minavgWriter.close()
+        maxminWriter.flush()
+        maxminWriter.close()
+
+        minmin.clear()
+        minavg.clear()
+        maxmin.clear()
     }
 }
