@@ -4,6 +4,7 @@ import com.boids.Settings.FLOCK_SIZE
 import com.boids.Settings.MAX_FORCE
 import com.boids.Settings.MAX_SPEED
 import com.boids.Settings.ALIGNMENT_WEIGHT
+import com.boids.Settings.CHART
 import com.boids.Settings.COHESION_WEIGHT
 import com.boids.Settings.METRICS_CHARTING_RATE
 import com.boids.Settings.SEPARATION_WEIGHT
@@ -36,7 +37,6 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     private lateinit var controller: ControlP5
 
     private val flock = Flock()
-    private var chartingRate = 0
     private var maxForce: Float = MAX_FORCE
     private var maxSpeed: Float = MAX_SPEED
 
@@ -50,6 +50,8 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     private var showPerceptionRadius: Boolean = SHOW_PERCEPTION_RADIUS
     private var showSeparationRadius: Boolean = SHOW_SEPARATION_RADIUS
     private var showForces: Boolean = SHOW_FORCES
+
+    private var chartingRate = 0
 
     override fun settings() {
         size(displayWidth / 2, displayHeight / 2)
@@ -135,11 +137,13 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         text("%.0fFPS".format(frameRate), 5f, 20f)
         flock.run()
 
-        if (this.chartingRate > METRICS_CHARTING_RATE) {
-            this.chartingRate = 0
-            MetricsExecutor.plot()
+        if (CHART) {
+            this.chartingRate++
+            if (this.chartingRate > METRICS_CHARTING_RATE) {
+                this.chartingRate = 0
+                MetricsExecutor.plot()
+            }
         }
-        this.chartingRate++
     }
 
     override fun mousePressed() {

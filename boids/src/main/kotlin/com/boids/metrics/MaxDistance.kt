@@ -8,7 +8,7 @@ import org.jfree.data.category.DefaultCategoryDataset
 import java.io.File
 
 object MaxDistance {
-    val samples: MutableList<Float> = ArrayList()
+    private val samples: MutableList<Float> = ArrayList()
 
     fun sample(boids: List<Sketch.Boid>) {
         val maxDistance = (0 until boids.size - 1).map { i ->
@@ -31,7 +31,7 @@ object MaxDistance {
         }
 
         val chart = ChartFactory.createLineChart(
-            "Minimum inner distance",
+            "Max inner distance",
             "Frame",
             "Distance",
             dataset,
@@ -44,5 +44,4 @@ object MaxDistance {
         val lineChart = File("metrics/Max.jpeg")
         ChartUtilities.saveChartAsJPEG(lineChart, chart, 1000, 500)
     }
-
 }

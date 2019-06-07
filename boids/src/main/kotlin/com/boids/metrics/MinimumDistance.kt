@@ -8,7 +8,7 @@ import org.jfree.data.category.DefaultCategoryDataset
 import java.io.File
 
 object MinimumDistance {
-    val samples: MutableList<Float> = ArrayList()
+    private val samples: MutableList<Float> = ArrayList()
 
     fun sample(boids: List<Sketch.Boid>) {
         val minDistance = (0 until boids.size - 1).map { i ->
