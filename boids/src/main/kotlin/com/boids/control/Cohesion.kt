@@ -4,7 +4,6 @@ import com.boids.Settings.VANILLA
 import net.sourceforge.jFuzzyLogic.FIS
 import net.sourceforge.jFuzzyLogic.plot.JFuzzyChart
 import net.sourceforge.jFuzzyLogic.rule.Variable
-import java.lang.RuntimeException
 import java.nio.file.Paths
 
 object Cohesion {

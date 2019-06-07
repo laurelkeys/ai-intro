@@ -1,35 +1,37 @@
 package com.boids
 
+import com.boids.Settings.ALIGNMENT_WEIGHT
+import com.boids.Settings.COHESION_WEIGHT
 import com.boids.Settings.FLOCK_SIZE
 import com.boids.Settings.MAX_FORCE
 import com.boids.Settings.MAX_SPEED
-import com.boids.Settings.ALIGNMENT_WEIGHT
-import com.boids.Settings.CHART
-import com.boids.Settings.COHESION_WEIGHT
 import com.boids.Settings.METRICS_CHARTING_RATE
-import com.boids.Settings.SEPARATION_WEIGHT
 import com.boids.Settings.PERCEPTION_RADIUS
-import com.boids.Settings.SEEDED_RANDOM
+import com.boids.Settings.PLOTTING
+import com.boids.Settings.SEED_RANDOM
 import com.boids.Settings.SEPARATION_RADIUS
+import com.boids.Settings.SEPARATION_WEIGHT
+import com.boids.Settings.SHOW_FORCES
+import com.boids.Settings.SHOW_FPS
 import com.boids.Settings.SHOW_PERCEPTION_RADIUS
 import com.boids.Settings.SHOW_SEPARATION_RADIUS
-import com.boids.Settings.SHOW_FORCES
-
 import com.boids.control.Alignment
 import com.boids.control.Cohesion
 import com.boids.control.Separation
+import com.boids.extensions.addToggle
+import com.boids.extensions.pushPop
+import com.boids.extensions.random
 import com.boids.metrics.MetricsExecutor
 import controlP5.ControlP5
 import controlP5.ControlP5Constants.ACTION_BROADCAST
 import processing.core.PApplet
 import processing.core.PVector
-import java.util.ArrayList
 
-class Sketch(private val boidsCount: Int) : PApplet() {
+class Sketch(private val flockSize: Int) : PApplet() {
 
     companion object {
-        fun run(boidsCount: Int = FLOCK_SIZE) {
-            val sketch = Sketch(boidsCount)
+        fun run(flockSize: Int = FLOCK_SIZE) {
+            val sketch = Sketch(flockSize)
             sketch.runSketch()
         }
     }
@@ -37,6 +39,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     private lateinit var controller: ControlP5
 
     private val flock = Flock()
+
     private var maxForce: Float = MAX_FORCE
     private var maxSpeed: Float = MAX_SPEED
 
@@ -59,43 +62,42 @@ class Sketch(private val boidsCount: Int) : PApplet() {
 
     override fun setup() {
         controller = ControlP5(this)
+
         setupToggles()
         setupSliders()
-        if (SEEDED_RANDOM) randomSeed(0L)
-        repeat(boidsCount) {
+
+        if (SEED_RANDOM) randomSeed(0L)
+
+        repeat(flockSize) {
             flock.addBoid(
-                Boid(random(width.toFloat()), random(height.toFloat()))
+                Boid(random(width), random(height))
             )
         }
     }
 
     private fun setupToggles() {
-        controller
-            .addToggle("Show perception radius")
-            .setLabel("perception")
-            .setPosition(width - 50f, 10f)
-            .setSize(40, 10)
-            .setValue(!showPerceptionRadius)
-            .setMode(ControlP5.SWITCH)
-            .addCallback { if (it.action == ACTION_BROADCAST) showPerceptionRadius = it.controller.value == 0f }
+        with(controller) {
+            addToggle(
+                name = "Show perception radius",
+                label = "perception",
+                value = !showPerceptionRadius,
+                position = width - 50 to 10
+            ) { value -> showPerceptionRadius = value == 0f }
 
-        controller
-            .addToggle("Show separation radius")
-            .setLabel("separation")
-            .setPosition(width - 50f, 45f)
-            .setSize(40, 10)
-            .setValue(!showSeparationRadius)
-            .setMode(ControlP5.SWITCH)
-            .addCallback { if (it.action == ACTION_BROADCAST) showSeparationRadius = it.controller.value == 0f }
+            addToggle(
+                name = "Show separation radius",
+                label = "separation",
+                value = !showSeparationRadius,
+                position = width - 50 to 45
+            ) { value -> showSeparationRadius = value == 0f }
 
-        controller
-            .addToggle("Show steering forces")
-            .setLabel("forces")
-            .setPosition(width - 50f, 80f)
-            .setSize(40, 10)
-            .setValue(!showForces)
-            .setMode(ControlP5.SWITCH)
-            .addCallback { if (it.action == ACTION_BROADCAST) showForces = it.controller.value == 0f }
+            addToggle(
+                name = "Show steering forces",
+                label = "forces",
+                value = !showForces,
+                position = width - 50 to 80
+            ) { value -> showForces = value == 0f }
+        }
     }
 
     private fun setupSliders() {
@@ -134,10 +136,11 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         background(50)
         textSize(18f)
         fill(0f, 116f, 217f)
-        text("%.0fFPS".format(frameRate), 5f, 20f)
+        if (SHOW_FPS) text("%.0fFPS".format(frameRate), 5f, 20f)
+
         flock.run()
 
-        if (CHART) {
+        if (PLOTTING) {
             this.chartingRate++
             if (this.chartingRate > METRICS_CHARTING_RATE) {
                 this.chartingRate = 0
@@ -157,7 +160,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         fun addBoid(boid: Boid) = boids.add(boid)
 
         fun run() {
-            MetricsExecutor.run(boids)
+            if (PLOTTING) MetricsExecutor.run(boids)
             val snapshot = boids.map { Boid(it.position.x, it.position.y, it.velocity, it.acceleration) }
             for (boid in boids) boid.run(snapshot)
         }
@@ -353,20 +356,6 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         val det = from.x * to.y - from.y * to.x // determinant
         return degrees(atan2(det, dot)) // atan2(y, x) or atan2(sin, cos)
     }
-}
-
-private fun PApplet.pushPop(origin: PVector, angle: Float = 0f, transformation: () -> Unit) {
-    pushPop(origin.x, origin.y, angle, transformation)
-}
-
-private fun PApplet.pushPop(x: Float = 0f, y: Float = 0f, angle: Float = 0f, transformation: () -> Unit) {
-    pushMatrix() // saves the current coordinate system to the stack
-    translate(x, y)
-    rotate(angle)
-
-    transformation()
-
-    popMatrix() // restores the prior coordinate system
 }
 
 fun main(args: Array<String>) {

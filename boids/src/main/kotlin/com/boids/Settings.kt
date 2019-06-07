@@ -3,7 +3,7 @@ package com.boids
 object Settings {
 
     const val VANILLA = true
-    const val SEEDED_RANDOM = true
+    const val SEED_RANDOM = true
 
     const val FLOCK_SIZE = 50
 
@@ -20,7 +20,8 @@ object Settings {
     const val SHOW_PERCEPTION_RADIUS = false
     const val SHOW_SEPARATION_RADIUS = false
     const val SHOW_FORCES = false
+    const val SHOW_FPS = true
 
-    const val CHART = false
+    const val PLOTTING = false
     const val METRICS_CHARTING_RATE = 300
 }
