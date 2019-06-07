@@ -5,6 +5,7 @@ import com.boids.Settings.MAX_FORCE
 import com.boids.Settings.MAX_SPEED
 import com.boids.Settings.ALIGNMENT_WEIGHT
 import com.boids.Settings.COHESION_WEIGHT
+import com.boids.Settings.METRICS_CHARTING_RATE
 import com.boids.Settings.SEPARATION_WEIGHT
 import com.boids.Settings.PERCEPTION_RADIUS
 import com.boids.Settings.SEEDED_RANDOM
@@ -16,6 +17,7 @@ import com.boids.Settings.SHOW_FORCES
 import com.boids.control.Alignment
 import com.boids.control.Cohesion
 import com.boids.control.Separation
+import com.boids.metrics.MetricsExecutor
 import controlP5.ControlP5
 import controlP5.ControlP5Constants.ACTION_BROADCAST
 import processing.core.PApplet
@@ -34,6 +36,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
     private lateinit var controller: ControlP5
 
     private val flock = Flock()
+    private var chartingRate = 0
     private var maxForce: Float = MAX_FORCE
     private var maxSpeed: Float = MAX_SPEED
 
@@ -131,6 +134,12 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         fill(0f, 116f, 217f)
         text("%.0fFPS".format(frameRate), 5f, 20f)
         flock.run()
+
+        if (this.chartingRate > METRICS_CHARTING_RATE) {
+            this.chartingRate = 0
+            MetricsExecutor.plot()
+        }
+        this.chartingRate++
     }
 
     override fun mousePressed() {
@@ -139,12 +148,13 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         }
     }
 
-    inner class Flock(private val boids: ArrayList<Boid> = ArrayList()) {
+    inner class Flock(private val boids: MutableList<Boid> = ArrayList()) {
 
         fun addBoid(boid: Boid) = boids.add(boid)
 
         fun run() {
-            val snapshot = ArrayList(boids.map { Boid(it.position.x, it.position.y, it.velocity, it.acceleration) })
+            MetricsExecutor.run(boids)
+            val snapshot = boids.map { Boid(it.position.x, it.position.y, it.velocity, it.acceleration) }
             for (boid in boids) boid.run(snapshot)
         }
     }
@@ -159,14 +169,14 @@ class Sketch(private val boidsCount: Int) : PApplet() {
         var position: PVector = PVector(x, y)
         private var forceScale = 40f // vector drawing scaling
 
-        fun run(boids: ArrayList<Boid>) {
+        fun run(boids: List<Boid>) {
             flock(boids)
             update()
             wraparound()
             render()
         }
 
-        private fun flock(boids: ArrayList<Boid>) {
+        private fun flock(boids: List<Boid>) {
             val behavior = fuzzySteer(boids) //steer(boids)
             val alignment = behavior.first
             val cohesion = behavior.second
@@ -244,7 +254,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             }
         }
 
-        private fun fuzzySteer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
+        private fun fuzzySteer(boids: List<Boid>): Triple<PVector, PVector, PVector> {
             val alignment = PVector(0f, 0f)
             val cohesion = PVector(0f, 0f)
             val separation = PVector(0f, 0f)
@@ -296,7 +306,7 @@ class Sketch(private val boidsCount: Int) : PApplet() {
             return Triple(alignment.normalize(), cohesion.normalize(), separation.normalize())
         }
 
-        private fun steer(boids: ArrayList<Boid>): Triple<PVector, PVector, PVector> {
+        private fun steer(boids: List<Boid>): Triple<PVector, PVector, PVector> {
             val alignment = PVector(0f, 0f)
             val cohesion = PVector(0f, 0f)
             val separation = PVector(0f, 0f)

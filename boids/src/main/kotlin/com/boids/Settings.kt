@@ -20,4 +20,6 @@ object Settings {
     const val SHOW_PERCEPTION_RADIUS = false
     const val SHOW_SEPARATION_RADIUS = false
     const val SHOW_FORCES = false
+
+    const val METRICS_CHARTING_RATE = 300
 }
