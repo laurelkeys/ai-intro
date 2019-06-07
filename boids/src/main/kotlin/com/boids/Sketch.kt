@@ -17,9 +17,7 @@ import com.boids.Settings.SHOW_FORCES
 import com.boids.Settings.SHOW_FPS
 import com.boids.Settings.SHOW_PERCEPTION_RADIUS
 import com.boids.Settings.SHOW_SEPARATION_RADIUS
-import com.boids.control.Alignment
-import com.boids.control.Cohesion
-import com.boids.control.Separation
+import com.boids.control.Brain
 import com.boids.extensions.*
 import com.boids.metrics.MetricsExecutor
 import controlP5.ControlP5
@@ -52,6 +50,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
     private var showPerceptionRadius: Boolean = SHOW_PERCEPTION_RADIUS
     private var showSeparationRadius: Boolean = SHOW_SEPARATION_RADIUS
     private var showForces: Boolean = SHOW_FORCES
+    private var thinkFuzzy: Boolean = true
 
     private var chartingRate = 0
 
@@ -61,7 +60,6 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
     override fun setup() {
         controller = ControlP5(this)
-
         setupToggles()
         setupSliders()
 
@@ -69,6 +67,127 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
         repeat(flockSize) {
             flock.add(Boid(random(width), random(height)))
+        }
+    }
+
+    override fun draw() {
+        background(50)
+        if (SHOW_FPS) {
+            textSize(18f)
+            fill(0f, 116f, 217f)
+            text("%.0fFPS".format(frameRate), 5f, 20f)
+        }
+
+        run()
+    }
+
+    private fun run() {
+        val snapshot = flock.map {
+            Boid(it.position.x, it.position.y, it.velocity, it.acceleration)
+        }
+
+        for (boid in flock) boid.run(snapshot)
+
+        if (PLOTTING) {
+            MetricsExecutor.run(flock)
+            this.chartingRate++
+            if (this.chartingRate > METRICS_CHARTING_RATE) {
+                this.chartingRate = 0
+                MetricsExecutor.plot()
+            }
+        }
+    }
+
+    inner class Boid(
+        x: Float, y: Float,
+        var velocity: PVector = PVector.random2D(this@Sketch),
+        var acceleration: PVector = PVector(0f, 0f)
+    ) {
+
+        var position: PVector = PVector(x, y)
+
+        fun run(boids: List<Boid>) {
+            flock(boids) // adds steering forces to the acceleration (Σ F = m * a, with m = 1)
+            update()
+            wraparound()
+            render()
+        }
+
+        private fun flock(boids: List<Boid>) {
+            val steeringForces = when {
+                thinkFuzzy -> Brain.fuzzySteer(this, boids, perceptionRadius, separationRadius)
+                else -> Brain.crispSteer(this, boids, perceptionRadius, separationRadius)
+            }
+            val alignment = steeringForces.first
+            val cohesion = steeringForces.second
+            val separation = steeringForces.third
+
+            if (showForces) drawSteeringForces(alignment, cohesion, separation)
+
+            acceleration
+                .add(
+                    alignment.mult(alignmentWeight),
+                    cohesion.mult(cohesionWeight),
+                    separation.mult(separationWeight)
+                )
+                .limit(maxForce)
+        }
+
+        private fun update() {
+            velocity.add(acceleration).limit(maxSpeed)
+            position.add(velocity)
+            acceleration.mult(0f)
+        }
+
+        private fun render() {
+            strokeWeight(2f)
+            stroke(255)
+            pushPop(origin = position, angle = velocity.heading()) {
+                triangle(
+                    2 * BOID_SIZE_SCALE, 0f,
+                    -BOID_SIZE_SCALE, BOID_SIZE_SCALE,
+                    -BOID_SIZE_SCALE, -BOID_SIZE_SCALE
+                )
+                renderRadii()
+            }
+        }
+
+        private fun renderRadii() {
+            noFill()
+
+            if (showPerceptionRadius) {
+                stroke(250f, 5f, 110f, 100f)
+                circle(radius = perceptionRadius)
+            }
+
+            if (showSeparationRadius) {
+                stroke(0f, 250f, 250f, 100f)
+                circle(radius = separationRadius)
+            }
+        }
+
+        private fun drawSteeringForces(alignment: PVector, cohesion: PVector, separation: PVector) {
+            pushPop(origin = position) {
+                stroke(255f, 0f, 0f, 128f) // RED: alignment
+                lineTo(BOID_FORCE_SCALE * alignment)
+
+                stroke(0f, 255f, 0f, 128f) // GREEN: cohesion
+                lineTo(BOID_FORCE_SCALE * cohesion)
+
+                stroke(0f, 0f, 255f, 128f) // BLUE: separation
+                lineTo(BOID_FORCE_SCALE * separation)
+            }
+        }
+
+        private fun wraparound() {
+            when {
+                position.x < -BOID_SIZE_SCALE -> position.x = width + BOID_SIZE_SCALE
+                position.x > width + BOID_SIZE_SCALE -> position.x = -BOID_SIZE_SCALE
+            }
+            when {
+                position.y < -BOID_SIZE_SCALE -> position.y = height + BOID_SIZE_SCALE
+                position.y > height + BOID_SIZE_SCALE -> position.y = -BOID_SIZE_SCALE
+            }
         }
     }
 
@@ -94,6 +213,13 @@ class Sketch(private val flockSize: Int) : PApplet() {
                 value = !showForces,
                 position = width - 50 to 80
             ) { value -> showForces = value == 0f }
+
+            addToggle(
+                name = "Use fuzzy rules",
+                label = "fuzzy",
+                value = !thinkFuzzy,
+                position = width - 50 to 115
+            ) { value -> thinkFuzzy = value == 0f }
         }
     }
 
@@ -124,227 +250,10 @@ class Sketch(private val flockSize: Int) : PApplet() {
         }
     }
 
-    override fun draw() {
-        background(50)
-
-        if (SHOW_FPS) {
-            textSize(18f)
-            fill(0f, 116f, 217f)
-            text("%.0fFPS".format(frameRate), 5f, 20f)
-        }
-
-        run()
-    }
-
-    private fun run() {
-        val snapshot = flock.map {
-            Boid(it.position.x, it.position.y, it.velocity, it.acceleration)
-        }
-
-        for (boid in flock) boid.run(snapshot)
-
-        if (PLOTTING) {
-            MetricsExecutor.run(flock)
-            this.chartingRate++
-            if (this.chartingRate > METRICS_CHARTING_RATE) {
-                this.chartingRate = 0
-                MetricsExecutor.plot()
-            }
-        }
-    }
-
     override fun mousePressed() {
         if (mouseButton == RIGHT) {
             flock.add(Boid(mouseX.toFloat(), mouseY.toFloat()))
         }
-    }
-
-    inner class Boid(
-        x: Float, y: Float,
-        var velocity: PVector = PVector.random2D(this@Sketch),
-        var acceleration: PVector = PVector(0f, 0f)
-    ) {
-
-        var position: PVector = PVector(x, y)
-
-        fun run(boids: List<Boid>) {
-            flock(boids)
-            update()
-            wraparound()
-            render()
-        }
-
-        private fun flock(boids: List<Boid>) {
-            val behavior = fuzzySteer(boids) //steer(boids)
-            val alignment = behavior.first
-            val cohesion = behavior.second
-            val separation = behavior.third
-
-            if (showForces) drawSteeringForces(alignment, cohesion, separation)
-
-            applyForce(
-                alignment.mult(alignmentWeight),
-                cohesion.mult(cohesionWeight),
-                separation.mult(separationWeight)
-            )
-        }
-
-        private fun drawSteeringForces(alignment: PVector, cohesion: PVector, separation: PVector) {
-            pushPop(origin = position) {
-                stroke(255f, 0f, 0f, 128f) // RED: alignment
-                lineTo(BOID_FORCE_SCALE * alignment)
-
-                stroke(0f, 255f, 0f, 128f) // GREEN: cohesion
-                lineTo(BOID_FORCE_SCALE * cohesion)
-
-                stroke(0f, 0f, 255f, 128f) // BLUE: separation
-                lineTo(BOID_FORCE_SCALE * separation)
-            }
-        }
-
-        private fun applyForce(vararg force: PVector) {
-            force.forEach { acceleration.add(it) } // Σ F = m * a, with m = 1
-            acceleration.limit(maxForce)
-        }
-
-        private fun update() {
-            velocity.add(acceleration).limit(maxSpeed)
-            position.add(velocity)
-            acceleration.mult(0f)
-        }
-
-        private fun wraparound() {
-            when {
-                position.x < -BOID_SIZE_SCALE -> position.x = width + BOID_SIZE_SCALE
-                position.x > width + BOID_SIZE_SCALE -> position.x = -BOID_SIZE_SCALE
-            }
-            when {
-                position.y < -BOID_SIZE_SCALE -> position.y = height + BOID_SIZE_SCALE
-                position.y > height + BOID_SIZE_SCALE -> position.y = -BOID_SIZE_SCALE
-            }
-        }
-
-        private fun render() {
-            strokeWeight(2f)
-            stroke(255)
-            pushPop(origin = position, angle = velocity.heading()) {
-                triangle(
-                    2 * BOID_SIZE_SCALE, 0f,
-                    -BOID_SIZE_SCALE, BOID_SIZE_SCALE,
-                    -BOID_SIZE_SCALE, -BOID_SIZE_SCALE
-                )
-                renderRadii()
-            }
-        }
-
-        private fun renderRadii() {
-            noFill()
-
-            if (showPerceptionRadius) {
-                stroke(250f, 5f, 110f, 100f)
-                circle(radius = perceptionRadius)
-            }
-
-            if (showSeparationRadius) {
-                stroke(0f, 250f, 250f, 100f)
-                circle(radius = separationRadius)
-            }
-        }
-
-        private fun fuzzySteer(boids: List<Boid>): Triple<PVector, PVector, PVector> {
-            val alignment = PVector(0f, 0f)
-            val cohesion = PVector(0f, 0f)
-            val separation = PVector(0f, 0f)
-
-            var count = 0f
-            for (other in boids) {
-                if (other != this) {
-                    ++count
-                    val distVector = PVector.sub(other.position, position)
-                    distVector.mag().let { dist ->
-                        if (0 < dist && dist <= perceptionRadius) {
-                            Alignment.evaluate(
-                                dist / perceptionRadius,
-                                angleDiff(velocity, other.velocity)
-                            )
-                            alignment.add(
-                                PVector
-                                    .fromAngle(velocity.heading())
-                                    .rotate(radians(Alignment.headingChange.value.toFloat()))
-                            )
-
-                            Cohesion.evaluate(
-                                dist / perceptionRadius,
-                                angleDiff(velocity, distVector)
-                            )
-                            cohesion.add(
-                                PVector
-                                    .fromAngle(velocity.heading())
-                                    .rotate(radians(Cohesion.headingChange.value.toFloat()))
-                            )
-
-                            if (dist <= separationRadius) {
-                                Separation.evaluate(
-                                    dist / separationRadius,
-                                    angleDiff(velocity, distVector)
-                                )
-                                separation.add(
-                                    PVector
-                                        .fromAngle(velocity.heading())
-                                        .rotate(radians(Separation.headingChange.value.toFloat()))
-                                        .div(dist * dist) // TODO use fuzzy logic to calculate the proportionality
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            return Triple(alignment.normalize(), cohesion.normalize(), separation.normalize())
-        }
-
-        private fun steer(boids: List<Boid>): Triple<PVector, PVector, PVector> {
-            val alignment = PVector(0f, 0f)
-            val cohesion = PVector(0f, 0f)
-            val separation = PVector(0f, 0f)
-
-            var count = 0f
-            for (other in boids) {
-                val dist = PVector.dist(position, other.position)
-                if (other != this && dist < perceptionRadius && dist > 0) {
-                    ++count
-                    alignment.add(other.velocity)
-                    cohesion.add(other.position)
-                    if (separationRadius > dist)
-                        separation.add(
-                            PVector
-                                .sub(position, other.position) // the separation force is inversely
-                                .div(dist * dist)              // proportional to the square of the distance
-                        )
-                }
-            }
-
-            if (count > 0) {
-                alignment.div(count)
-                alignment.sub(velocity)
-                alignment.normalize()
-
-                cohesion.div(count)
-                cohesion.sub(position)
-                cohesion.normalize()
-
-                separation.normalize()
-            }
-
-            return Triple(alignment, cohesion, separation)
-        }
-    }
-
-    // returns the angle difference value as expected by the fuzzy control system
-    private fun angleDiff(from: PVector, to: PVector): Float {
-        val dot = from.x * to.x + from.y * to.y // dot product between [x1, y1] and [x2, y2]
-        val det = from.x * to.y - from.y * to.x // determinant
-        return degrees(atan2(det, dot)) // atan2(y, x) or atan2(sin, cos)
     }
 }
 
