@@ -19,3 +19,13 @@ fun PApplet.pushPop(x: Float = 0f, y: Float = 0f, angle: Float = 0f, transformat
 }
 
 fun PApplet.random(high: Number): Float = this.random(high.toFloat())
+
+operator fun Number.times(vector: PVector): PVector = PVector.mult(vector, this.toFloat())
+
+fun PApplet.lineTo(position: PVector) {
+    this.line(0f, 0f, position.x, position.y) // draws a line from the origin
+}
+
+fun PApplet.circle(x: Number = 0f, y: Number = 0f, radius: Number) {
+    this.ellipse(x.toFloat(), y.toFloat(), radius.toFloat(), radius.toFloat())
+}

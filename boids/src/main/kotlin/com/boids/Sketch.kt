@@ -1,6 +1,8 @@
 package com.boids
 
 import com.boids.Settings.ALIGNMENT_WEIGHT
+import com.boids.Settings.BOID_FORCE_SCALE
+import com.boids.Settings.BOID_SIZE_SCALE
 import com.boids.Settings.COHESION_WEIGHT
 import com.boids.Settings.FLOCK_SIZE
 import com.boids.Settings.MAX_FORCE
@@ -18,10 +20,7 @@ import com.boids.Settings.SHOW_SEPARATION_RADIUS
 import com.boids.control.Alignment
 import com.boids.control.Cohesion
 import com.boids.control.Separation
-import com.boids.extensions.addSlider
-import com.boids.extensions.addToggle
-import com.boids.extensions.pushPop
-import com.boids.extensions.random
+import com.boids.extensions.*
 import com.boids.metrics.MetricsExecutor
 import controlP5.ControlP5
 import processing.core.PApplet
@@ -38,7 +37,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
     private lateinit var controller: ControlP5
 
-    private val flock = Flock()
+    private val flock = ArrayList<Boid>()
 
     private var maxForce: Float = MAX_FORCE
     private var maxSpeed: Float = MAX_SPEED
@@ -69,9 +68,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
         if (SEED_RANDOM) randomSeed(0L)
 
         repeat(flockSize) {
-            flock.addBoid(
-                Boid(random(width), random(height))
-            )
+            flock.add(Boid(random(width), random(height)))
         }
     }
 
@@ -136,9 +133,18 @@ class Sketch(private val flockSize: Int) : PApplet() {
             text("%.0fFPS".format(frameRate), 5f, 20f)
         }
 
-        flock.run()
+        run()
+    }
+
+    private fun run() {
+        val snapshot = flock.map {
+            Boid(it.position.x, it.position.y, it.velocity, it.acceleration)
+        }
+
+        for (boid in flock) boid.run(snapshot)
 
         if (PLOTTING) {
+            MetricsExecutor.run(flock)
             this.chartingRate++
             if (this.chartingRate > METRICS_CHARTING_RATE) {
                 this.chartingRate = 0
@@ -149,30 +155,17 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
     override fun mousePressed() {
         if (mouseButton == RIGHT) {
-            flock.addBoid(Boid(mouseX.toFloat(), mouseY.toFloat()))
-        }
-    }
-
-    inner class Flock(private val boids: MutableList<Boid> = ArrayList()) {
-
-        fun addBoid(boid: Boid) = boids.add(boid)
-
-        fun run() {
-            if (PLOTTING) MetricsExecutor.run(boids)
-            val snapshot = boids.map { Boid(it.position.x, it.position.y, it.velocity, it.acceleration) }
-            for (boid in boids) boid.run(snapshot)
+            flock.add(Boid(mouseX.toFloat(), mouseY.toFloat()))
         }
     }
 
     inner class Boid(
         x: Float, y: Float,
         var velocity: PVector = PVector.random2D(this@Sketch),
-        var acceleration: PVector = PVector(0f, 0f),
-        private val sizeUnit: Float = 2f
+        var acceleration: PVector = PVector(0f, 0f)
     ) {
 
         var position: PVector = PVector(x, y)
-        private var forceScale = 40f // vector drawing scaling
 
         fun run(boids: List<Boid>) {
             flock(boids)
@@ -198,15 +191,14 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
         private fun drawSteeringForces(alignment: PVector, cohesion: PVector, separation: PVector) {
             pushPop(origin = position) {
-                // RED: alignment
-                stroke(255f, 0f, 0f, 128f)
-                line(0f, 0f, forceScale * alignment.x, forceScale * alignment.y)
-                // GREEN: cohesion
-                stroke(0f, 255f, 0f, 128f)
-                line(0f, 0f, forceScale * cohesion.x, forceScale * cohesion.y)
-                // BLUE: separation
-                stroke(0f, 0f, 255f, 128f)
-                line(0f, 0f, forceScale * separation.x, forceScale * separation.y)
+                stroke(255f, 0f, 0f, 128f) // RED: alignment
+                lineTo(BOID_FORCE_SCALE * alignment)
+
+                stroke(0f, 255f, 0f, 128f) // GREEN: cohesion
+                lineTo(BOID_FORCE_SCALE * cohesion)
+
+                stroke(0f, 0f, 255f, 128f) // BLUE: separation
+                lineTo(BOID_FORCE_SCALE * separation)
             }
         }
 
@@ -223,12 +215,12 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
         private fun wraparound() {
             when {
-                position.x < -sizeUnit -> position.x = width + sizeUnit
-                position.x > width + sizeUnit -> position.x = -sizeUnit
+                position.x < -BOID_SIZE_SCALE -> position.x = width + BOID_SIZE_SCALE
+                position.x > width + BOID_SIZE_SCALE -> position.x = -BOID_SIZE_SCALE
             }
             when {
-                position.y < -sizeUnit -> position.y = height + sizeUnit
-                position.y > height + sizeUnit -> position.y = -sizeUnit
+                position.y < -BOID_SIZE_SCALE -> position.y = height + BOID_SIZE_SCALE
+                position.y > height + BOID_SIZE_SCALE -> position.y = -BOID_SIZE_SCALE
             }
         }
 
@@ -237,9 +229,9 @@ class Sketch(private val flockSize: Int) : PApplet() {
             stroke(255)
             pushPop(origin = position, angle = velocity.heading()) {
                 triangle(
-                    2 * sizeUnit, 0f,
-                    -sizeUnit, sizeUnit,
-                    -sizeUnit, -sizeUnit
+                    2 * BOID_SIZE_SCALE, 0f,
+                    -BOID_SIZE_SCALE, BOID_SIZE_SCALE,
+                    -BOID_SIZE_SCALE, -BOID_SIZE_SCALE
                 )
                 renderRadii()
             }
@@ -250,12 +242,12 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
             if (showPerceptionRadius) {
                 stroke(250f, 5f, 110f, 100f)
-                ellipse(0f, 0f, perceptionRadius, perceptionRadius)
+                circle(radius = perceptionRadius)
             }
 
             if (showSeparationRadius) {
                 stroke(0f, 250f, 250f, 100f)
-                ellipse(0f, 0f, separationRadius, separationRadius)
+                circle(radius = separationRadius)
             }
         }
 

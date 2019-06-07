@@ -7,6 +7,9 @@ object Settings {
 
     const val FLOCK_SIZE = 50
 
+    const val BOID_SIZE_SCALE = 2f // boid size drawing scaling
+    const val BOID_FORCE_SCALE = 40f // steering force vector drawing scaling
+
     const val MAX_FORCE = 1f
     const val MAX_SPEED = 2f
 
