@@ -26,8 +26,8 @@ object Brain {
                 if (separationRadius > dist)
                     separation.add(
                         PVector
-                            .sub(boid.position, other.position) // the separation force is inversely
-                            .div(dist * dist)              // proportional to the square of the distance
+                            .sub(boid.position, other.position)
+                            .div(dist * dist) // inversely proportional to the square of the distance
                     )
             }
         }

@@ -2,14 +2,12 @@ package com.boids.metrics
 
 import com.boids.Sketch
 import com.google.gson.Gson
-
 import java.io.FileWriter
 
 object MaxDistance {
-    private val minmax: MutableList<Float> = ArrayList()
-    private val maxavg: MutableList<Float> = ArrayList()
-    private val maxmax: MutableList<Float> = ArrayList()
-
+    private val maxMin: MutableList<Float> = ArrayList()
+    private val maxAvg: MutableList<Float> = ArrayList()
+    private val maxMax: MutableList<Float> = ArrayList()
 
     fun sample(boids: List<Sketch.Boid>) {
         val maxDistances = (0 until boids.size - 1).map { i ->
@@ -22,31 +20,31 @@ object MaxDistance {
             }.max() ?: 0f
         }
 
-        minmax.add(maxDistances.min() ?: Float.MAX_VALUE)
-        maxmax.add(maxDistances.max() ?: 0f)
-        maxavg.add(maxDistances.sum() / maxDistances.size)
+        maxMin.add(maxDistances.min() ?: Float.MAX_VALUE)
+        maxMax.add(maxDistances.max() ?: 0f)
+        maxAvg.add(maxDistances.sum() / maxDistances.size)
     }
 
     fun save() {
         val gson = Gson()
 
-        val minmaxWriter = FileWriter("metrics/minmax.json")
-        val maxmaxWriter = FileWriter("metrics/maxmax.json")
-        val maxavgWriter = FileWriter("metrics/maxavg.json")
+        val maxMinWriter = FileWriter("metrics/maxMin.json")
+        val maxMaxWriter = FileWriter("metrics/maxMax.json")
+        val maxAvgWriter = FileWriter("metrics/maxAvg.json")
 
-        gson.toJson(minmax, minmaxWriter)
-        gson.toJson(maxmax, maxmaxWriter)
-        gson.toJson(maxavg, maxavgWriter)
+        gson.toJson(maxMin, maxMinWriter)
+        gson.toJson(maxMax, maxMaxWriter)
+        gson.toJson(maxAvg, maxAvgWriter)
 
-        minmaxWriter.flush()
-        minmaxWriter.close()
-        maxmaxWriter.flush()
-        maxmaxWriter.close()
-        maxavgWriter.flush()
-        maxavgWriter.close()
+        maxMinWriter.flush()
+        maxMinWriter.close()
+        maxMaxWriter.flush()
+        maxMaxWriter.close()
+        maxAvgWriter.flush()
+        maxAvgWriter.close()
 
-        minmax.clear()
-        maxmax.clear()
-        maxavg.clear()
+        maxMin.clear()
+        maxMax.clear()
+        maxAvg.clear()
     }
 }

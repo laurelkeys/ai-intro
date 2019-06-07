@@ -1,21 +1,13 @@
 package com.boids.metrics
 
 import com.boids.Sketch
-import org.jfree.chart.ChartFactory
-import org.jfree.chart.ChartUtilities
-import org.jfree.chart.plot.PlotOrientation
-import org.jfree.data.category.DefaultCategoryDataset
-import java.io.File
 import com.google.gson.Gson
 import java.io.FileWriter
 
-
 object MinDistance {
-    private val minmin: MutableList<Float> = ArrayList()
-    private val minavg: MutableList<Float> = ArrayList()
-    private val maxmin: MutableList<Float> = ArrayList()
-
-
+    private val minMin: MutableList<Float> = ArrayList()
+    private val minAvg: MutableList<Float> = ArrayList()
+    private val minMax: MutableList<Float> = ArrayList()
 
     fun sample(boids: List<Sketch.Boid>) {
         val minDistances = (0 until boids.size - 1).map { i ->
@@ -28,31 +20,31 @@ object MinDistance {
             }.min() ?: Float.MAX_VALUE
         }
 
-        minmin.add(minDistances.min() ?: Float.MAX_VALUE)
-        maxmin.add(minDistances.max() ?: 0f)
-        minavg.add(minDistances.sum() / minDistances.size)
+        minMin.add(minDistances.min() ?: Float.MAX_VALUE)
+        minMax.add(minDistances.max() ?: 0f)
+        minAvg.add(minDistances.sum() / minDistances.size)
     }
 
     fun save() {
         val gson = Gson()
 
-        val minminWriter = FileWriter("metrics/minmin.json")
-        val minavgWriter = FileWriter("metrics/minavg.json")
-        val maxminWriter = FileWriter("metrics/maxmin.json")
+        val minMinWriter = FileWriter("metrics/minMin.json")
+        val minAvgWriter = FileWriter("metrics/minAvg.json")
+        val minMaxWriter = FileWriter("metrics/minMax.json")
 
-        gson.toJson(minmin, minminWriter)
-        gson.toJson(minavg, minavgWriter)
-        gson.toJson(maxmin, maxminWriter)
+        gson.toJson(minMin, minMinWriter)
+        gson.toJson(minAvg, minAvgWriter)
+        gson.toJson(minMax, minMaxWriter)
 
-        minminWriter.flush()
-        minminWriter.close()
-        minavgWriter.flush()
-        minavgWriter.close()
-        maxminWriter.flush()
-        maxminWriter.close()
+        minMinWriter.flush()
+        minMinWriter.close()
+        minAvgWriter.flush()
+        minAvgWriter.close()
+        minMaxWriter.flush()
+        minMaxWriter.close()
 
-        minmin.clear()
-        minavg.clear()
-        maxmin.clear()
+        minMin.clear()
+        minAvg.clear()
+        minMax.clear()
     }
 }
