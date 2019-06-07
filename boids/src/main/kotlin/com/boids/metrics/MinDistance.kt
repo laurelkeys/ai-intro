@@ -7,7 +7,7 @@ import org.jfree.chart.plot.PlotOrientation
 import org.jfree.data.category.DefaultCategoryDataset
 import java.io.File
 
-object MinimumDistance {
+object MinDistance {
     private val samples: MutableList<Float> = ArrayList()
 
     fun sample(boids: List<Sketch.Boid>) {
@@ -41,7 +41,7 @@ object MinimumDistance {
             false
         )
 
-        val lineChart = File("metrics/Minimum.jpeg")
+        val lineChart = File("metrics/Min.jpeg")
         ChartUtilities.saveChartAsJPEG(lineChart, chart, 1000, 500)
     }
 }

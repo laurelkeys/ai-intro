@@ -31,7 +31,7 @@ object MaxDistance {
         }
 
         val chart = ChartFactory.createLineChart(
-            "Max inner distance",
+            "Maximum inner distance",
             "Frame",
             "Distance",
             dataset,

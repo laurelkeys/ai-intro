@@ -1,6 +1,6 @@
 package com.boids.control
 
-import com.boids.Settings.VANILLA
+import com.boids.VANILLA
 import net.sourceforge.jFuzzyLogic.FIS
 import net.sourceforge.jFuzzyLogic.plot.JFuzzyChart
 import net.sourceforge.jFuzzyLogic.rule.Variable

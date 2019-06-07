@@ -4,12 +4,12 @@ import com.boids.Sketch
 
 object MetricsExecutor {
     fun run(boids: List<Sketch.Boid>) {
-        MinimumDistance.sample(boids)
+        MinDistance.sample(boids)
         MaxDistance.sample(boids)
     }
 
     fun plot() {
         MaxDistance.plot()
-        MinimumDistance.plot()
+        MinDistance.plot()
     }
 }

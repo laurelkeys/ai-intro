@@ -1,22 +1,5 @@
 package com.boids
 
-import com.boids.Settings.ALIGNMENT_WEIGHT
-import com.boids.Settings.BOID_FORCE_SCALE
-import com.boids.Settings.BOID_SIZE_SCALE
-import com.boids.Settings.COHESION_WEIGHT
-import com.boids.Settings.FLOCK_SIZE
-import com.boids.Settings.MAX_FORCE
-import com.boids.Settings.MAX_SPEED
-import com.boids.Settings.METRICS_CHARTING_RATE
-import com.boids.Settings.PERCEPTION_RADIUS
-import com.boids.Settings.PLOTTING
-import com.boids.Settings.SEED_RANDOM
-import com.boids.Settings.SEPARATION_RADIUS
-import com.boids.Settings.SEPARATION_WEIGHT
-import com.boids.Settings.SHOW_FORCES
-import com.boids.Settings.SHOW_FPS
-import com.boids.Settings.SHOW_PERCEPTION_RADIUS
-import com.boids.Settings.SHOW_SEPARATION_RADIUS
 import com.boids.control.Brain
 import com.boids.extensions.*
 import com.boids.metrics.MetricsExecutor
@@ -191,6 +174,12 @@ class Sketch(private val flockSize: Int) : PApplet() {
         }
     }
 
+    override fun mousePressed() {
+        if (mouseButton == RIGHT) {
+            flock.add(Boid(mouseX.toFloat(), mouseY.toFloat()))
+        }
+    }
+
     private fun setupToggles() {
         with(controller) {
             addToggle(
@@ -247,12 +236,6 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
             addSlider("Separation radius", maxRadius, default = separationRadius, position = width - 190 to height - 20)
             { value -> separationRadius = value }
-        }
-    }
-
-    override fun mousePressed() {
-        if (mouseButton == RIGHT) {
-            flock.add(Boid(mouseX.toFloat(), mouseY.toFloat()))
         }
     }
 }
