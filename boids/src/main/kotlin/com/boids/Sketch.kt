@@ -18,12 +18,12 @@ import com.boids.Settings.SHOW_SEPARATION_RADIUS
 import com.boids.control.Alignment
 import com.boids.control.Cohesion
 import com.boids.control.Separation
+import com.boids.extensions.addSlider
 import com.boids.extensions.addToggle
 import com.boids.extensions.pushPop
 import com.boids.extensions.random
 import com.boids.metrics.MetricsExecutor
 import controlP5.ControlP5
-import controlP5.ControlP5Constants.ACTION_BROADCAST
 import processing.core.PApplet
 import processing.core.PVector
 
@@ -101,42 +101,40 @@ class Sketch(private val flockSize: Int) : PApplet() {
     }
 
     private fun setupSliders() {
-        controller
-            .addSlider("Alignment", 0f, 10f, alignmentWeight, 10, height - 50, 100, 10)
-            .addCallback { if (it.action == ACTION_BROADCAST) alignmentWeight = it.controller.value }
+        with(controller) {
+            addSlider("Alignment", max = 10, default = alignmentWeight, position = 10 to height - 50)
+            { value -> alignmentWeight = value }
 
-        controller
-            .addSlider("Cohesion", 0f, 10f, cohesionWeight, 10, height - 35, 100, 10)
-            .addCallback { if (it.action == ACTION_BROADCAST) cohesionWeight = it.controller.value }
+            addSlider("Cohesion", max = 10, default = cohesionWeight, position = 10 to height - 35)
+            { value -> cohesionWeight = value }
 
-        controller
-            .addSlider("Separation", 0f, 10f, separationWeight, 10, height - 20, 100, 10)
-            .addCallback { if (it.action == ACTION_BROADCAST) separationWeight = it.controller.value }
+            addSlider("Separation", max = 10, default = separationWeight, position = 10 to height - 20)
+            { value -> separationWeight = value }
 
-        controller
-            .addSlider("Max force", 0f, 2f, maxForce, width - 190, height - 65, 100, 10)
-            .addCallback { if (it.action == ACTION_BROADCAST) maxForce = it.controller.value }
+            addSlider("Max force", max = 2, default = maxForce, position = width - 190 to height - 65)
+            { value -> maxForce = value }
 
-        controller
-            .addSlider("Max speed", 0f, 8f, maxSpeed, width - 190, height - 50, 100, 10)
-            .addCallback { if (it.action == ACTION_BROADCAST) maxSpeed = it.controller.value }
+            addSlider("Max speed", max = 8, default = maxSpeed, position = width - 190 to height - 50)
+            { value -> maxSpeed = value }
 
-        val maxRadius = min(width, height) / 2f
+            val maxRadius = min(width, height) / 2f
 
-        controller
-            .addSlider("Perception radius", 0f, maxRadius, perceptionRadius, width - 190, height - 35, 100, 10)
-            .addCallback { if (it.action == ACTION_BROADCAST) perceptionRadius = it.controller.value }
+            addSlider("Perception radius", maxRadius, default = perceptionRadius, position = width - 190 to height - 35)
+            { value -> perceptionRadius = value }
 
-        controller
-            .addSlider("Separation radius", 0f, maxRadius, separationRadius, width - 190, height - 20, 100, 10)
-            .addCallback { if (it.action == ACTION_BROADCAST) separationRadius = it.controller.value }
+            addSlider("Separation radius", maxRadius, default = separationRadius, position = width - 190 to height - 20)
+            { value -> separationRadius = value }
+        }
     }
 
     override fun draw() {
         background(50)
-        textSize(18f)
-        fill(0f, 116f, 217f)
-        if (SHOW_FPS) text("%.0fFPS".format(frameRate), 5f, 20f)
+
+        if (SHOW_FPS) {
+            textSize(18f)
+            fill(0f, 116f, 217f)
+            text("%.0fFPS".format(frameRate), 5f, 20f)
+        }
 
         flock.run()
 
