@@ -18,6 +18,8 @@ fun PApplet.pushPop(x: Float = 0f, y: Float = 0f, angle: Float = 0f, transformat
     popMatrix() // restores the prior coordinate system
 }
 
+fun PApplet.random(low: Number, high: Number): Float = this.random(low.toFloat(), high.toFloat())
+
 fun PApplet.random(high: Number): Float = this.random(high.toFloat())
 
 operator fun Number.times(vector: PVector): PVector = PVector.mult(vector, this.toFloat())

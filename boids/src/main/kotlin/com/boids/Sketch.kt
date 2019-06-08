@@ -19,6 +19,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
     private lateinit var controller: ControlP5
 
     private val flock = ArrayList<Boid>()
+    private var homeBorder: Float = 0f
 
     private var maxForce: Float = MAX_FORCE
     private var maxSpeed: Float = MAX_SPEED
@@ -42,19 +43,33 @@ class Sketch(private val flockSize: Int) : PApplet() {
     }
 
     override fun setup() {
+        noFill()
+        background(50)
+
         controller = ControlP5(this)
         setupToggles()
         setupSliders()
 
         if (SEED_RANDOM) randomSeed(0L)
 
+        homeBorder = 0.1f * min(width, height)
         repeat(flockSize) {
-            flock.add(Boid(random(width), random(height)))
+            flock.add(
+                Boid(
+                    random(homeBorder, width - homeBorder),
+                    random(homeBorder, height - homeBorder)
+                )
+            )
         }
     }
 
     override fun draw() {
         background(50)
+        stroke(0f)
+        rectMode(CENTER)
+        rect(width / 2f, height / 2f, width - 2 * homeBorder, height - 2 * homeBorder)
+
+        stroke(1f)
         if (SHOW_FPS) {
             textSize(18f)
             fill(0f, 116f, 217f)
@@ -114,6 +129,16 @@ class Sketch(private val flockSize: Int) : PApplet() {
                     separation.mult(separationWeight)
                 )
                 .limit(maxForce)
+
+            when {
+                position.x < homeBorder -> acceleration.add(PVector(maxSpeed, velocity.y).setMag(maxSpeed).sub(velocity).limit(maxForce))
+                position.x > width - homeBorder -> acceleration.add(PVector(-maxSpeed, velocity.y).setMag(maxSpeed).sub(velocity).limit(maxForce))
+            }
+
+            when {
+                position.y < homeBorder -> acceleration.add(PVector(velocity.x, maxSpeed).setMag(maxSpeed).sub(velocity).limit(maxForce))
+                position.y > height - homeBorder -> acceleration.add(PVector(velocity.x, -maxSpeed).setMag(maxSpeed).sub(velocity).limit(maxForce))
+            }
         }
 
         private fun update() {
