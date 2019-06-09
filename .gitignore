@@ -1,3 +1,7 @@
+# Project 3
+boids/metrics/*.json
+boids/metrics/*.jpeg
+
 # Project 2
 polygenesis/tests/*
 polygenesis/images/temp
