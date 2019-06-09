@@ -35,6 +35,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
     private var showSeparationRadius: Boolean = SHOW_SEPARATION_RADIUS
     private var showForces: Boolean = SHOW_FORCES
     private var thinkFuzzy: Boolean = true
+    private var wraparound: Boolean = true
 
     private var chartingRate = 0
 
@@ -65,9 +66,11 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
     override fun draw() {
         background(50)
-        stroke(0f)
-        rectMode(CENTER)
-        rect(width / 2f, height / 2f, width - 2 * homeBorder, height - 2 * homeBorder)
+        if (!wraparound) {
+            stroke(0f)
+            rectMode(CENTER)
+            rect(width / 2f, height / 2f, width - 2 * homeBorder, height - 2 * homeBorder)
+        }
 
         stroke(1f)
         if (SHOW_FPS) {
@@ -107,7 +110,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
         fun run(boids: List<Boid>) {
             flock(boids) // adds steering forces to the acceleration (Σ F = m * a, with m = 1)
             update()
-            wraparound()
+            if (wraparound) wraparound()
             render()
         }
 
@@ -130,14 +133,15 @@ class Sketch(private val flockSize: Int) : PApplet() {
                 )
                 .limit(maxForce)
 
-            when {
-                position.x < homeBorder -> acceleration.add(PVector(maxSpeed, velocity.y).setMag(maxSpeed).sub(velocity).limit(maxForce))
-                position.x > width - homeBorder -> acceleration.add(PVector(-maxSpeed, velocity.y).setMag(maxSpeed).sub(velocity).limit(maxForce))
-            }
-
-            when {
-                position.y < homeBorder -> acceleration.add(PVector(velocity.x, maxSpeed).setMag(maxSpeed).sub(velocity).limit(maxForce))
-                position.y > height - homeBorder -> acceleration.add(PVector(velocity.x, -maxSpeed).setMag(maxSpeed).sub(velocity).limit(maxForce))
+            if (!wraparound) {
+                when {
+                    position.x < homeBorder -> acceleration.add(PVector(maxSpeed, velocity.y).sub(velocity).normalize())
+                    position.x > width - homeBorder -> acceleration.add(PVector(-maxSpeed, velocity.y).sub(velocity).normalize())
+                }
+                when {
+                    position.y < homeBorder -> acceleration.add(PVector(velocity.x, maxSpeed).sub(velocity).normalize())
+                    position.y > height - homeBorder -> acceleration.add(PVector(velocity.x, -maxSpeed).sub(velocity).normalize())
+                }
             }
         }
 
@@ -234,6 +238,13 @@ class Sketch(private val flockSize: Int) : PApplet() {
                 value = !thinkFuzzy,
                 position = width - 50 to 115
             ) { value -> thinkFuzzy = value == 0f }
+
+            addToggle(
+                name = "Allow boids to wraparound screen",
+                label = "confine",
+                value = wraparound,
+                position = width - 50 to 150
+            ) { value -> wraparound = value != 0f }
         }
     }
 
