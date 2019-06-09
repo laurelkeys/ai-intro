@@ -1,6 +1,6 @@
 package com.boids.control
 
-import com.boids.VANILLA
+import com.boids.Sketch.Companion.vanilla
 import net.sourceforge.jFuzzyLogic.FIS
 import net.sourceforge.jFuzzyLogic.plot.JFuzzyChart
 import net.sourceforge.jFuzzyLogic.rule.Variable
@@ -8,7 +8,7 @@ import java.nio.file.Paths
 
 object Cohesion {
     private val fclFileName =
-        if (VANILLA) Paths.get(".", "src", "fcl", "vanilla", "cohere.fcl").toString()
+        if (vanilla) Paths.get(".", "src", "fcl", "vanilla", "cohere.fcl").toString()
         else Paths.get(".", "src", "fcl", "cohere.fcl").toString()
     private val fis = FIS.load(fclFileName, true)
 

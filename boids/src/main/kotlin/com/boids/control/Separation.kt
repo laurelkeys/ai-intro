@@ -1,6 +1,6 @@
 package com.boids.control
 
-import com.boids.VANILLA
+import com.boids.Sketch.Companion.vanilla
 import net.sourceforge.jFuzzyLogic.FIS
 import net.sourceforge.jFuzzyLogic.plot.JFuzzyChart
 import net.sourceforge.jFuzzyLogic.rule.Variable
@@ -8,7 +8,7 @@ import java.nio.file.Paths
 
 object Separation {
     private val fclFileName =
-        if (VANILLA) Paths.get(".", "src", "fcl", "vanilla", "separate.fcl").toString()
+        if (vanilla) Paths.get(".", "src", "fcl", "vanilla", "separate.fcl").toString()
         else Paths.get(".", "src", "fcl", "separate.fcl").toString()
     private val fis = FIS.load(fclFileName, true)
 

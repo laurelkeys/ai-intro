@@ -10,6 +10,9 @@ import processing.core.PVector
 class Sketch(private val flockSize: Int) : PApplet() {
 
     companion object {
+
+        var vanilla: Boolean = VANILLA
+
         fun run(flockSize: Int = FLOCK_SIZE) {
             val sketch = Sketch(flockSize)
             sketch.runSketch()
@@ -34,13 +37,14 @@ class Sketch(private val flockSize: Int) : PApplet() {
     private var showPerceptionRadius: Boolean = SHOW_PERCEPTION_RADIUS
     private var showSeparationRadius: Boolean = SHOW_SEPARATION_RADIUS
     private var showForces: Boolean = SHOW_FORCES
-    private var thinkFuzzy: Boolean = true
-    private var wraparound: Boolean = true
+    private var thinkFuzzy: Boolean = THINK_FUZZY
+    private var wraparound: Boolean = WRAPAROUND
 
     private var chartingRate = 0
+    private var running: Boolean = false
 
     override fun settings() {
-        size(displayWidth / 2, displayHeight / 2)
+        size(800, 800)
     }
 
     override fun setup() {
@@ -51,15 +55,16 @@ class Sketch(private val flockSize: Int) : PApplet() {
         setupToggles()
         setupSliders()
 
-        if (SEED_RANDOM) randomSeed(0L)
+        if (SEED_RANDOM) randomSeed(42L)
 
-        homeBorder = 0.1f * min(width, height)
+        homeBorder = 0.1f * min(width, height) // == 80px
         repeat(flockSize) {
             flock.add(
                 Boid(
                     random(homeBorder, width - homeBorder),
                     random(homeBorder, height - homeBorder)
                 )
+                //Boid(width / 2f, height / 2f)
             )
         }
     }
@@ -109,7 +114,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
         fun run(boids: List<Boid>) {
             flock(boids) // adds steering forces to the acceleration (Σ F = m * a, with m = 1)
-            update()
+            if (running) update()
             if (wraparound) wraparound()
             render()
         }
@@ -136,11 +141,21 @@ class Sketch(private val flockSize: Int) : PApplet() {
             if (!wraparound) {
                 when {
                     position.x < homeBorder -> acceleration.add(PVector(maxSpeed, velocity.y).sub(velocity).normalize())
-                    position.x > width - homeBorder -> acceleration.add(PVector(-maxSpeed, velocity.y).sub(velocity).normalize())
+                    position.x > width - homeBorder -> acceleration.add(
+                        PVector(
+                            -maxSpeed,
+                            velocity.y
+                        ).sub(velocity).normalize()
+                    )
                 }
                 when {
                     position.y < homeBorder -> acceleration.add(PVector(velocity.x, maxSpeed).sub(velocity).normalize())
-                    position.y > height - homeBorder -> acceleration.add(PVector(velocity.x, -maxSpeed).sub(velocity).normalize())
+                    position.y > height - homeBorder -> acceleration.add(
+                        PVector(
+                            velocity.x,
+                            -maxSpeed
+                        ).sub(velocity).normalize()
+                    )
                 }
             }
         }
@@ -203,6 +218,12 @@ class Sketch(private val flockSize: Int) : PApplet() {
         }
     }
 
+    override fun keyPressed() {
+        if (key == SPACE) {
+            running = !running
+        }
+    }
+
     override fun mousePressed() {
         if (mouseButton == RIGHT) {
             flock.add(Boid(mouseX.toFloat(), mouseY.toFloat()))
@@ -245,6 +266,13 @@ class Sketch(private val flockSize: Int) : PApplet() {
                 value = wraparound,
                 position = width - 50 to 150
             ) { value -> wraparound = value != 0f }
+
+            addToggle(
+                name = "Use vanilla fuzzy rules",
+                label = "vanilla",
+                value = !vanilla,
+                position = width - 50 to 185
+            ) { value -> vanilla = value == 0f }
         }
     }
 

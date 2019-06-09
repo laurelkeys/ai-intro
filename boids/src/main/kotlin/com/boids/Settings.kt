@@ -1,9 +1,12 @@
 package com.boids
 
-const val VANILLA = false
 const val SEED_RANDOM = true
 
-const val FLOCK_SIZE = 50
+const val VANILLA = false
+const val THINK_FUZZY = true
+const val WRAPAROUND = false
+
+const val FLOCK_SIZE = 25
 
 const val BOID_SIZE_SCALE = 2f // boid size drawing scaling
 const val BOID_FORCE_SCALE = 40f // steering force vector drawing scaling
@@ -13,7 +16,7 @@ const val MAX_SPEED = 2f
 
 const val ALIGNMENT_WEIGHT = 0.3f
 const val COHESION_WEIGHT = 1.2f
-const val SEPARATION_WEIGHT = 1.25f
+const val SEPARATION_WEIGHT = 1.4f
 
 const val PERCEPTION_RADIUS = 80f // alignmentRadius and cohesionRadius
 const val SEPARATION_RADIUS = 30f
