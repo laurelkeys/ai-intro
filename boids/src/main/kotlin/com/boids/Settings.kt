@@ -1,6 +1,6 @@
 package com.boids
 
-const val VANILLA = true
+const val VANILLA = false
 const val SEED_RANDOM = true
 
 const val FLOCK_SIZE = 50
