@@ -42,7 +42,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
     private var chartingRate = 0
     private var hasntPlotted = true
-    private var running: Boolean = true
+    private var running: Boolean = false
 
     override fun settings() {
         size(800, 800)
@@ -53,8 +53,8 @@ class Sketch(private val flockSize: Int) : PApplet() {
         background(50)
 
         controller = ControlP5(this)
-        setupToggles()
-        setupSliders()
+//        setupToggles()
+//        setupSliders()
 
         if (SEED_RANDOM) randomSeed(42L)
 
@@ -97,13 +97,14 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
         if (PLOTTING && hasntPlotted) {
             MetricsExecutor.run(flock)
-            this.chartingRate++
+            if (running) this.chartingRate++
             if (this.chartingRate > METRICS_CHARTING_RATE) {
                 this.chartingRate = 0
                 MetricsExecutor.plot()
                 hasntPlotted = false // only plots once
                 kotlin.io.println("Plotted data :)")
                 kotlin.io.println("Vanilla: $vanilla, Fuzzy: $thinkFuzzy, Confined: ${!wraparound}")
+                exit()
             }
         }
     }
