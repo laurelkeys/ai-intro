@@ -15,6 +15,7 @@ with open("maxavg.json","r") as maxavg_f, open("maxmax.json","r") as maxmax_f, o
 
     x = list(range(0, len(minmin)))
     fig, ax = plt.subplots(1, 1, sharex=True)
+    ax.set_xlim(0, 1000)
 
     ax.set_title('Inter-agent distance')
     ax.plot(x, minavg, color=(0.12, 0.47, 0.7, 1))
