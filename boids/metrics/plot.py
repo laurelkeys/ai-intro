@@ -14,33 +14,14 @@ with open("maxavg.json","r") as maxavg_f, open("maxmax.json","r") as maxmax_f, o
     minmin = json.loads(minmin_f.read())
 
     x = list(range(0, len(minmin)))
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, sharex=True)
+    fig, ax = plt.subplots(1, 1, sharex=True)
 
-    ax1.plot(x, maxavg, color='black')
-    ax1.set_title('MAX')
-    # Test support for masked arrays.
-    ax1.fill_between(x, maxavg, maxmax,
-                    facecolor='green', interpolate=True , alpha=0.5)
-    ax1.fill_between(x, maxavg, minmax,
-                    facecolor='lightgreen', interpolate=True, alpha=0.5) 
-                    
-
-    ax2.plot(x, minavg, color='black')
-    ax2.set_title('MIN')
-    ax2.fill_between(x, minavg, maxmin,
-                    facecolor='blue', interpolate=True, alpha=0.5)
-    ax2.fill_between(x, minavg, minmin,
+    ax.set_title('Inter-agent distance')
+    ax.plot(x, minavg, color=(0.12, 0.47, 0.7, 1))
+    ax.plot(x, maxavg, color=(0, 0.5, 0, 1))
+    ax.fill_between(x, minmax, maxmax,
+                    facecolor='lightgreen', interpolate=True, alpha=0.5)
+    ax.fill_between(x, minmin, maxmin,
                     facecolor='lightblue', interpolate=True, alpha=0.5)
-    # ax1.fill_between(x, y1, y2, where=y2 <= y1,
-    #                  facecolor='red', interpolate=True)
-    # ax1.set_title('Now regions with y2>1 are masked')
-
-    ax3.set_title('Inter-agent distance')
-    ax3.plot(x, minavg, color=(0.12, 0.47, 0.7, 1))
-    ax3.plot(x, maxavg, color=(0, 0.5, 0, 1))
-    ax3.fill_between(x, minmin, maxmin,
-                    facecolor=(0.7, 0.8, 0.9), interpolate=True, alpha=0.5)
-    ax3.fill_between(x, minmax, maxmax,
-                    facecolor=(0.7, 0.8, 0.7), interpolate=True, alpha=0.5)
 
     plt.show()

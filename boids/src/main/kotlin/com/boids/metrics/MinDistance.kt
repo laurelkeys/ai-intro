@@ -1,30 +1,23 @@
 package com.boids.metrics
 
 import com.boids.Sketch
-import org.jfree.chart.ChartFactory
-import org.jfree.chart.ChartUtilities
-import org.jfree.chart.plot.PlotOrientation
-import org.jfree.data.category.DefaultCategoryDataset
-import java.io.File
 import com.google.gson.Gson
+import processing.core.PVector
 import java.io.FileWriter
-
 
 object MinDistance {
     private val minmin: MutableList<Float> = ArrayList()
     private val minavg: MutableList<Float> = ArrayList()
     private val maxmin: MutableList<Float> = ArrayList()
 
-
-
     fun sample(boids: List<Sketch.Boid>) {
-        val minDistances = (0 until boids.size - 1).map { i ->
-            (i + 1 until boids.size).map { j ->
+        val minDistances = (0 until boids.size).map { i ->
+            (0 until boids.size).map { j ->
                 val first = boids[i]
                 val second = boids[j]
-                val distance = first.position.dist(second.position)
+                val distance = PVector.dist(first.position, second.position)
 
-                distance // return the distance between the boids
+                if (i != j) distance else Float.MAX_VALUE // return the distance between the boids
             }.min() ?: Float.MAX_VALUE
         }
 

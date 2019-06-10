@@ -2,7 +2,7 @@ package com.boids
 
 const val SEED_RANDOM = true
 
-const val VANILLA = false
+const val VANILLA = true
 const val THINK_FUZZY = true
 const val WRAPAROUND = false
 

@@ -41,7 +41,8 @@ class Sketch(private val flockSize: Int) : PApplet() {
     private var wraparound: Boolean = WRAPAROUND
 
     private var chartingRate = 0
-    private var running: Boolean = false
+    private var hasntPlotted = true
+    private var running: Boolean = true
 
     override fun settings() {
         size(800, 800)
@@ -94,12 +95,15 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
         for (boid in flock) boid.run(snapshot)
 
-        if (PLOTTING) {
+        if (PLOTTING && hasntPlotted) {
             MetricsExecutor.run(flock)
             this.chartingRate++
             if (this.chartingRate > METRICS_CHARTING_RATE) {
                 this.chartingRate = 0
                 MetricsExecutor.plot()
+                hasntPlotted = false // only plots once
+                kotlin.io.println("Plotted data :)")
+                kotlin.io.println("Vanilla: $vanilla, Fuzzy: $thinkFuzzy, Confined: ${!wraparound}")
             }
         }
     }
