@@ -3,7 +3,7 @@ package com.boids
 const val SEED_RANDOM = true
 
 const val VANILLA = false
-const val THINK_FUZZY = false
+const val THINK_FUZZY = true
 const val WRAPAROUND = true
 
 const val FLOCK_SIZE = 60//25

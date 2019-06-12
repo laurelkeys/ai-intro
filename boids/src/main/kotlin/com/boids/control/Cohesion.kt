@@ -67,9 +67,14 @@ fun main() {
         println("Consequent: headingChange ${Cohesion.headingChange.value}")
     }
 
-    // bool == false: test pDiff values from -180 to 180
-    for (i in -180..180 step 10) {
-        Cohesion.evaluate(distance = 40.0, position = i / 1.0)
-        println("$i -> ${Cohesion.headingChange.value}")
+    // bool == false
+    val deltaDist = 10
+    val deltaPos = 36
+    println("distance,position,headingChange")
+    for (dist in 0..100 step deltaDist) {
+        for (pos in -180..180 step deltaPos) {
+            Cohesion.evaluate(distance = dist / 1.0, position = pos / 1.0)
+            println("$dist,$pos,${Cohesion.headingChange.value}")
+        }
     }
 }

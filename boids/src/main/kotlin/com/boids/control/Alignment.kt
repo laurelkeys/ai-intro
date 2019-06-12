@@ -64,9 +64,11 @@ fun main() {
         println("Consequent: headingChange ${Alignment.headingChange.value}")
     }
 
-    // bool == false: test pDiff values from -180 to 180
-    for (i in -180..180 step 10) {
-        Alignment.evaluate(distance = 60.0, direction = i / 1.0)
-        println("$i -> ${Alignment.headingChange.value}")
+    // bool == false
+    val deltaDir = 36
+    println("direction,headingChange")
+    for (dir in -180..180 step deltaDir) {
+        Alignment.evaluate(distance = 0.0, direction = dir / 1.0)
+        println("$dir,${Alignment.headingChange.value}")
     }
 }
