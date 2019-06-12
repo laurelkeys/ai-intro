@@ -9,7 +9,6 @@ object Alignment {
     private val fclFileName = Paths.get(".", "src", "fcl", "vanilla", "align.fcl").toString()
     private val fis = FIS.load(fclFileName, true)
 
-    val distance: Variable = fis.getVariable("distance") // input
     val direction: Variable = fis.getVariable("direction") // input
     val headingChange: Variable = fis.getVariable("headingChange") // output
 
@@ -20,10 +19,9 @@ object Alignment {
         if (chart == null) throw RuntimeException("[JFuzzyChart error] couldn't get JFuzzyChart")
     }
 
-    fun evaluate(distance: Float, direction: Float) = evaluate(distance.toDouble(), direction.toDouble())
+    fun evaluate(direction: Float) = evaluate(direction.toDouble())
 
-    fun evaluate(distance: Double, direction: Double) {
-        this.distance.value = distance
+    fun evaluate(direction: Double) {
         this.direction.value = direction
         evaluate()
     }
@@ -55,18 +53,18 @@ fun main() {
     // bool == true: test individual inputs and see their charts
     while (bool) {
         val inp = readLine()!!.split(',')
-        Alignment.evaluate(distance = inp[0].toDouble(), direction = inp[1].toDouble())
+        Alignment.evaluate(direction = inp[0].toDouble())
 
         Alignment.printRules()
         Alignment.showOutput()
 
-        println("Antecedent: distance ${Alignment.distance.value}, direction ${Alignment.direction.value}")
+        println("Antecedent: direction ${Alignment.direction.value}")
         println("Consequent: headingChange ${Alignment.headingChange.value}")
     }
 
     // bool == false: test pDiff values from -180 to 180
     for (i in -180..180 step 10) {
-        Alignment.evaluate(distance = 60.0, direction = i / 1.0)
+        Alignment.evaluate(direction = i / 1.0)
         println("$i -> ${Alignment.headingChange.value}")
     }
 }
