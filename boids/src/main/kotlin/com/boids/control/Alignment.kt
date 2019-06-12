@@ -3,6 +3,7 @@ package com.boids.control
 import net.sourceforge.jFuzzyLogic.FIS
 import net.sourceforge.jFuzzyLogic.plot.JFuzzyChart
 import net.sourceforge.jFuzzyLogic.rule.Variable
+import java.io.File
 import java.nio.file.Paths
 
 object Alignment {
@@ -49,7 +50,7 @@ object Alignment {
 }
 
 fun main() {
-    Alignment.showFIS()
+    //Alignment.showFIS()
     val bool = false
 
     // bool == true: test individual inputs and see their charts
@@ -65,10 +66,15 @@ fun main() {
     }
 
     // bool == false
+    val deltaDist = 10
     val deltaDir = 36
-    println("direction,headingChange")
-    for (dir in -180..180 step deltaDir) {
-        Alignment.evaluate(distance = 0.0, direction = dir / 1.0)
-        println("$dir,${Alignment.headingChange.value}")
+    val csvFile = File(Paths.get(".", "metrics", "alignment-$deltaDist-$deltaDir.csv").toString())
+    csvFile.writeText("distance,direction,headingChange\n")
+    for (dist in 0..100 step deltaDist) {
+        println("finished line $dist")
+        for (dir in -180..180 step deltaDir) {
+            Alignment.evaluate(distance = dist / 1.0, direction = dir / 1.0)
+            csvFile.appendText("$dist,$dir,${Alignment.headingChange.value}\n")
+        }
     }
 }

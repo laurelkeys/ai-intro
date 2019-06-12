@@ -4,6 +4,7 @@ import com.boids.Sketch.Companion.vanilla
 import net.sourceforge.jFuzzyLogic.FIS
 import net.sourceforge.jFuzzyLogic.plot.JFuzzyChart
 import net.sourceforge.jFuzzyLogic.rule.Variable
+import java.io.File
 import java.nio.file.Paths
 
 object Separation {
@@ -52,7 +53,7 @@ object Separation {
 }
 
 fun main() {
-    Separation.showFIS()
+    //Separation.showFIS()
     val bool = false
 
     // bool == true: test individual inputs and see their charts
@@ -70,11 +71,13 @@ fun main() {
     // bool == false
     val deltaDist = 10
     val deltaPos = 36
-    println("distance,position,headingChange")
+    val csvFile = File(Paths.get(".", "metrics", "separation-$deltaDist-$deltaPos.csv").toString())
+    csvFile.writeText("distance,position,headingChange\n")
     for (dist in 0..100 step deltaDist) {
+        println("finished line $dist")
         for (pos in -180..180 step deltaPos) {
             Separation.evaluate(distance = dist / 1.0, position = pos / 1.0)
-            println("$dist,$pos,${Separation.headingChange.value}")
+            csvFile.appendText("$dist,$pos,${Separation.headingChange.value}\n")
         }
     }
 }
