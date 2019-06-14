@@ -1,19 +1,12 @@
 FUNCTION_BLOCK alignment
 
 VAR_INPUT
-    distance  : REAL; // distance (% of perception radius)
     direction : REAL; // perceived neighbor's flight direction (in degrees)
 END_VAR
 
 VAR_OUTPUT
     headingChange : REAL; // flight direction change (in degrees)
 END_VAR
-
-FUZZIFY distance
-    TERM tooClose := (0, 1) (80, 0) (100, 0);
-    TERM good     := trian 0 60 120; // (0, 0) (60, 1) (100, 0.67);
-    TERM tooFar   := (0, 0) (40, 0) (100, 1);
-END_FUZZIFY
 
 FUZZIFY direction
     TERM same  := trian -180 0 180;

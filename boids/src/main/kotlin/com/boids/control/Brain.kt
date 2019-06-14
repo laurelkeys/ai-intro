@@ -72,7 +72,6 @@ object Brain {
                 distVector.mag().let { dist ->
                     if (0 < dist && dist <= perceptionRadius) {
                         Alignment.evaluate(
-                            dist / perceptionRadius,
                             angleDiff(boid.velocity, other.velocity)
                         )
                         alignment.add(
