@@ -53,7 +53,7 @@ object Cohesion {
 }
 
 fun main() {
-    //Cohesion.showFIS()
+    Cohesion.showFIS()
     val bool = false
 
     // bool == true: test individual inputs and see their charts

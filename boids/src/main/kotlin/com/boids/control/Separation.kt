@@ -53,7 +53,7 @@ object Separation {
 }
 
 fun main() {
-    //Separation.showFIS()
+    Separation.showFIS()
     val bool = false
 
     // bool == true: test individual inputs and see their charts

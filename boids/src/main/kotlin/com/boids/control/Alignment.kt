@@ -50,7 +50,7 @@ object Alignment {
 }
 
 fun main() {
-    //Alignment.showFIS()
+    Alignment.showFIS()
     val bool = false
 
     // bool == true: test individual inputs and see their charts
