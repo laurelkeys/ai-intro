@@ -1,14 +1,15 @@
 package com.boids.control
 
-import com.boids.VANILLA
+import com.boids.Sketch.Companion.vanilla
 import net.sourceforge.jFuzzyLogic.FIS
 import net.sourceforge.jFuzzyLogic.plot.JFuzzyChart
 import net.sourceforge.jFuzzyLogic.rule.Variable
+import java.io.File
 import java.nio.file.Paths
 
 object Cohesion {
     private val fclFileName =
-        if (VANILLA) Paths.get(".", "src", "fcl", "vanilla", "cohere.fcl").toString()
+        if (vanilla) Paths.get(".", "src", "fcl", "vanilla", "cohere.fcl").toString()
         else Paths.get(".", "src", "fcl", "cohere.fcl").toString()
     private val fis = FIS.load(fclFileName, true)
 
@@ -67,9 +68,16 @@ fun main() {
         println("Consequent: headingChange ${Cohesion.headingChange.value}")
     }
 
-    // bool == false: test pDiff values from -180 to 180
-    for (i in -180..180 step 10) {
-        Cohesion.evaluate(distance = 40.0, position = i / 1.0)
-        println("$i -> ${Cohesion.headingChange.value}")
+    // bool == false
+    val deltaDist = 10
+    val deltaPos = 36
+    val csvFile = File(Paths.get(".", "metrics", "heatmap", "cohesion_cog.csv").toString())
+    csvFile.writeText("distance,position,headingChange\n")
+    for (dist in 0..100 step deltaDist) {
+        println("finished line $dist")
+        for (pos in -180..180 step deltaPos) {
+            Cohesion.evaluate(distance = dist / 1.0, position = pos / 1.0)
+            csvFile.appendText("$dist,$pos,${Cohesion.headingChange.value}\n")
+        }
     }
 }

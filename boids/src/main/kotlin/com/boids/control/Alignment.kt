@@ -3,6 +3,7 @@ package com.boids.control
 import net.sourceforge.jFuzzyLogic.FIS
 import net.sourceforge.jFuzzyLogic.plot.JFuzzyChart
 import net.sourceforge.jFuzzyLogic.rule.Variable
+import java.io.File
 import java.nio.file.Paths
 
 object Alignment {
@@ -62,9 +63,12 @@ fun main() {
         println("Consequent: headingChange ${Alignment.headingChange.value}")
     }
 
-    // bool == false: test pDiff values from -180 to 180
-    for (i in -180..180 step 10) {
-        Alignment.evaluate(direction = i / 1.0)
-        println("$i -> ${Alignment.headingChange.value}")
+    // bool == false
+    val deltaDir = 36
+    val csvFile = File(Paths.get(".", "metrics", "heatmap", "alignment-$deltaDir.csv").toString())
+    csvFile.writeText("direction,headingChange\n")
+    for (dir in -180..180 step deltaDir) {
+        Alignment.evaluate(direction = dir / 1.0)
+        csvFile.appendText("$dir,${Alignment.headingChange.value}\n")
     }
 }

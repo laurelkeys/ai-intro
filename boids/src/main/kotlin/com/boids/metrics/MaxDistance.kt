@@ -2,7 +2,7 @@ package com.boids.metrics
 
 import com.boids.Sketch
 import com.google.gson.Gson
-
+import processing.core.PVector
 import java.io.FileWriter
 
 object MaxDistance {
@@ -10,15 +10,14 @@ object MaxDistance {
     private val maxavg: MutableList<Float> = ArrayList()
     private val maxmax: MutableList<Float> = ArrayList()
 
-
     fun sample(boids: List<Sketch.Boid>) {
-        val maxDistances = (0 until boids.size - 1).map { i ->
-            (i + 1 until boids.size).map { j ->
+        val maxDistances = (0 until boids.size).map { i ->
+            (0 until boids.size).map { j ->
                 val first = boids[i]
                 val second = boids[j]
-                val distance = first.position.dist(second.position)
+                val distance = PVector.dist(first.position, second.position)
 
-                distance // return the distance between the boids
+                if (i != j) distance else 0f // return the distance between the boids
             }.max() ?: 0f
         }
 

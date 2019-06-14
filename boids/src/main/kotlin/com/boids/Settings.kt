@@ -1,7 +1,10 @@
 package com.boids
 
+const val SEED_RANDOM = false
+
 const val VANILLA = false
-const val SEED_RANDOM = true
+const val THINK_FUZZY = true
+const val WRAPAROUND = true
 
 const val FLOCK_SIZE = 50
 
@@ -13,7 +16,7 @@ const val MAX_SPEED = 2f
 
 const val ALIGNMENT_WEIGHT = 0.3f
 const val COHESION_WEIGHT = 1.2f
-const val SEPARATION_WEIGHT = 1.25f
+const val SEPARATION_WEIGHT = 1.4f
 
 const val PERCEPTION_RADIUS = 80f // alignmentRadius and cohesionRadius
 const val SEPARATION_RADIUS = 30f
@@ -23,5 +26,5 @@ const val SHOW_SEPARATION_RADIUS = false
 const val SHOW_FORCES = false
 const val SHOW_FPS = true
 
-const val PLOTTING = true
+const val PLOTTING = false
 const val METRICS_CHARTING_RATE = 1000
