@@ -7,14 +7,14 @@ import controlP5.ControlP5
 import processing.core.PApplet
 import processing.core.PVector
 
-class Sketch(private val flockSize: Int) : PApplet() {
+class Sketch(private val initialFlockSize: Int) : PApplet() {
 
     companion object {
 
         var vanilla: Boolean = VANILLA
 
-        fun run(flockSize: Int = FLOCK_SIZE) {
-            val sketch = Sketch(flockSize)
+        fun run(initialFlockSize: Int = FLOCK_SIZE) {
+            val sketch = Sketch(initialFlockSize)
             sketch.runSketch()
         }
     }
@@ -55,7 +55,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
 
         if (SEED_RANDOM) randomSeed(42L)
 
-        repeat(flockSize) {
+        repeat(initialFlockSize) {
             flock.add(Boid(random(0, width), random(0, height)))
         }
     }
@@ -134,6 +134,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
             strokeWeight(2f)
             stroke(255)
             pushPop(origin = position, angle = velocity.heading()) {
+                fill(255)
                 triangle(
                     2 * BOID_SIZE_SCALE, 0f,
                     -BOID_SIZE_SCALE, BOID_SIZE_SCALE,
@@ -183,8 +184,9 @@ class Sketch(private val flockSize: Int) : PApplet() {
     }
 
     override fun keyPressed() {
-        if (key == SPACE) {
-            running = !running
+        when (key) {
+            SPACE -> running = !running
+            BACKSPACE -> if (flock.size > 0) flock.removeAt(0)
         }
     }
 

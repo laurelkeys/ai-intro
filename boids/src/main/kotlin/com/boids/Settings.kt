@@ -4,11 +4,10 @@ const val SEED_RANDOM = false
 
 const val VANILLA = false
 const val THINK_FUZZY = true
-const val WRAPAROUND = true
 
 const val FLOCK_SIZE = 50
 
-const val BOID_SIZE_SCALE = 2f // boid size drawing scaling
+const val BOID_SIZE_SCALE = 3f // boid size drawing scaling
 const val BOID_FORCE_SCALE = 40f // steering force vector drawing scaling
 
 const val MAX_FORCE = 1f
