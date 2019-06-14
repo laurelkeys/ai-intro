@@ -22,7 +22,6 @@ class Sketch(private val flockSize: Int) : PApplet() {
     private lateinit var controller: ControlP5
 
     private val flock = ArrayList<Boid>()
-    private var homeBorder: Float = 0f
 
     private var maxForce: Float = MAX_FORCE
     private var maxSpeed: Float = MAX_SPEED
@@ -38,14 +37,13 @@ class Sketch(private val flockSize: Int) : PApplet() {
     private var showSeparationRadius: Boolean = SHOW_SEPARATION_RADIUS
     private var showForces: Boolean = SHOW_FORCES
     private var thinkFuzzy: Boolean = THINK_FUZZY
-    private var wraparound: Boolean = WRAPAROUND
 
     private var chartingRate = 0
     private var hasntPlotted = true
-    private var running: Boolean = false
+    private var running = true
 
     override fun settings() {
-        size(800, 800)
+        size(displayWidth / 2, displayHeight / 2)
     }
 
     override fun setup() {
@@ -53,31 +51,18 @@ class Sketch(private val flockSize: Int) : PApplet() {
         background(50)
 
         controller = ControlP5(this)
-//        setupToggles()
-//        setupSliders()
+        setupToggles()
+        setupSliders()
 
         if (SEED_RANDOM) randomSeed(42L)
 
-        homeBorder = 0.1f * min(width, height) // == 80px
         repeat(flockSize) {
-            flock.add(
-                Boid(
-                    random(homeBorder, width - homeBorder),
-                    random(homeBorder, height - homeBorder)
-                )
-                //Boid(width / 2f, height / 2f)
-            )
+            flock.add(Boid(random(0, width), random(0, height)))
         }
     }
 
     override fun draw() {
         background(50)
-        if (!wraparound) {
-            stroke(0f)
-            rectMode(CENTER)
-            rect(width / 2f, height / 2f, width - 2 * homeBorder, height - 2 * homeBorder)
-        }
-
         stroke(1f)
         if (SHOW_FPS) {
             textSize(18f)
@@ -102,8 +87,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
                 this.chartingRate = 0
                 MetricsExecutor.plot()
                 hasntPlotted = false // only plots once
-                kotlin.io.println("Plotted data :)")
-                kotlin.io.println("Vanilla: $vanilla, Fuzzy: $thinkFuzzy, Confined: ${!wraparound}")
+                kotlin.io.println("Plotted data")
                 exit()
             }
         }
@@ -120,7 +104,7 @@ class Sketch(private val flockSize: Int) : PApplet() {
         fun run(boids: List<Boid>) {
             flock(boids) // adds steering forces to the acceleration (Σ F = m * a, with m = 1)
             if (running) update()
-            if (wraparound) wraparound()
+            wraparound()
             render()
         }
 
@@ -142,27 +126,6 @@ class Sketch(private val flockSize: Int) : PApplet() {
                     separation.mult(separationWeight)
                 )
                 .limit(maxForce)
-
-            if (!wraparound) {
-                when {
-                    position.x < homeBorder -> acceleration.add(PVector(maxSpeed, velocity.y).sub(velocity).normalize())
-                    position.x > width - homeBorder -> acceleration.add(
-                        PVector(
-                            -maxSpeed,
-                            velocity.y
-                        ).sub(velocity).normalize()
-                    )
-                }
-                when {
-                    position.y < homeBorder -> acceleration.add(PVector(velocity.x, maxSpeed).sub(velocity).normalize())
-                    position.y > height - homeBorder -> acceleration.add(
-                        PVector(
-                            velocity.x,
-                            -maxSpeed
-                        ).sub(velocity).normalize()
-                    )
-                }
-            }
         }
 
         private fun update() {
@@ -264,13 +227,6 @@ class Sketch(private val flockSize: Int) : PApplet() {
                 value = !thinkFuzzy,
                 position = width - 50 to 115
             ) { value -> thinkFuzzy = value == 0f }
-
-            addToggle(
-                name = "Allow boids to wraparound screen",
-                label = "confine",
-                value = wraparound,
-                position = width - 50 to 150
-            ) { value -> wraparound = value != 0f }
 
             addToggle(
                 name = "Use vanilla fuzzy rules",
