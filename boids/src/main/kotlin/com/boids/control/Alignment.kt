@@ -66,15 +66,11 @@ fun main() {
     }
 
     // bool == false
-    val deltaDist = 10
     val deltaDir = 36
-    val csvFile = File(Paths.get(".", "metrics", "alignment-$deltaDist-$deltaDir.csv").toString())
+    val csvFile = File(Paths.get(".", "metrics", "heatmap", "alignment-$deltaDir.csv").toString())
     csvFile.writeText("distance,direction,headingChange\n")
-    for (dist in 0..100 step deltaDist) {
-        println("finished line $dist")
-        for (dir in -180..180 step deltaDir) {
-            Alignment.evaluate(distance = dist / 1.0, direction = dir / 1.0)
-            csvFile.appendText("$dist,$dir,${Alignment.headingChange.value}\n")
-        }
+    for (dir in -180..180 step deltaDir) {
+        Alignment.evaluate(distance = 0.0, direction = dir / 1.0)
+        csvFile.appendText("$dir,${Alignment.headingChange.value}\n")
     }
 }

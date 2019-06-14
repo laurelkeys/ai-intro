@@ -26,7 +26,7 @@ DEFUZZIFY headingChange
 	TERM none      := trian -180    0 180;
 	TERM turnLeft  := trian -360 -180   0;
 	TERM turnRight := trian    0  180 360;
-	METHOD  : COG;
+	METHOD  : COG; // COG, COA, LM, RM, MM
 	DEFAULT	:= 0;
 END_DEFUZZIFY
 

@@ -71,7 +71,7 @@ fun main() {
     // bool == false
     val deltaDist = 10
     val deltaPos = 36
-    val csvFile = File(Paths.get(".", "metrics", "separation-$deltaDist-$deltaPos.csv").toString())
+    val csvFile = File(Paths.get(".", "metrics", "heatmap", "separation-$deltaDist-$deltaPos.csv").toString())
     csvFile.writeText("distance,position,headingChange\n")
     for (dist in 0..100 step deltaDist) {
         println("finished line $dist")
