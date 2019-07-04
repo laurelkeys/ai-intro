@@ -1,0 +1,487 @@
+<svg xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' version='1.1' width='200' height='200'>
+
+  <g id='shape0'>
+    <polygon points='0,0 199,0 199,199 0,199' style='fill:#6F5F39; stroke:None; fill-opacity:1.0; stroke-opacity:1.0; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape1'>
+    <polygon points='41,124 178,23 32,200' style='fill:#1D0000; stroke:None; fill-opacity:0.6823529411764706; stroke-opacity:0.6823529411764706; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape2'>
+    <polygon points='75,38 10,91 108,137' style='fill:#E9FCDC; stroke:None; fill-opacity:0.7450980392156863; stroke-opacity:0.7450980392156863; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape3'>
+    <polygon points='38,4 17,137 45,190' style='fill:#C4C682; stroke:None; fill-opacity:0.7647058823529411; stroke-opacity:0.7647058823529411; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape4'>
+    <polygon points='5,64 41,144 15,51' style='fill:#FFFFD6; stroke:None; fill-opacity:0.5686274509803921; stroke-opacity:0.5686274509803921; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape5'>
+    <polygon points='13,5 180,78 123,15' style='fill:#153E29; stroke:None; fill-opacity:0.6196078431372549; stroke-opacity:0.6196078431372549; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape6'>
+    <polygon points='183,186 39,192 117,200' style='fill:#FFFFBD; stroke:None; fill-opacity:0.7568627450980392; stroke-opacity:0.7568627450980392; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape7'>
+    <polygon points='109,181 73,173 9,49' style='fill:#FFEC55; stroke:None; fill-opacity:0.7647058823529411; stroke-opacity:0.7647058823529411; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape8'>
+    <polygon points='190,197 2,200 55,37' style='fill:#000005; stroke:None; fill-opacity:0.6549019607843137; stroke-opacity:0.6549019607843137; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape9'>
+    <polygon points='83,183 119,170 77,17' style='fill:#FFDB40; stroke:None; fill-opacity:0.7568627450980392; stroke-opacity:0.7568627450980392; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape10'>
+    <polygon points='193,83 198,0 113,0' style='fill:#FFFBB1; stroke:None; fill-opacity:0.4235294117647059; stroke-opacity:0.4235294117647059; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape11'>
+    <polygon points='7,133 40,182 78,145' style='fill:#0F0000; stroke:None; fill-opacity:0.5803921568627451; stroke-opacity:0.5803921568627451; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape12'>
+    <polygon points='45,33 182,60 139,170' style='fill:#E3C156; stroke:None; fill-opacity:0.6862745098039216; stroke-opacity:0.6862745098039216; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape13'>
+    <polygon points='133,182 148,73 29,197' style='fill:#060007; stroke:None; fill-opacity:0.7137254901960784; stroke-opacity:0.7137254901960784; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape14'>
+    <polygon points='193,73 36,115 61,9' style='fill:#3F200A; stroke:None; fill-opacity:0.5176470588235295; stroke-opacity:0.5176470588235295; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape15'>
+    <polygon points='0,106 4,0 67,13' style='fill:#D3C471; stroke:None; fill-opacity:0.38823529411764707; stroke-opacity:0.38823529411764707; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape16'>
+    <polygon points='157,0 8,0 190,43' style='fill:#B6AE75; stroke:None; fill-opacity:0.6274509803921569; stroke-opacity:0.6274509803921569; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape17'>
+    <polygon points='3,105 12,199 51,122' style='fill:#363F27; stroke:None; fill-opacity:0.7372549019607844; stroke-opacity:0.7372549019607844; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape18'>
+    <polygon points='181,149 15,56 68,160' style='fill:#F1994B; stroke:None; fill-opacity:0.5019607843137255; stroke-opacity:0.5019607843137255; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape19'>
+    <polygon points='1,158 1,112 133,190' style='fill:#000F09; stroke:None; fill-opacity:0.5568627450980392; stroke-opacity:0.5568627450980392; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape20'>
+    <polygon points='199,110 20,186 197,175' style='fill:#2F744E; stroke:None; fill-opacity:0.2196078431372549; stroke-opacity:0.2196078431372549; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape21'>
+    <polygon points='169,101 18,192 184,200' style='fill:#0A0000; stroke:None; fill-opacity:0.403921568627451; stroke-opacity:0.403921568627451; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape22'>
+    <polygon points='88,129 72,88 59,110' style='fill:#F8BF5B; stroke:None; fill-opacity:0.7647058823529411; stroke-opacity:0.7647058823529411; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape23'>
+    <polygon points='50,199 93,65 174,171' style='fill:#000000; stroke:None; fill-opacity:0.41568627450980394; stroke-opacity:0.41568627450980394; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape24'>
+    <polygon points='140,121 12,50 188,111' style='fill:#D9DEA0; stroke:None; fill-opacity:0.7215686274509804; stroke-opacity:0.7215686274509804; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape25'>
+    <polygon points='78,194 194,193 86,200' style='fill:#F6AF6A; stroke:None; fill-opacity:0.47843137254901963; stroke-opacity:0.47843137254901963; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape26'>
+    <polygon points='0,40 144,159 94,38' style='fill:#B7B98E; stroke:None; fill-opacity:0.29411764705882354; stroke-opacity:0.29411764705882354; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape27'>
+    <polygon points='140,9 195,126 200,48' style='fill:#AABF6D; stroke:None; fill-opacity:0.6470588235294118; stroke-opacity:0.6470588235294118; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape28'>
+    <polygon points='120,116 176,60 110,17' style='fill:#140000; stroke:None; fill-opacity:0.7254901960784313; stroke-opacity:0.7254901960784313; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape29'>
+    <polygon points='70,172 190,84 83,140' style='fill:#C8943B; stroke:None; fill-opacity:0.6901960784313725; stroke-opacity:0.6901960784313725; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape30'>
+    <polygon points='33,183 4,179 34,101' style='fill:#7E7548; stroke:None; fill-opacity:0.47058823529411764; stroke-opacity:0.47058823529411764; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape31'>
+    <polygon points='63,12 10,129 43,188' style='fill:#0D010C; stroke:None; fill-opacity:0.5725490196078431; stroke-opacity:0.5725490196078431; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape32'>
+    <polygon points='50,40 47,144 26,97' style='fill:#000006; stroke:None; fill-opacity:0.7647058823529411; stroke-opacity:0.7647058823529411; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape33'>
+    <polygon points='187,161 1,61 2,89' style='fill:#FFD098; stroke:None; fill-opacity:0.3411764705882353; stroke-opacity:0.3411764705882353; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape34'>
+    <polygon points='0,2 0,94 38,108' style='fill:#D5D48B; stroke:None; fill-opacity:0.4745098039215686; stroke-opacity:0.4745098039215686; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape35'>
+    <polygon points='79,122 73,140 102,104' style='fill:#000000; stroke:None; fill-opacity:0.43529411764705883; stroke-opacity:0.43529411764705883; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape36'>
+    <polygon points='199,66 165,46 200,15' style='fill:#F0EDBA; stroke:None; fill-opacity:0.7647058823529411; stroke-opacity:0.7647058823529411; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape37'>
+    <polygon points='78,159 5,40 95,157' style='fill:#EBA75D; stroke:None; fill-opacity:0.6274509803921569; stroke-opacity:0.6274509803921569; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape38'>
+    <polygon points='68,102 34,79 78,167' style='fill:#D8A763; stroke:None; fill-opacity:0.6392156862745098; stroke-opacity:0.6392156862745098; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape39'>
+    <polygon points='119,90 31,87 152,104' style='fill:#000000; stroke:None; fill-opacity:0.7647058823529411; stroke-opacity:0.7647058823529411; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape40'>
+    <polygon points='197,89 111,42 192,171' style='fill:#45663D; stroke:None; fill-opacity:0.47058823529411764; stroke-opacity:0.47058823529411764; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape41'>
+    <polygon points='62,37 193,46 110,162' style='fill:#FFEFA6; stroke:None; fill-opacity:0.5607843137254902; stroke-opacity:0.5607843137254902; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape42'>
+    <polygon points='57,38 22,106 93,54' style='fill:#FFCE6C; stroke:None; fill-opacity:0.6235294117647059; stroke-opacity:0.6235294117647059; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape43'>
+    <polygon points='160,28 86,102 55,80' style='fill:#502900; stroke:None; fill-opacity:0.7607843137254902; stroke-opacity:0.7607843137254902; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape44'>
+    <polygon points='15,129 38,147 58,30' style='fill:#0E090C; stroke:None; fill-opacity:0.7647058823529411; stroke-opacity:0.7647058823529411; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape45'>
+    <polygon points='76,139 157,117 143,97' style='fill:#000000; stroke:None; fill-opacity:0.36470588235294116; stroke-opacity:0.36470588235294116; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape46'>
+    <polygon points='193,114 54,45 42,73' style='fill:#FFC462; stroke:None; fill-opacity:0.5294117647058824; stroke-opacity:0.5294117647058824; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape47'>
+    <polygon points='81,19 62,145 76,164' style='fill:#FFB559; stroke:None; fill-opacity:0.23529411764705882; stroke-opacity:0.23529411764705882; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape48'>
+    <polygon points='20,142 53,14 127,14' style='fill:#0B0001; stroke:None; fill-opacity:0.2235294117647059; stroke-opacity:0.2235294117647059; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape49'>
+    <polygon points='196,199 113,185 200,180' style='fill:#091012; stroke:None; fill-opacity:0.6705882352941176; stroke-opacity:0.6705882352941176; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape50'>
+    <polygon points='161,43 56,15 116,9' style='fill:#160000; stroke:None; fill-opacity:0.6941176470588235; stroke-opacity:0.6941176470588235; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape51'>
+    <polygon points='93,36 56,79 53,49' style='fill:#FFF6CE; stroke:None; fill-opacity:0.7529411764705882; stroke-opacity:0.7529411764705882; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape52'>
+    <polygon points='44,62 187,67 68,94' style='fill:#DA9848; stroke:None; fill-opacity:0.4549019607843137; stroke-opacity:0.4549019607843137; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape53'>
+    <polygon points='91,33 72,43 164,147' style='fill:#FFC058; stroke:None; fill-opacity:0.6862745098039216; stroke-opacity:0.6862745098039216; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape54'>
+    <polygon points='86,193 40,58 102,170' style='fill:#FBEE83; stroke:None; fill-opacity:0.1450980392156863; stroke-opacity:0.1450980392156863; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape55'>
+    <polygon points='80,39 113,12 146,26' style='fill:#150600; stroke:None; fill-opacity:0.6039215686274509; stroke-opacity:0.6039215686274509; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape56'>
+    <polygon points='51,16 26,60 84,3' style='fill:#C8C69A; stroke:None; fill-opacity:0.7372549019607844; stroke-opacity:0.7372549019607844; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape57'>
+    <polygon points='77,0 12,97 165,98' style='fill:#260000; stroke:None; fill-opacity:0.25098039215686274; stroke-opacity:0.25098039215686274; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape58'>
+    <polygon points='106,9 188,8 170,38' style='fill:#AAA663; stroke:None; fill-opacity:0.6980392156862745; stroke-opacity:0.6980392156862745; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape59'>
+    <polygon points='11,61 4,191 28,172' style='fill:#808D46; stroke:None; fill-opacity:0.25098039215686274; stroke-opacity:0.25098039215686274; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape60'>
+    <polygon points='100,102 187,44 146,88' style='fill:#F6FFBB; stroke:None; fill-opacity:0.6039215686274509; stroke-opacity:0.6039215686274509; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape61'>
+    <polygon points='151,123 135,153 45,181' style='fill:#0B0000; stroke:None; fill-opacity:0.7647058823529411; stroke-opacity:0.7647058823529411; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape62'>
+    <polygon points='99,196 53,44 45,116' style='fill:#FFB93E; stroke:None; fill-opacity:0.2549019607843137; stroke-opacity:0.2549019607843137; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape63'>
+    <polygon points='147,2 110,14 26,2' style='fill:#A4A069; stroke:None; fill-opacity:0.6901960784313725; stroke-opacity:0.6901960784313725; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape64'>
+    <polygon points='37,200 161,166 42,156' style='fill:#000209; stroke:None; fill-opacity:0.5254901960784314; stroke-opacity:0.5254901960784314; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape65'>
+    <polygon points='197,86 200,5 168,0' style='fill:#CFBE7A; stroke:None; fill-opacity:0.5843137254901961; stroke-opacity:0.5843137254901961; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape66'>
+    <polygon points='174,138 97,28 149,23' style='fill:#000005; stroke:None; fill-opacity:0.6705882352941176; stroke-opacity:0.6705882352941176; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape67'>
+    <polygon points='112,31 122,170 38,42' style='fill:#FFBB47; stroke:None; fill-opacity:0.12941176470588237; stroke-opacity:0.12941176470588237; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape68'>
+    <polygon points='134,191 169,85 97,143' style='fill:#BF8321; stroke:None; fill-opacity:0.7411764705882353; stroke-opacity:0.7411764705882353; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape69'>
+    <polygon points='184,78 100,154 141,47' style='fill:#8C8334; stroke:None; fill-opacity:0.4235294117647059; stroke-opacity:0.4235294117647059; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape70'>
+    <polygon points='20,49 167,60 79,37' style='fill:#FFD171; stroke:None; fill-opacity:0.25098039215686274; stroke-opacity:0.25098039215686274; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape71'>
+    <polygon points='30,85 8,93 32,20' style='fill:#C6C38D; stroke:None; fill-opacity:0.6235294117647059; stroke-opacity:0.6235294117647059; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape72'>
+    <polygon points='92,40 82,196 170,198' style='fill:#FFBA54; stroke:None; fill-opacity:0.3333333333333333; stroke-opacity:0.3333333333333333; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape73'>
+    <polygon points='79,53 142,200 189,198' style='fill:#180E0A; stroke:None; fill-opacity:0.6078431372549019; stroke-opacity:0.6078431372549019; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape74'>
+    <polygon points='94,47 100,77 76,59' style='fill:#FFFFFF; stroke:None; fill-opacity:0.7607843137254902; stroke-opacity:0.7607843137254902; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape75'>
+    <polygon points='3,194 62,23 9,112' style='fill:#242814; stroke:None; fill-opacity:0.44313725490196076; stroke-opacity:0.44313725490196076; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape76'>
+    <polygon points='200,123 97,2 196,0' style='fill:#F4EACD; stroke:None; fill-opacity:0.13333333333333333; stroke-opacity:0.13333333333333333; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape77'>
+    <polygon points='200,121 162,198 141,22' style='fill:#50462D; stroke:None; fill-opacity:0.25882352941176473; stroke-opacity:0.25882352941176473; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape78'>
+    <polygon points='73,74 136,99 82,49' style='fill:#FFD57C; stroke:None; fill-opacity:0.7568627450980392; stroke-opacity:0.7568627450980392; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape79'>
+    <polygon points='180,191 139,9 82,52' style='fill:#0C0000; stroke:None; fill-opacity:0.3176470588235294; stroke-opacity:0.3176470588235294; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape80'>
+    <polygon points='81,27 114,49 118,194' style='fill:#DD7616; stroke:None; fill-opacity:0.2901960784313726; stroke-opacity:0.2901960784313726; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape81'>
+    <polygon points='123,88 109,117 91,103' style='fill:#F0D387; stroke:None; fill-opacity:0.7607843137254902; stroke-opacity:0.7607843137254902; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape82'>
+    <polygon points='196,111 169,109 84,55' style='fill:#EBE28A; stroke:None; fill-opacity:0.2980392156862745; stroke-opacity:0.2980392156862745; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape83'>
+    <polygon points='177,127 105,186 150,29' style='fill:#131711; stroke:None; fill-opacity:0.5058823529411764; stroke-opacity:0.5058823529411764; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape84'>
+    <polygon points='77,34 158,76 44,79' style='fill:#FFCE6A; stroke:None; fill-opacity:0.3333333333333333; stroke-opacity:0.3333333333333333; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape85'>
+    <polygon points='72,14 1,84 5,12' style='fill:#AFA566; stroke:None; fill-opacity:0.6; stroke-opacity:0.6; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape86'>
+    <polygon points='122,200 123,191 81,199' style='fill:#F7C47E; stroke:None; fill-opacity:0.7215686274509804; stroke-opacity:0.7215686274509804; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape87'>
+    <polygon points='116,89 34,70 170,112' style='fill:#56FFBC; stroke:None; fill-opacity:0.0; stroke-opacity:0.0; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape88'>
+    <polygon points='137,200 118,159 65,198' style='fill:#E9BC4F; stroke:None; fill-opacity:0.5215686274509804; stroke-opacity:0.5215686274509804; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape89'>
+    <polygon points='15,173 12,190 195,106' style='fill:#D86DDD; stroke:None; fill-opacity:0.0; stroke-opacity:0.0; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape90'>
+    <polygon points='64,84 128,56 128,185' style='fill:#FFA431; stroke:None; fill-opacity:0.3176470588235294; stroke-opacity:0.3176470588235294; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape91'>
+    <polygon points='160,45 92,184 174,165' style='fill:#000008; stroke:None; fill-opacity:0.49411764705882355; stroke-opacity:0.49411764705882355; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape92'>
+    <polygon points='162,191 154,52 108,22' style='fill:#110F14; stroke:None; fill-opacity:0.7372549019607844; stroke-opacity:0.7372549019607844; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape93'>
+    <polygon points='63,78 69,59 90,48' style='fill:#B8B6C6; stroke:None; fill-opacity:0.6431372549019608; stroke-opacity:0.6431372549019608; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape94'>
+    <polygon points='67,38 46,62 125,140' style='fill:#FFE97F; stroke:None; fill-opacity:0.16470588235294117; stroke-opacity:0.16470588235294117; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape95'>
+    <polygon points='86,87 119,92 87,83' style='fill:#030000; stroke:None; fill-opacity:0.4745098039215686; stroke-opacity:0.4745098039215686; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape96'>
+    <polygon points='53,68 52,120 80,13' style='fill:#FFDE9B; stroke:None; fill-opacity:0.12549019607843137; stroke-opacity:0.12549019607843137; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape97'>
+    <polygon points='77,99 59,60 88,39' style='fill:#FFD481; stroke:None; fill-opacity:0.6823529411764706; stroke-opacity:0.6823529411764706; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape98'>
+    <polygon points='32,169 192,192 199,63' style='fill:#2B2510; stroke:None; fill-opacity:0.12549019607843137; stroke-opacity:0.12549019607843137; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape99'>
+    <polygon points='76,68 147,19 184,131' style='fill:#1C1200; stroke:None; fill-opacity:0.19607843137254902; stroke-opacity:0.19607843137254902; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape100'>
+    <polygon points='27,116 17,82 34,53' style='fill:#F3E688; stroke:None; fill-opacity:0.18823529411764706; stroke-opacity:0.18823529411764706; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape101'>
+    <polygon points='131,85 48,81 90,45' style='fill:#FEBD61; stroke:None; fill-opacity:0.39215686274509803; stroke-opacity:0.39215686274509803; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape102'>
+    <polygon points='52,34 32,17 14,42' style='fill:#C59B57; stroke:None; fill-opacity:0.27058823529411763; stroke-opacity:0.27058823529411763; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape103'>
+    <polygon points='71,199 120,85 142,199' style='fill:#D3993E; stroke:None; fill-opacity:0.26666666666666666; stroke-opacity:0.26666666666666666; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape104'>
+    <polygon points='183,175 29,149 161,198' style='fill:#070000; stroke:None; fill-opacity:0.17647058823529413; stroke-opacity:0.17647058823529413; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape105'>
+    <polygon points='138,73 62,77 72,28' style='fill:#FFD475; stroke:None; fill-opacity:0.1843137254901961; stroke-opacity:0.1843137254901961; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape106'>
+    <polygon points='79,13 79,13 79,13' style='fill:#D8F111; stroke:None; fill-opacity:0.8941176470588236; stroke-opacity:0.8941176470588236; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape107'>
+    <polygon points='166,94 81,90 86,75' style='fill:#4E2A00; stroke:None; fill-opacity:0.49019607843137253; stroke-opacity:0.49019607843137253; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape108'>
+    <polygon points='32,39 17,94 26,98' style='fill:#CACC85; stroke:None; fill-opacity:0.49411764705882355; stroke-opacity:0.49411764705882355; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape109'>
+    <polygon points='105,118 61,42 103,37' style='fill:#FFE68C; stroke:None; fill-opacity:0.24313725490196078; stroke-opacity:0.24313725490196078; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape110'>
+    <polygon points='116,154 15,103 77,142' style='fill:#552600; stroke:None; fill-opacity:0.23137254901960785; stroke-opacity:0.23137254901960785; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape111'>
+    <polygon points='4,157 1,191 6,161' style='fill:#1F392A; stroke:None; fill-opacity:0.4117647058823529; stroke-opacity:0.4117647058823529; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape112'>
+    <polygon points='186,185 91,170 154,45' style='fill:#00000B; stroke:None; fill-opacity:0.3215686274509804; stroke-opacity:0.3215686274509804; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape113'>
+    <polygon points='186,55 126,33 123,178' style='fill:#000000; stroke:None; fill-opacity:0.20392156862745098; stroke-opacity:0.20392156862745098; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape114'>
+    <polygon points='174,68 200,13 124,0' style='fill:#CAB97E; stroke:None; fill-opacity:0.6823529411764706; stroke-opacity:0.6823529411764706; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape115'>
+    <polygon points='166,168 153,132 43,170' style='fill:#000003; stroke:None; fill-opacity:0.42745098039215684; stroke-opacity:0.42745098039215684; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape116'>
+    <polygon points='54,18 54,18 54,18' style='fill:#3DE159; stroke:None; fill-opacity:0.8549019607843137; stroke-opacity:0.8549019607843137; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape117'>
+    <polygon points='100,9 17,5 38,28' style='fill:#ACA05D; stroke:None; fill-opacity:0.7647058823529411; stroke-opacity:0.7647058823529411; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape118'>
+    <polygon points='162,66 167,87 36,94' style='fill:#030000; stroke:None; fill-opacity:0.20784313725490197; stroke-opacity:0.20784313725490197; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape119'>
+    <polygon points='165,52 117,2 152,27' style='fill:#D5BA71; stroke:None; fill-opacity:0.6196078431372549; stroke-opacity:0.6196078431372549; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+  <g id='shape120'>
+    <polygon points='146,6 190,59 162,59' style='fill:#D3CA8A; stroke:None; fill-opacity:0.7098039215686275; stroke-opacity:0.7098039215686275; stroke-width:3; stroke-linejoin:miter;' />
+  </g>
+
+</svg>

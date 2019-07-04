@@ -1,22 +1,3 @@
-# Project 3
-boids/metrics/*.json
-boids/metrics/*.jpeg
-
-# Project 2
-polygenesis/tests/*
-polygenesis/images/temp
-polygenesis/generated/*.png
-polygenesis/generated/dna/*.pkl
-polygenesis/generated/plot/*.png
-polygenesis/generated/vector/*.svg
-
-!polygenesis/generated/dna/dna_sad.pkl
-!polygenesis/generated/dna/dna_ssd.pkl
-!polygenesis/generated/dna/dna_sed.pkl
-!polygenesis/generated/vector/ml_sad.svg
-!polygenesis/generated/vector/ml_ssd.svg
-!polygenesis/generated/vector/ml_sed.svg
-
 # VS Code
 .vscode
 

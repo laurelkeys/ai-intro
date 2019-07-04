@@ -1,0 +1,50 @@
+Running with:
+    image_path     = images\original\caravaggio.png
+    polygon_count  = 64
+    vertices_count = 3
+
+    population_size     = 8
+    mutation_rate       = 0.5
+    crossover_rate      = 0.5
+    selection_strategy  = truncation
+    crossover_strategy  = uniform
+    substitution_method = comma_selection
+
+    fitness_func                = normalized_ssd
+    hard_mutation_fitness_limit = 3.0
+
+    cycle_limit           = None
+
+(height, width, depth) = (200, 200, 3) [resized from 501 by 501]
+[100] fitness=3.35, Δt=5.16s
+[200] fitness=2.78, Δt=10.34s
+[300] fitness=2.45, Δt=15.76s
+[400] fitness=2.22, Δt=20.96s
+[500] fitness=1.96, Δt=26.37s
+[600] fitness=1.85, Δt=31.53s
+[700] fitness=1.76, Δt=36.67s
+[800] fitness=1.69, Δt=41.97s
+[900] fitness=1.65, Δt=47.13s
+[1000] fitness=1.61, Δt=52.21s
+...
+[9000] fitness=0.71, Δt=468.76s
+[9100] fitness=0.71, Δt=474.03s
+[9200] fitness=0.71, Δt=479.23s
+[9300] fitness=0.71, Δt=484.44s
+[9400] fitness=0.71, Δt=489.68s
+[9500] fitness=0.71, Δt=494.93s
+[9600] fitness=0.71, Δt=500.24s
+[9700] fitness=0.70, Δt=505.35s
+[9800] fitness=0.70, Δt=510.49s
+[9900] fitness=0.70, Δt=515.63s
+
+Halting, 10000th cycle reached
+[10000] fitness=0.70, Δt=520.75s
+
+Best solution saved at tests\caravaggio\truncation\best_pack_10000.png
+
+Plot saved at tests\caravaggio\truncation\plot\plot_cycle_10000.png
+
+Final population saved at tests\caravaggio\truncation\final_population_10000.png
+
+Best solution's DNA saved at tests\caravaggio\truncation\dna\dna_10000.pkl

@@ -1,0 +1,50 @@
+Running with:
+    image_path     = images\original\caravaggio.png
+    polygon_count  = 64
+    vertices_count = 3
+
+    population_size     = 8
+    mutation_rate       = 0.5
+    crossover_rate      = 0.5
+    selection_strategy  = roulette_wheel
+    crossover_strategy  = uniform
+    substitution_method = comma_selection
+
+    fitness_func                = normalized_ssd
+    hard_mutation_fitness_limit = 3.0
+
+    cycle_limit           = None
+
+(height, width, depth) = (200, 200, 3) [resized from 501 by 501]
+[100] fitness=4.43, Δt=2.09s
+[200] fitness=3.90, Δt=4.17s
+[300] fitness=3.42, Δt=6.22s
+[400] fitness=3.10, Δt=8.24s
+[500] fitness=2.83, Δt=10.28s
+[600] fitness=2.65, Δt=12.43s
+[700] fitness=2.54, Δt=14.52s
+[800] fitness=2.39, Δt=16.53s
+[900] fitness=2.31, Δt=18.50s
+[1000] fitness=2.23, Δt=20.52s
+...
+[9000] fitness=1.11, Δt=188.40s
+[9100] fitness=1.11, Δt=190.56s
+[9200] fitness=1.11, Δt=192.59s
+[9300] fitness=1.10, Δt=194.64s
+[9400] fitness=1.09, Δt=196.65s
+[9500] fitness=1.09, Δt=198.79s
+[9600] fitness=1.08, Δt=200.97s
+[9700] fitness=1.08, Δt=203.03s
+[9800] fitness=1.08, Δt=205.13s
+[9900] fitness=1.08, Δt=207.21s
+
+Halting, 10000th cycle reached
+[10000] fitness=1.08, Δt=209.22s
+
+Best solution saved at tests\caravaggio\roulette_wheel\best_pack_10000.png
+
+Plot saved at tests\caravaggio\roulette_wheel\plot\plot_cycle_10000.png
+
+Final population saved at tests\caravaggio\roulette_wheel\final_population_10000.png
+
+Best solution's DNA saved at tests\caravaggio\roulette_wheel\dna\dna_10000.pkl
