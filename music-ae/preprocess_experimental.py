@@ -1,20 +1,50 @@
 import numpy as np
 import matplotlib.pyplot as pyplot
 
-def trianglify(segment, up=True, down=True, start_from_zero=False):
-    assert(len(segment) % 2 == 0)
-    half_seg_size = len(segment) // 2
-    dy = 0 if start_from_zero else 1 / half_seg_size
+def segmented_with_half_lenght_overlap(sequence, seg_size):
+    '''Converts a list into a list of segments which overlap (with half length overlap size).'''
+    assert(seg_size % 2 == 0)
 
-    ascent = np.linspace(dy, 1-dy, half_seg_size) # np.linspace(0, 1, half_seg_size)
-    descent = np.ones(ascent.shape) - ascent      # np.linspace(1, 0, half_seg_size)
+    overlap_size = seg_size // 2
+    return [sequence[i : i + seg_size] for i in range(0, len(sequence) - seg_size + 1, overlap_size)]
+
+def trianglify(segment, up=True, down=True, mult_first_by_zero=False):
+    '''Multiplies the given segment by a triangular pulse.'''
+    assert(len(segment) % 2 == 0)
+
+    half_seg_size = len(segment) // 2
+    dy = 0 if mult_first_by_zero else 1 / half_seg_size
+
+    ascent = np.linspace(dy, 1-dy, half_seg_size)
+    descent = np.ones(ascent.shape) - ascent
     segment_t = np.array(segment, dtype=float)
 
-    if up:   segment_t[:half_seg_size] *= ascent  # 1st half, x in [0, w/2): f(x) = x / (w/2)
-
-    if down: segment_t[half_seg_size:] *= descent # 2nd half, x in [w/2, w]: f(x) = 2 - x / (w/2)
+    # 1st half, x in [0, w/2): f(x) = x / (w/2)
+    if up: segment_t[:half_seg_size] *= ascent
+    # 2nd half, x in [w/2, w]: f(x) = 2 - x / (w/2)
+    if down: segment_t[half_seg_size:] *= descent
 
     return segment_t
+
+def modulate_and_add(segmented, seg_size, original_len):
+    '''Expects a list of overlapping segments (with half length overlap size) and 
+       modulates and adds them to reconstruct the original sequence.'''
+    assert(len(segmented[0]) == seg_size) # assert(all(len(segmented[i]) == seg_size for i in range(0, len(segmented))))
+
+    # modulating 'segmented' by a triangular pulse
+    modulated = [trianglify(segment, up=i > 0, down=i < len(segmented) - 1) 
+                   for i, segment in enumerate(segmented)]
+    
+    # adding the modulated overlapping segments to reobtain the original sequence
+    added = np.zeros(original_len)
+    for i in range(0, len(modulated)):
+        added[i * overlap_size : i * overlap_size + seg_size] += modulated[i]
+    
+    return added
+
+def equal_seq(seq1, seq2, max_abs_error=0.0001):
+    return all(abs(seq1[i] - seq2[i]) < max_abs_error 
+               for i in range(0, min(len(seq1), len(seq2))))
 
 ###############################################################
 
@@ -36,49 +66,26 @@ src_fname = 'link.wav' if len(sys.argv) < 2 else sys.argv[1]
 dst_fname = 'link_procd.wav' if len(sys.argv) < 3 else sys.argv[2]
 sr, wave = wavfile.read(src_fname)
 print(f"src_fname={src_fname}\ndst_fname={dst_fname}\n")
-print(f"sr={sr}, wave.shape={wave.shape}\n")
+print(f"sr={sr}, wave.shape={wave.shape}, wave.dtype={wave.dtype}\n")
 
 # [...]
 original = np.copy(wave)
 seg_size = 32
 overlap_size = seg_size // 2
 
-original = original[:, 0] # channel 1
-original = original[:len(original)//4]
-# original = np.arange(64)
-# original = np.ones(64)
-print_arr(original, "original")
+# channel 1
+ch_1 = original[:, 0]
+segmented_ch_1 = segmented_with_half_lenght_overlap(ch_1, seg_size) # [...] -> [[..], ...]
+procd_ch_1 = modulate_and_add(segmented_ch_1, seg_size, original_len=ch_1.shape)
 
-# [...] -> [[..], ...]
-segmented = [original[d:d+seg_size] for d in range(0, len(original) - seg_size + 1, overlap_size)]
-print_arr(segmented, "segmented")
+# channel 2
+ch_2 = original[:, 0]
+segmented_ch_2 = segmented_with_half_lenght_overlap(ch_2, seg_size) # [...] -> [[..], ...]
+procd_ch_2 = modulate_and_add(segmented_ch_2, seg_size, original_len=ch_2.shape)
 
-# [[..], ...] -> [..]||[..]||... = [.....]
-# flattened = [elem for segment in segmented for elem in segment]
-# print_arr(flattened, "flattened")
+# wave reconstruction
+procd_wave = np.array([(x, y) for x, y in zip(ch_1, ch_2)], dtype=np.int16)
+print(f"procd_wave.shape={procd_wave.shape}, procd_wave.dtype={procd_wave.dtype}\n")
 
-# modulating 'segmented' by a triangular wave
-segmented_t = [trianglify(segment, up=i>0, down=i<len(segmented)-1) for i, segment in enumerate(segmented)]
-print_arr(segmented_t, "segmented_t")
-
-# adding the modulated overlapping segments of 'segmented_t' to reobtain 'original'
-#added_t = np.array(segmented_t[0])
-#for i in range(1, len(segmented_t)):
-#    segment = segmented_t[i]
-#    added_t[-overlap_size:] += segment[:overlap_size]
-#    added_t = np.append(added_t, segment[overlap_size:])
-added_t = np.zeros(original.shape)
-for i in range(0, len(segmented_t)):
-    added_t[i * overlap_size : i * overlap_size + seg_size] += segmented_t[i]
-print_arr(added_t, "added_t")
-
-equal = all([original[i] == added_t[i] for i in range(0, len(original))])
-print(f"equal? {equal}")
-if not equal:
-    epsilon = 0.00001
-    for i in range(0, len(original)):
-        if abs(original[i] - added_t[i]) > epsilon:
-            print(f"{i}: {original[i]} != {added_t[i]}")
-
-# print(f"\nsaving processed wave to {dst_fname}")
-# wavfile.write(dst_fname, rate=sr, data=added_t)
+print(f"\nsaving processed wave to {dst_fname}")
+wavfile.write(dst_fname, rate=sr, data=procd_wave)
