@@ -15,8 +15,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from autoencoder import compile_model, load_model, parse_args, Params, default_args_dict
-from preprocess import normalize, segment, add_overlap
-# from preprocess_experimental import normalize, segment_t, add_overlap_t
+from preprocess import normalize # , segment, add_overlap
+from reconstruct import segmented_with_half_lenght_overlap, modulate_and_add
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
@@ -26,15 +26,15 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 args_dict = parse_args()
 if args_dict == None:
     # define the default parameters to be used
+    print("[warning] no args_dict passed.. using default values")
     args_dict = default_args_dict()
 
 params = Params(args_dict)
-params.initial_epoch = 1650
-print("[warning] overwriting: initial_epoch=1650")
 
 
 
 
+# loads the trained model to test it
 full_path = params.load_model_path_start
 full_path += params.load_model_path_version
 full_path += f"model-{params.initial_epoch}eps"
@@ -73,8 +73,8 @@ for f in file_arr:
     a1 = normalize(a1)
 
     if params.overlap_sections:
-        s_a0 = segment_t(a0, section_size)
-        s_a1 = segment_t(a1, section_size)
+        s_a0 = segmented_with_half_lenght_overlap(a0, section_size)
+        s_a1 = segmented_with_half_lenght_overlap(a1, section_size)
     else:
         s_a0 = [a0[i * section_size:(i + 1) * section_size] for i in range((len(a0) + section_size - 1) // section_size)]
         s_a1 = [a1[i * section_size:(i + 1) * section_size] for i in range((len(a1) + section_size - 1) // section_size)] 
@@ -129,8 +129,8 @@ for f in file_arr:
     if params.overlap_sections:
         ch1_song = [ch1_song[i : i+section_size] for i in range(0, len(ch1_song), section_size)] # [...] -> [[..], [..], ...]
         ch2_song = [ch2_song[i : i+section_size] for i in range(0, len(ch2_song), section_size)]
-        ch1_song = add_overlap_t(ch1_song, section_size) # [[..], [..], ...] -> [...]
-        ch2_song = add_overlap_t(ch2_song, section_size)
+        ch1_song = modulate_and_add(ch1_song, section_size, original_len=len(a0)) # [[..], [..], ...] -> [...]
+        ch2_song = modulate_and_add(ch2_song, section_size, original_len=len(a1))
 
     # maps sigmoid [0,1] output to [-1,1] for .wav
     ch1_song = ((ch1_song * 2) - 1)

@@ -13,7 +13,7 @@
     'load_model_path_start': '/content/gdrive/Shared drives/EE838/models/',
     'load_model_path_version': 'v27/',
 
-    'preprocess_batch_size': 30,
+    'preprocess_batch_size': 25,
     
     'initial_epoch': 2265,
     'num_epochs': 100,

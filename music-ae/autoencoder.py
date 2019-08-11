@@ -110,7 +110,7 @@ def default_args_dict():
         'save_test_output_path_start': '/content/gdrive/Shared drives/EE838/test_reconstructed/',
         'save_model_path_start': '/content/gdrive/Shared drives/EE838/models/',
         'save_graph_path_start': '/content/gdrive/Shared drives/EE838/graphs/',
-    
+
         'load_model': True,
         'load_model_path_start': '/content/gdrive/Shared drives/EE838/models/',
         'load_model_path_version': 'v27/',
