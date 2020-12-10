@@ -20,7 +20,7 @@ dependencies {
 
     compile 'com.google.code.gson:gson:2.8.5'
 
-    compile 'controlp5:controlp5:2.2.4-SNAPSHOT'
+    compile 'controlp5:controlp5:2.2.4'
     compile group: 'org.processing', name: 'core', version: '3.3.6'
 
     compile (name:'jFuzzyLogic', ext:'jar')
